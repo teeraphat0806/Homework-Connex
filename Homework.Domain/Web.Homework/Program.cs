@@ -1,0 +1,133 @@
+using Homework.Domain.Interfaces.Services.AuthenticationServices;
+using Homework.Domain.Models;
+using Homework.Domain.ValidateModels.AuthenticationValidateModels;
+using Homework.Service.ImplementServices.Authentications.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Reflection;
+using System.Text;
+using Web.Homework.Controllers.ExceptionMiddleware;
+using Web.Homework.ExceptionHandler;
+namespace Homework.Web
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Auto Register DI
+            RegisterDIForCustomerService(builder);
+
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            //builder.Services.Configure<ApiBehaviorOptions>(options =>
+            //{
+            //    options.InvalidModelStateResponseFactory = context =>
+            //    {
+            //        var errors = context.ModelState
+            //            .Where(x => x.Value?.Errors.Count > 0)
+            //            .SelectMany(x => x.Value!.Errors.Select(e => new
+            //            {
+            //                field = x.Key,
+            //                message = e.ErrorMessage
+            //            }))
+            //            .ToList();
+
+            //        return new BadRequestObjectResult(new
+            //        {
+            //            errors
+            //        });
+            //    };
+            //});
+         
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<postgresContext>(options =>
+                options.UseNpgsql(connectionString));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+                    ValidAudience = builder.Configuration["JwtConfig:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!)
+                    ),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
+                    RequireExpirationTime = true
+                };
+            });
+            builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver =
+            new CamelCasePropertyNamesContractResolver();
+
+        options.SerializerSettings.NullValueHandling =
+            NullValueHandling.Ignore;
+    });
+            var app = builder.Build();
+            app.UseMiddleware<ExceptionMiddleware>();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseCustomExceptionHandler(builder);
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.Run();
+        }
+        // Auto Register DI for Services
+        private static void RegisterDIForCustomerService(WebApplicationBuilder builder)
+        {
+            var interfaceAssemblyShared = Assembly
+                .GetAssembly(typeof(IAuthService))!
+                .GetTypes()
+                .Where(x => x.IsInterface && x.Name.EndsWith("Service"));
+
+            var assemblyShared = Assembly
+                .GetAssembly(typeof(AuthService))!
+                .GetTypes()
+                .Where(x => x.IsClass && x.Name.EndsWith("Service"));
+
+            foreach (var @interface in interfaceAssemblyShared)
+            {
+                var interfaceName = @interface.Name;
+
+                var implement = assemblyShared.FirstOrDefault(c =>
+                    interfaceName.Substring(1) == c.Name);
+
+                if (implement != null && implement.Name != "CacheService")
+                {
+                    builder.Services.AddScoped(@interface, implement);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/DataBaseScript/" />
+  <Project Path="Homework.Domain/Homework.Domain.csproj" />
+  <Project Path="Homework.Service/Homework.Service.csproj" />
+  <Project Path="Web.Homework/Web.Homework.csproj" />
+</Solution>

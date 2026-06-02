@@ -1,0 +1,21 @@
+# === .NET Core ===
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# === Node / Frontend (ClientApp) ===
+ClientApp/node_modules/
+ClientApp/build/
+ClientApp/dist/
+ClientApp/.pnp/
+ClientApp/.pnp.js
+
+# === IDEs / OS ===
+.vscode/
+Thumbs.db
+.DS_Store
+
+# === Configuration (ถ้าอยากซ่อนตามที่คุยกันตะกี้) ===
+Homework.Domain/Web.Homework/appsettings.json

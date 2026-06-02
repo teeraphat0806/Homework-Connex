@@ -82,9 +82,8 @@ dotnet test
 
 ## เพิ่มเติม / หมายเหตุ
 
-- หากต้องการให้ผมช่วยเพิ่มคำสั่ง `docker-compose` หรือสคริปต์การตั้งค่า DB ให้ บอกผมได้เลย
 - ไฟล์สำคัญที่ควรเปิดดู: [ClientApp/package.json](ClientApp/package.json), [Web.Homework/Program.cs](Web.Homework/Program.cs), [Homework.Domain/Models/postgresContext.cs](Homework.Domain/Models/postgresContext.cs)
 
 ---
 
-ถ้าต้องการ ผมสามารถปรับ README ให้ละเอียดขึ้น (เช่น เพิ่มตัวอย่าง environment variables, คำสั่ง migrations, หรือขั้นตอนการ deploy) ได้ครับ
+

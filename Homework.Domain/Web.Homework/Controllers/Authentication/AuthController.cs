@@ -16,94 +16,57 @@ namespace Web.Homework.Controllers.Authentication
         {
             _authService = authService;
         }
-        
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel param)
         {
-            CustomError error = new CustomError();
-            try
-            {
-                var result = await _authService.LoginUser(param, error);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var error = new CustomError();
+            var result = await _authService.LoginUser(param, error);
+            return Ok(result);
         }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestModel param)
         {
-            CustomError error = new CustomError();
-            try
-            {
-                var result = await _authService.RegisterUser(param, error);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-        [Authorize]
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestModel param)
-        {
-            CustomError error = new CustomError();
-
-            var result = await _authService.RefreshToken(error);
-            if (result == null)
-            {
-                error.AddError("Invalid refresh token.");
-                error.ThrowIfError();
-            }
+            var error = new CustomError();
+            var result = await _authService.RegisterUser(param, error);
             return Ok(result);
-
         }
+
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var error = new CustomError();
+            var result = await _authService.RefreshToken(error);
+            return Ok(result);
+        }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            CustomError error = new CustomError();
-            try
-            {
-                var result = await _authService.LogOut(error);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var error = new CustomError();
+            var result = await _authService.LogOut(error);
+            return Ok(result);
         }
-        [Authorize]
+
+        [AllowAnonymous]
         [HttpPost("is-session-valid")]
         public async Task<IActionResult> IsSessionValid()
         {
-            CustomError error = new CustomError();
-            try
-            {
-                var result = await _authService.IsSessionValid(error);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var error = new CustomError();
+            var result = await _authService.IsSessionValid(error);
+            return Ok(result);
         }
+
         [Authorize]
         [HttpPost("get-user-profile")]
         public async Task<IActionResult> GetUserProfile([FromBody] GetUserProfileRequestModel param)
         {
-            CustomError error = new CustomError();
-            try
-            {
-                var result = await _authService.GetUserProfile(param, error);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var error = new CustomError();
+            var result = await _authService.GetUserProfile(param, error);
+            return Ok(result);
         }
     }
 }

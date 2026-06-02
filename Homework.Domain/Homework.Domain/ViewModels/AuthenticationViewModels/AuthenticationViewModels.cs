@@ -25,7 +25,7 @@ namespace Homework.Domain.ViewModels.AuthenticationViewModels
         public DateTime RevokedTime { get; set; }
     }
   
-    }
+    
     public class RegisterViewModel
     {
         public long UserId { get; set; }
@@ -56,5 +56,5 @@ namespace Homework.Domain.ViewModels.AuthenticationViewModels
     {   public Boolean IsSuccess { get; set; }
         public string Message { get; set; } = string.Empty;
     }
-    
+   
 }

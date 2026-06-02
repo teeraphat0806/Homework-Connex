@@ -48,6 +48,7 @@ namespace Homework.Web
             //});
          
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddDbContext<postgresContext>(options =>
                 options.UseNpgsql(connectionString));
 

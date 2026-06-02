@@ -59,8 +59,10 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             }
             error.ThrowIfError();
             // validate input
-            
-           
+
+            // update last checking time
+            user.LastChecking = DateTime.UtcNow;
+
             // revoke all existing sessions
             await RevokeAllSessionsByUserId(user.UserId,error);
 

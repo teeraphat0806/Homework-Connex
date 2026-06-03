@@ -9,20 +9,16 @@ namespace Homework.Domain.ViewModels.AuthenticationViewModels
 {
     public class LoginViewModel
     {
-        public long UserId {  get; set; } 
+        public long UserId { get; set; }
         public string UserName { get; set; }
-        public string Password { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
-        public DateTime ExpiredTime { get; set; }
-        public DateTime RevokedTime { get; set; }
+        public DateTimeOffset ExpiredTime { get; set; }
     }
     public class RefreshTokenViewModel
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
-        public DateTime ExpiredTime { get; set; }
-        public DateTime RevokedTime { get; set; }
+        public DateTimeOffset ExpiredTime { get; set; }
+        public DateTimeOffset RevokedTime { get; set; }
     }
   
     

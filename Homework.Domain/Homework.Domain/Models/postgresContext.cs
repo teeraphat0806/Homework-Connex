@@ -72,9 +72,7 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20);
             entity.Property(e => e.LogTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.OrderDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.OrderDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.OrderNo)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -145,9 +143,7 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.OrderId).UseIdentityAlwaysColumn();
             entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.ModifiedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.OrderDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.OrderDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.OrderNo)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -272,7 +268,6 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.ExpiredTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.RefreshToken).IsRequired();
-            entity.Property(e => e.RevokedTime).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokens)
                 .HasForeignKey(d => d.UserId)

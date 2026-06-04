@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-unauthorized',
   imports: [],
-  templateUrl: './unauthorized.html',
-  styleUrl: './unauthorized.css',
+  templateUrl: './unauthorized.component.html',
+  styleUrl: './unauthorized.component.css',
 })
 export class Unauthorized {
   

@@ -1,0 +1,88 @@
+/* Container หลักสำหรับจัดกึ่งกลางหน้าจอ */
+.hw-notfound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9f9f9; /* ใส่สีพื้นหลังจางๆ เพื่อความสบายตา (เอาออกได้ครับ) */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Card ควบคุมความกว้างเนื้อหาข้างใน */
+.notfound-card {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+
+.error-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+}
+
+/* หัวข้อใหญ่ */
+.hw-notfound h1 {
+  font-family: sans-serif;
+  font-size: 4rem; /* ปรับลดลงมาเล็กน้อยเพื่อให้ดูสมดุลในมือถือ */
+  margin: 0 0 1rem 0;
+  color: #ff6f61;
+  font-weight: 700;
+}
+
+/* ข้อความอธิบาย */
+.hw-notfound p {
+  font-family: sans-serif;
+  font-size: 1.25rem;
+  margin: 0 0 2rem 0;
+  color: #555;
+}
+
+/* Container ของปุ่ม */
+.action-container {
+  display: flex;
+  justify-content: center; /* จัดปุ่มไว้ตรงกลางใต้ข้อความ */
+  width: 100%;
+}
+
+/* ปุ่ม Back to Home */
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* เว้นระยะห่างระหว่างตัวหนังสือกับลูกศร */
+  
+  padding: 0.75rem 1.75rem;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  font-family: sans-serif;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  
+  /* ควบคุม Animation */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Hover Effect ของปุ่ม */
+.btn-home:hover {
+  background-color: #ff6f61; /* เปลี่ยนเป็นสีส้มเพื่อให้ล้อกับสีของธีม 404 */
+  transform: translateY(-2px); /* ขยับขึ้นด้านบนเล็กน้อยให้ดูมีมิติ */
+}
+
+/* รูป Icon ลูกศร SVG */
+.icon-arrow {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+/* ดันลูกศรไปข้างหน้าเล็กน้อยตอน Hover ปุ่ม */
+.btn-home:hover .icon-arrow {
+  transform: translateX(4px);
+}

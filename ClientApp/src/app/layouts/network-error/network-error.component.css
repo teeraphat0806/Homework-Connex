@@ -1,0 +1,86 @@
+.network-error-container {
+    min-height: 90svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1.5rem;
+    background: #ffffff;
+}
+
+.network-error-content {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.network-error-image-wrapper {
+    margin-bottom: 2rem;
+    transition: transform 0.4s ease;
+}
+
+.network-error-image-wrapper:hover {
+    transform: translateY(-5px);
+}
+
+.network-error-image {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.15));
+}
+
+.network-error-title {
+    color: #1e1e1e;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.network-error-description {
+    color: #6b7280;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.network-error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.network-error-button {
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 16px;
+    background: #ef4444;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.network-error-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(239, 68, 68, 0.3);
+}
+
+.network-error-button-secondary {
+    border: 1px solid #d1d5db;
+    padding: 0.9rem 2rem;
+    border-radius: 16px;
+    background: white;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.network-error-button-secondary:hover {
+    background: #f9fafb;
+}

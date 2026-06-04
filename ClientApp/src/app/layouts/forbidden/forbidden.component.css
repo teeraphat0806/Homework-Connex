@@ -1,0 +1,86 @@
+.forbidden-container {
+    min-height: 90svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1.5rem;
+    background-color: #ffffff;
+}
+
+.forbidden-content {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.forbidden-image-wrapper {
+    margin-bottom: 2rem;
+    transition: transform 0.3s ease;
+}
+
+.forbidden-image-wrapper:hover {
+    transform: scale(1.03);
+}
+
+.forbidden-image {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.15));
+}
+
+.forbidden-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e1e1e;
+    margin-bottom: 1rem;
+}
+
+.forbidden-description {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+.forbidden-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.forbidden-button {
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 16px;
+    background-color: #f59e0b;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.forbidden-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(245, 158, 11, 0.3);
+}
+
+.forbidden-button-secondary {
+    border: 1px solid #d1d5db;
+    padding: 0.9rem 2rem;
+    border-radius: 16px;
+    background-color: white;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.forbidden-button-secondary:hover {
+    background-color: #f9fafb;
+}

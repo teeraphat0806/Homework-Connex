@@ -1,0 +1,40 @@
+<div class="network-error-container">
+    <div class="network-error-content">
+
+        <div class="network-error-image-wrapper">
+            <img
+                src="assets/images/network-error.png"
+                alt="Network Error"
+                class="network-error-image"
+            />
+        </div>
+
+        <h1 class="network-error-title">
+            Connection Lost
+        </h1>
+
+        <p class="network-error-description">
+            We are unable to connect to the server right now.
+            Please check your internet connection and try again.
+        </p>
+
+        <div class="network-error-actions">
+
+            <button
+                class="network-error-button"
+                (click)="reloadPage()"
+            >
+                Try Again
+            </button>
+
+            <button
+                class="network-error-button-secondary"
+                (click)="goHome()"
+            >
+                Back to Home
+            </button>
+
+        </div>
+
+    </div>
+</div>

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NotFound } from './not-found';
+import { NetworkErrorComponent } from './network-error.component';
 
-describe('NotFound', () => {
-  let component: NotFound;
-  let fixture: ComponentFixture<NotFound>;
+describe('NetworkErrorComponent', () => {
+  let component: NetworkErrorComponent;
+  let fixture: ComponentFixture<NetworkErrorComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotFound],
+      imports: [NetworkErrorComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NotFound);
+    fixture = TestBed.createComponent(NetworkErrorComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

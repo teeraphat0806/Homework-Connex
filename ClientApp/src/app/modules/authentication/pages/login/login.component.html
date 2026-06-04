@@ -1,1 +1,26 @@
-<p>login.component works!</p>
+<div class="login-container">
+  <!-- ช่องกรอก Username (ชนิดข้อความปกติ) -->
+   <div>Login Page</div>
+  <app-homework-input
+    type="Text"
+    label="ชื่อผู้ใช้งาน"
+    placeholder="กรอกชื่อผู้ใช้งาน"
+    [fieldValue]="loginData.username"
+    (fieldValueChange)="loginData.username = $event"
+    [componentState]="errorState"
+    attributeName="username">
+  </app-homework-input>
+
+  <!-- ช่องกรอก Password (ชนิด Password) -->
+  <app-homework-input
+    type="Password"
+    label="รหัสผ่าน"
+    placeholder="กรอกรหัสผ่าน"
+    [fieldValue]="loginData.password"
+    (fieldValueChange)="loginData.password = $event"
+    [componentState]="errorState"
+    attributeName="password">
+  </app-homework-input>
+
+  <button (click)="submitLogin()">เข้าสู่ระบบ</button>
+</div>

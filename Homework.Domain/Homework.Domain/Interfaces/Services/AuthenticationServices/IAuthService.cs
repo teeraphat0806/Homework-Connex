@@ -15,8 +15,6 @@ namespace Homework.Domain.Interfaces.Services.AuthenticationServices
         Task<LoginViewModel> RefreshToken(CustomError error);
         Task<LogOutViewModel> LogOut (CustomError error);
         Task<SessionViewModel> IsSessionValid(CustomError error);
-        Task RevokeAllSessions(CustomError error);
-        Task RevokeAllSessionsByUserId(long userID,CustomError error);
-        Task<UserViewModel> GetUserProfile(GetUserProfileRequestModel param,CustomError error);
+        Task<UserViewModel> GetUserProfile(CustomError error);
     }
 }

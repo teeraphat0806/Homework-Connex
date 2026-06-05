@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class LogUserRole
+public partial class LogUserRoles
 {
     public long LogUserRoleId { get; set; }
 

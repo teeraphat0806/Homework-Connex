@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class OrderItem
+public partial class OrderItems
 {
     public long OrderItemId { get; set; }
 
@@ -21,7 +21,7 @@ public partial class OrderItem
 
     public decimal NetAmount { get; set; }
 
-    public virtual Order Order { get; set; }
+    public virtual Orders Order { get; set; }
 
-    public virtual Product Product { get; set; }
+    public virtual Products Product { get; set; }
 }

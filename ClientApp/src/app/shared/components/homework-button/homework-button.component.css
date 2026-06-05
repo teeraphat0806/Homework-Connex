@@ -1,0 +1,92 @@
+.homework-button {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.5rem;
+
+  font-weight: 600;
+  border-radius: 100px;
+
+  user-select: none;
+  cursor: pointer;
+
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.15);
+
+  transition: all 0.2s ease;
+}
+
+.homework-button-enabled {
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.homework-button-enabled:hover {
+  opacity: 1;
+}
+
+.homework-button-disabled {
+  opacity: 0.6;
+  filter: grayscale(1);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Theme */
+.homework-button-primary {
+  background-color: #2e8ef8;
+}
+
+.homework-button-secondary {
+  background-color: #b14e4e;
+}
+
+.homework-button-danger {
+  background-color: #b14e4e;
+}
+
+/* Size */
+.homework-button-xs {
+  padding: 0.125rem 0.5rem;
+  font-size: 10px;
+}
+
+.homework-button-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.homework-button-md {
+  padding: 0.5rem 2rem;
+  font-size: 0.875rem;
+}
+
+.homework-button-lg {
+  padding: 0.5rem 2.5rem;
+  font-size: 1rem;
+}
+
+.homework-button-xl {
+  padding: 0.625rem 3rem;
+  font-size: 1.125rem;
+}
+
+.homework-button-2xl {
+  padding: 0.75rem 3.5rem;
+  font-size: 1.25rem;
+}
+
+.homework-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.homework-button-label {
+  line-height: 1;
+}

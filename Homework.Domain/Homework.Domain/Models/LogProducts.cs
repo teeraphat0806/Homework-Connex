@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class Product
+public partial class LogProducts
 {
+    public long LogProductId { get; set; }
+
     public long ProductId { get; set; }
 
-    public string Sku { get; set; }
+    public string SKU { get; set; }
 
     public string Name { get; set; }
 
@@ -27,17 +29,7 @@ public partial class Product
 
     public long? CreatedByUserId { get; set; }
 
-    public DateTime CreatedTime { get; set; }
+    public string Action { get; set; }
 
-    public long? ModifiedByUserId { get; set; }
-
-    public DateTime ModifiedTime { get; set; }
-
-    public virtual Category Category { get; set; }
-
-    public virtual User CreatedByUser { get; set; }
-
-    public virtual User ModifiedByUser { get; set; }
-
-    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public DateTime LogTime { get; set; }
 }

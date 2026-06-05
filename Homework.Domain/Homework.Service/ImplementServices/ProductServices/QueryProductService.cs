@@ -27,7 +27,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             if (!string.IsNullOrWhiteSpace(request.Keyword))
             {
                 query = query.Where(x =>
-                    x.Sku.Contains(request.Keyword) ||
+                    x.SKU.Contains(request.Keyword) ||
                     x.Name.Contains(request.Keyword));
             }
 
@@ -48,7 +48,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                 .Select(x => new ProductListViewModel
                 {
                     ProductId = x.ProductId,
-                    SKU = x.Sku,
+                    SKU = x.SKU,
                     Name = x.Name,
                     Price = x.Price,
                     StockQty = x.StockQty,
@@ -65,7 +65,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                 .Select(x => new ProductInfoViewModel
                 {
                     ProductId = x.ProductId,
-                    SKU = x.Sku,
+                    SKU = x.SKU,
                     Name = x.Name,
                     Description = x.Description,
                     Price = x.Price,

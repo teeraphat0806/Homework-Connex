@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class LogSystemError
+public partial class LogSystemErrors
 {
     public long LogSystemErrorId { get; set; }
 

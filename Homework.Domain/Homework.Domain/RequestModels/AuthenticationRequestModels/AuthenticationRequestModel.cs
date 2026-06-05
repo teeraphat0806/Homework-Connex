@@ -29,4 +29,5 @@ namespace Homework.Domain.RequestModels.AuthenticationRequestModels
     {
         public int ? userId { get; set; }
     }
+
 }

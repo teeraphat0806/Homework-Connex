@@ -23,9 +23,9 @@ namespace Homework.Service.ImplementServices.ProductServices
         public async Task<ProductManageViewModel> CreateProduct(
             CreateProductRequestModel request)
         {
-            var newProduct = new Product
+            var newProduct = new Products
             {
-                Sku = request.SKu,
+                SKU = request.SKu,
                 Name = request.Name,
                 Description = request.Description,
                 Price = request.Price,

@@ -4,6 +4,8 @@ using Homework.Domain.Models;
 using Homework.Domain.RequestModels.AuthenticationRequestModels;
 using Homework.Domain.ValidateModels.AuthenticationValidateModels;
 using Homework.Domain.ViewModels.AuthenticationViewModels;
+using Homework.Domain.Configurations;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,23 +17,22 @@ using System.Text;
 
 namespace Homework.Service.ImplementServices.Authentications.Repositories
 {
-    public class AuthService : IAuthService
+    public partial class AuthService : IAuthService
     {
         private readonly postgresContext _context;
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        private readonly JwtConfig _jwtConfig;
+        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
-            _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _jwtConfig = new JwtConfig{};
         }
 
         public async Task<LoginViewModel> LoginUser(LoginRequestModel param, CustomError error)
         {
 
-            if (param.UserName == null || param.Password == null)
+            if (string.IsNullOrWhiteSpace(param.UserName) || string.IsNullOrWhiteSpace(param.Password))
             {
                 error.AddErrorKeyAndToast("Login", "กรุณากรอก Username และ Password");
             }
@@ -63,22 +64,19 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             // update last checking time
             user.LastChecking = DateTime.UtcNow;
 
-            // revoke all existing sessions
-            await RevokeAllSessionsByUserId(user.UserId,error);
-
             // generate access token and refresh token
             string accessToken = GenerateAccessToken(user, error);
             string refreshToken = GenerateRefreshToken();
 
             // save refresh token to database
-            var userRefreshToken = new UserRefreshToken
+            var userRefreshToken = new UserRefreshTokens
             {
                 UserId = user.UserId,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 CreatedTime = DateTime.UtcNow,
                 ExpiredTime = DateTime.UtcNow.AddDays(
-    Convert.ToDouble(_configuration["JwtConfig:RefreshTokenExpireDays"])
+    Convert.ToDouble(_jwtConfig)
 ),
                 RevokedTime = null
             };
@@ -96,7 +94,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         }
 
         // helper methods 
-        private string GenerateAccessToken(User user, CustomError error)
+        private string GenerateAccessToken(Users user, CustomError error)
         {
             var claims = new List<Claim>
             {
@@ -105,7 +103,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["JwtConfig:Key"])
+                Encoding.UTF8.GetBytes(_jwtConfig.Audience)
             );
 
             var credentials = new SigningCredentials(
@@ -114,11 +112,11 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             );
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JwtConfig:Issuer"],
-                audience: _configuration["JwtConfig:Audience"],
+                issuer: _jwtConfig.Issuer,
+                audience: _jwtConfig.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(
-    Convert.ToDouble(_configuration["JwtConfig:AccessTokenExpireMinutes"])
+    Convert.ToDouble(_jwtConfig.Audience)
 ),
                 signingCredentials: credentials
             );
@@ -132,10 +130,14 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             return Convert.ToBase64String(randomBytes);
         }
 
-        public async Task<UserViewModel> GetUserProfile(GetUserProfileRequestModel param, CustomError error)
+        public async Task<UserViewModel> GetUserProfile( CustomError error)
         {
+            var request = _httpContextAccessor.HttpContext?.Request;
+            string? oldAccessToken = request?.Cookies["accessToken"];
+            var userRefreshsToken = await _context.UserRefreshTokens
+                .FirstOrDefaultAsync(x => x.AccessToken ==oldAccessToken);
             var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.UserId == param.userId);
+                .FirstOrDefaultAsync(x => x.UserId == userRefreshsToken.UserId);
             if (user == null)
             {
                 error.AddError("User", "ไม่พบผู้ใช้งาน");
@@ -156,65 +158,10 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         // register user
         public async Task<RegisterViewModel> RegisterUser(RegisterRequestModel param, CustomError error)
         {
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(x => x.Username == param.UserName);
-            if (existingUser != null)
-            {
-                error.AddErrorKeyAndToast(
-                    "UserName",
-                    "Username นี้มีผู้ใช้งานแล้ว");
-            }
-            error.ThrowIfError();
-            if (string.IsNullOrWhiteSpace(param.UserName))
-                error.AddErrorKeyAndToast("UserName", "กรุณากรอก Username");
-
-            if (string.IsNullOrWhiteSpace(param.Password))
-                error.AddErrorKeyAndToast("Password", "กรุณากรอก Password");
-
-            if (string.IsNullOrWhiteSpace(param.FirstName))
-                error.AddErrorKeyAndToast("FirstName", "กรุณากรอกชื่อ");
-
-            if (string.IsNullOrWhiteSpace(param.LastName))
-                error.AddErrorKeyAndToast("LastName", "กรุณากรอกนามสกุล");
-
-            if (string.IsNullOrWhiteSpace(param.Phone))
-                error.AddErrorKeyAndToast("Phone", "กรุณากรอกเบอร์โทรศัพท์");
-
-            if (param.Age.HasValue && (param.Age < 5 || param.Age > 180))
-                error.AddErrorKeyAndToast("Age", "อายุ ต้องอยู่ระหว่าง 5 ถึง 180 ปี");
-
-            if (param.BirthDate.HasValue &&
-                param.BirthDate > DateOnly.FromDateTime(DateTime.Now))
-                error.AddErrorKeyAndToast("BirthDate", "กรุณากรอกวันเกิดที่ถูกต้อง");
-
-            if (!string.IsNullOrWhiteSpace(param.UserName))
-            {
-               
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(param.UserName, @"^[a-zA-Z0-9]+$"))
-                    error.AddErrorKeyAndToast("UserName", "Username ต้องประกอบด้วยตัวอักษรและตัวเลขเท่านั้น");
-
-                if (System.Text.RegularExpressions.Regex.IsMatch(param.UserName, @"^\d+$"))
-                    error.AddErrorKeyAndToast("UserName", "Username ต้องไม่ใช่ตัวเลขล้วน");
-            }
-
-            if (!string.IsNullOrWhiteSpace(param.Password))
-            {
-               
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(param.Password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$"))
-                    error.AddErrorKeyAndToast("Password", "Password ต้องมีตัวเล็ก ตัวใหญ่ ตัวเลข และอักขระพิเศษ");
-            }
-
-            if (!string.IsNullOrWhiteSpace(param.Phone) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(param.Phone, @"^\d{10}$"))
-                error.AddErrorKeyAndToast("Phone", "เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก");
-
-            error.ThrowIfError();
-
+            await ValidateUser(param, error);
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(param.Password);
-            var newUser = new User
+            var newUser = new Users
             {
                 Username = param.UserName,
                 Password = hashedPassword,
@@ -238,11 +185,61 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 BirthDate = newUser.BirthDate
             };
         }
+
+        private async Task ValidateUser(RegisterRequestModel param, CustomError error)
+        {
+            var existingUser = await _context.Users
+                            .FirstOrDefaultAsync(x => x.Username == param.UserName);
+            if (existingUser != null)
+            {
+                error.AddErrorKeyAndToast(
+                    "UserName",
+                    "Username นี้มีผู้ใช้งานแล้ว");
+            }
+            error.ThrowIfError();
+            if (string.IsNullOrWhiteSpace(param.UserName))
+                error.AddErrorKeyAndToast("UserName", "กรุณากรอก Username");
+            else
+            {
+                if (!System.Text.RegularExpressions.Regex.IsMatch(param.UserName, @"^[a-zA-Z0-9]+$"))
+                    error.AddErrorKeyAndToast("UserName", "Username ต้องประกอบด้วยตัวอักษรและตัวเลขเท่านั้น");
+
+                if (System.Text.RegularExpressions.Regex.IsMatch(param.UserName, @"^\d+$"))
+                    error.AddErrorKeyAndToast("UserName", "Username ต้องไม่ใช่ตัวเลขล้วน");
+            }
+            if (string.IsNullOrWhiteSpace(param.Password))
+                error.AddErrorKeyAndToast("Password", "กรุณากรอก Password");
+            else
+            {
+                if (!ValidateRegister().IsMatch(param.Password))
+                    error.AddErrorKeyAndToast("Password", "Password ต้องมีตัวเล็ก ตัวใหญ่ ตัวเลข และอักขระพิเศษ");
+            }
+            if (string.IsNullOrWhiteSpace(param.FirstName))
+                error.AddErrorKeyAndToast("FirstName", "กรุณากรอกชื่อ");
+
+            if (string.IsNullOrWhiteSpace(param.LastName))
+                error.AddErrorKeyAndToast("LastName", "กรุณากรอกนามสกุล");
+
+            if (string.IsNullOrWhiteSpace(param.Phone))
+                error.AddErrorKeyAndToast("Phone", "กรุณากรอกเบอร์โทรศัพท์");
+
+            if (param.Age.HasValue && (param.Age < 5 || param.Age > 180))
+                error.AddErrorKeyAndToast("Age", "อายุ ต้องอยู่ระหว่าง 5 ถึง 180 ปี");
+
+            if (param.BirthDate.HasValue &&
+                param.BirthDate > DateOnly.FromDateTime(DateTime.Now))
+                error.AddErrorKeyAndToast("BirthDate", "กรุณากรอกวันเกิดที่ถูกต้อง");
+            if (!string.IsNullOrWhiteSpace(param.Phone) &&
+                !System.Text.RegularExpressions.Regex.IsMatch(param.Phone, @"^\d{10}$"))
+                error.AddErrorKeyAndToast("Phone", "เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก");
+
+            error.ThrowIfError();
+        }
+
         public async Task<LoginViewModel> RefreshToken(CustomError error)
         {
             // get access token and refresh token from cookie
             var request = _httpContextAccessor.HttpContext?.Request;
-            var response = _httpContextAccessor.HttpContext?.Response;
             string? oldAccessToken = request?.Cookies["accessToken"];
             string? oldRefreshToken = request?.Cookies["refreshToken"];
 
@@ -278,7 +275,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             refreshtokenDb.RefreshToken = newRefreshToken;
             refreshtokenDb.CreatedTime = DateTime.UtcNow;
             refreshtokenDb.ExpiredTime = DateTime.UtcNow.AddDays(
-            Convert.ToDouble(_configuration["JwtConfig:RefreshTokenExpireDays"]));
+            Convert.ToDouble(_jwtConfig.Audience));
 
             // Revoke old access token and refresh token
             await _context.SaveChangesAsync();
@@ -331,6 +328,18 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 Message = "session valid"
             };
         }
+
+        public async Task RevokeSessionByUser(string accessToken,string refreshToken, CustomError error)
+        {
+            var userRefreshToken = await _context.UserRefreshTokens
+                .FirstOrDefaultAsync(x => x.AccessToken == accessToken && x.RefreshToken == refreshToken);
+            if (userRefreshToken != null)
+            {
+                userRefreshToken.RevokedTime = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task RevokeAllSessionsByUserId(long userId, CustomError error)
         {
             var userRefreshTokens = await _context.UserRefreshTokens
@@ -371,27 +380,26 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             response?.Cookies.Delete("accessToken");
             response?.Cookies.Delete("refreshToken");
         }
-        public async Task<LogOutViewModel>LogOut(CustomError error)
+        public async Task<LogOutViewModel> LogOut(CustomError error)
         {
             var request = _httpContextAccessor.HttpContext?.Request;
             var response = _httpContextAccessor.HttpContext?.Response;
-            string? oldAccessToken = request?.Cookies["accessToken"];
-            string? oldRefreshToken = request?.Cookies["refreshToken"];
-            if (string.IsNullOrWhiteSpace(oldAccessToken) || string.IsNullOrWhiteSpace(oldRefreshToken))
+
+            string? accessToken = request?.Cookies["accessToken"];
+            string? refreshToken = request?.Cookies["refreshToken"];
+
+            if (string.IsNullOrWhiteSpace(accessToken) ||
+                string.IsNullOrWhiteSpace(refreshToken))
             {
                 error.AddError("Token", "ไม่มี access token หรือ refresh token");
                 error.ThrowIfError();
             }
-            var refreshtokenDb = await _context.UserRefreshTokens
-                .FirstOrDefaultAsync(x => x.AccessToken == oldAccessToken && x.RefreshToken == oldRefreshToken);
-            if (refreshtokenDb != null)
-            {
-                refreshtokenDb.RevokedTime = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
+
+            await RevokeSessionByUser(accessToken, refreshToken, error);
+
             response?.Cookies.Delete("accessToken");
             response?.Cookies.Delete("refreshToken");
-       
+
             return new LogOutViewModel
             {
                 IsSuccess = true,
@@ -401,8 +409,8 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
         public Task SetJWTTokenService(string accessToken, string refreshToken)
         {
-            var accessExpireMinutes = Convert.ToDouble(_configuration["JwtConfig:AccessTokenExpireMinutes"]);
-            var refreshExpireDays = Convert.ToDouble(_configuration["JwtConfig:RefreshTokenExpireDays"]);
+            var accessExpireMinutes = Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes);
+            var refreshExpireDays = Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays);
             var response = _httpContextAccessor.HttpContext?.Response;
             response?.Cookies.Append("accessToken", accessToken, new CookieOptions
             {
@@ -420,5 +428,8 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             });
             return Task.CompletedTask;
         }
+
+        [System.Text.RegularExpressions.GeneratedRegex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$")]
+        private static partial System.Text.RegularExpressions.Regex ValidateRegister();
     }
 }

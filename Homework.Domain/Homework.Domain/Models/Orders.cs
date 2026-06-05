@@ -5,10 +5,8 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class LogOrder
+public partial class Orders
 {
-    public long LogOrderId { get; set; }
-
     public long OrderId { get; set; }
 
     public string OrderNo { get; set; }
@@ -23,7 +21,15 @@ public partial class LogOrder
 
     public long? CreatedByUserId { get; set; }
 
-    public string Action { get; set; }
+    public DateTime CreatedTime { get; set; }
 
-    public DateTime LogTime { get; set; }
+    public long? ModifiedByUserId { get; set; }
+
+    public DateTime ModifiedTime { get; set; }
+
+    public virtual Users CreatedByUser { get; set; }
+
+    public virtual Users ModifiedByUser { get; set; }
+
+    public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
 }

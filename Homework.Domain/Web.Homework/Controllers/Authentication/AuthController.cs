@@ -22,7 +22,7 @@ namespace Web.Homework.Controllers.Authentication
         {
             var error = new CustomError();
             var result = await _authService.LoginUser(param, error);
-            return Ok(result);
+            return Ok();
         }
 
         [HttpPost("register")]
@@ -32,8 +32,7 @@ namespace Web.Homework.Controllers.Authentication
             var result = await _authService.RegisterUser(param, error);
             return Ok(result);
         }
-
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -50,8 +49,7 @@ namespace Web.Homework.Controllers.Authentication
             var result = await _authService.LogOut(error);
             return Ok(result);
         }
-
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("is-session-valid")]
         public async Task<IActionResult> IsSessionValid()
         {
@@ -60,12 +58,20 @@ namespace Web.Homework.Controllers.Authentication
             return Ok(result);
         }
 
+        //[Authorize]
+        //[HttpPost("get-user-profile")]
+        //public async Task<IActionResult> GetUserProfile([FromBody] GetUserProfileRequestModel param)
+        //{
+        //    var error = new CustomError();
+        //    var result = await _authService.GetUserProfile(param, error);
+        //    return Ok(result);
+        //}
         [Authorize]
         [HttpPost("get-user-profile")]
-        public async Task<IActionResult> GetUserProfile([FromBody] GetUserProfileRequestModel param)
+        public async Task<IActionResult> GetUserProfile()
         {
             var error = new CustomError();
-            var result = await _authService.GetUserProfile(param, error);
+            var result = await _authService.GetUserProfile(error);
             return Ok(result);
         }
     }

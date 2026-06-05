@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class UserRefreshToken
+public partial class UserRefreshTokens
 {
     public long UserRefreshTokenId { get; set; }
 
@@ -21,5 +21,11 @@ public partial class UserRefreshToken
 
     public DateTime? RevokedTime { get; set; }
 
-    public virtual User User { get; set; }
+    public long? RevokedByUserId { get; set; }
+
+    public string RevokedReason { get; set; }
+
+    public virtual Users RevokedByUser { get; set; }
+
+    public virtual Users User { get; set; }
 }

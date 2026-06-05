@@ -13,33 +13,33 @@ public partial class postgresContext : DbContext
     {
     }
 
-    public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<Categories> Categories { get; set; }
 
-    public virtual DbSet<LogOrder> LogOrders { get; set; }
+    public virtual DbSet<LogOrders> LogOrders { get; set; }
 
-    public virtual DbSet<LogProduct> LogProducts { get; set; }
+    public virtual DbSet<LogProducts> LogProducts { get; set; }
 
-    public virtual DbSet<LogSystemError> LogSystemErrors { get; set; }
+    public virtual DbSet<LogSystemErrors> LogSystemErrors { get; set; }
 
-    public virtual DbSet<LogUserRole> LogUserRoles { get; set; }
+    public virtual DbSet<LogUserRoles> LogUserRoles { get; set; }
 
-    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<OrderItems> OrderItems { get; set; }
 
-    public virtual DbSet<OrderItem> OrderItems { get; set; }
+    public virtual DbSet<Orders> Orders { get; set; }
 
-    public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Products> Products { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Roles> Roles { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<UserRefreshTokens> UserRefreshTokens { get; set; }
 
-    public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
+    public virtual DbSet<UserRoles> UserRoles { get; set; }
 
-    public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Category>(entity =>
+        modelBuilder.Entity<Categories>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("Categories_pkey");
 
@@ -52,16 +52,16 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.CategoryCreatedByUsers)
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.CategoriesCreatedByUser)
                 .HasForeignKey(d => d.CreatedByUserId)
                 .HasConstraintName("FK_Categories_CreatedBy");
 
-            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.CategoryModifiedByUsers)
+            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.CategoriesModifiedByUser)
                 .HasForeignKey(d => d.ModifiedByUserId)
                 .HasConstraintName("FK_Categories_ModifiedBy");
         });
 
-        modelBuilder.Entity<LogOrder>(entity =>
+        modelBuilder.Entity<LogOrders>(entity =>
         {
             entity.HasKey(e => e.LogOrderId).HasName("LogOrders_pkey");
 
@@ -84,11 +84,11 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.VatAmount).HasPrecision(18, 2);
         });
 
-        modelBuilder.Entity<LogProduct>(entity =>
+        modelBuilder.Entity<LogProducts>(entity =>
         {
             entity.HasKey(e => e.LogProductId).HasName("LogProducts_pkey");
 
-            entity.HasIndex(e => e.Sku, "LogProducts_SKU_key").IsUnique();
+            entity.HasIndex(e => e.SKU, "LogProducts_SKU_key").IsUnique();
 
             entity.Property(e => e.LogProductId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Action)
@@ -101,14 +101,13 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Price).HasPrecision(18, 2);
-            entity.Property(e => e.Sku)
+            entity.Property(e => e.SKU)
                 .IsRequired()
-                .HasMaxLength(50)
-                .HasColumnName("SKU");
+                .HasMaxLength(50);
             entity.Property(e => e.StockQty).HasDefaultValue(0);
         });
 
-        modelBuilder.Entity<LogSystemError>(entity =>
+        modelBuilder.Entity<LogSystemErrors>(entity =>
         {
             entity.HasKey(e => e.LogSystemErrorId).HasName("LogSystemErrors_pkey");
 
@@ -121,7 +120,7 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.Source).HasMaxLength(255);
         });
 
-        modelBuilder.Entity<LogUserRole>(entity =>
+        modelBuilder.Entity<LogUserRoles>(entity =>
         {
             entity.HasKey(e => e.LogUserRoleId).HasName("LogUserRoles_pkey");
 
@@ -134,36 +133,7 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.Username).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<Order>(entity =>
-        {
-            entity.HasKey(e => e.OrderId).HasName("Orders_pkey");
-
-            entity.HasIndex(e => e.OrderNo, "Orders_OrderNo_key").IsUnique();
-
-            entity.Property(e => e.OrderId).UseIdentityAlwaysColumn();
-            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.ModifiedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.OrderDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.OrderNo)
-                .IsRequired()
-                .HasMaxLength(50);
-            entity.Property(e => e.Status)
-                .IsRequired()
-                .HasMaxLength(50)
-                .HasDefaultValueSql("'PENDING'::character varying");
-            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
-            entity.Property(e => e.VatAmount).HasPrecision(18, 2);
-
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.OrderCreatedByUsers)
-                .HasForeignKey(d => d.CreatedByUserId)
-                .HasConstraintName("FK_Orders_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.OrderModifiedByUsers)
-                .HasForeignKey(d => d.ModifiedByUserId)
-                .HasConstraintName("FK_Orders_ModifiedBy");
-        });
-
-        modelBuilder.Entity<OrderItem>(entity =>
+        modelBuilder.Entity<OrderItems>(entity =>
         {
             entity.HasKey(e => e.OrderItemId).HasName("OrderItems_pkey");
 
@@ -184,11 +154,40 @@ public partial class postgresContext : DbContext
                 .HasConstraintName("FK_OrderItems_Products");
         });
 
-        modelBuilder.Entity<Product>(entity =>
+        modelBuilder.Entity<Orders>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("Orders_pkey");
+
+            entity.HasIndex(e => e.OrderNo, "Orders_OrderNo_key").IsUnique();
+
+            entity.Property(e => e.OrderId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.ModifiedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.OrderDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.OrderNo)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'PENDING'::character varying");
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+            entity.Property(e => e.VatAmount).HasPrecision(18, 2);
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.OrdersCreatedByUser)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_Orders_CreatedBy");
+
+            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.OrdersModifiedByUser)
+                .HasForeignKey(d => d.ModifiedByUserId)
+                .HasConstraintName("FK_Orders_ModifiedBy");
+        });
+
+        modelBuilder.Entity<Products>(entity =>
         {
             entity.HasKey(e => e.ProductId).HasName("Products_pkey");
 
-            entity.HasIndex(e => e.Sku, "Products_SKU_key").IsUnique();
+            entity.HasIndex(e => e.SKU, "Products_SKU_key").IsUnique();
 
             entity.Property(e => e.ProductId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Cost).HasPrecision(18, 2);
@@ -199,41 +198,94 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Price).HasPrecision(18, 2);
-            entity.Property(e => e.Sku)
+            entity.Property(e => e.SKU)
                 .IsRequired()
-                .HasMaxLength(50)
-                .HasColumnName("SKU");
+                .HasMaxLength(50);
             entity.Property(e => e.StockQty).HasDefaultValue(0);
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("FK_Products_Categories");
 
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.ProductCreatedByUsers)
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.ProductsCreatedByUser)
                 .HasForeignKey(d => d.CreatedByUserId)
                 .HasConstraintName("FK_Products_CreatedBy");
 
-            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.ProductModifiedByUsers)
+            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.ProductsModifiedByUser)
                 .HasForeignKey(d => d.ModifiedByUserId)
                 .HasConstraintName("FK_Products_ModifiedBy");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Roles>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("Roles_pkey");
 
             entity.HasIndex(e => e.RoleCode, "Roles_RoleCode_key").IsUnique();
 
             entity.Property(e => e.RoleId).UseIdentityAlwaysColumn();
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(100);
             entity.Property(e => e.RoleCode)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.RoleName)
                 .IsRequired()
                 .HasMaxLength(100);
         });
 
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<UserRefreshTokens>(entity =>
+        {
+            entity.HasKey(e => e.UserRefreshTokenId).HasName("UserRefreshTokens_pkey");
+
+            entity.HasIndex(e => e.RefreshToken, "UserRefreshTokens_RefreshToken_key").IsUnique();
+
+            entity.Property(e => e.UserRefreshTokenId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.ExpiredTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.RefreshToken).IsRequired();
+            entity.Property(e => e.RevokedReason).HasMaxLength(200);
+
+            entity.HasOne(d => d.RevokedByUser).WithMany(p => p.UserRefreshTokensRevokedByUser)
+                .HasForeignKey(d => d.RevokedByUserId)
+                .HasConstraintName("FK_UserRefreshTokens_RevokedBy");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokensUser)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRefreshTokens_Users");
+        });
+
+        modelBuilder.Entity<UserRoles>(entity =>
+        {
+            entity.HasKey(e => e.UserRoleId).HasName("UserRoles_pkey");
+
+            entity.HasIndex(e => new { e.UserId, e.RoleId }, "UQ_UserRoles_User_Role").IsUnique();
+
+            entity.Property(e => e.UserRoleId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'ACTIVE'::character varying");
+
+            entity.HasOne(d => d.ApprovedByUser).WithMany(p => p.UserRolesApprovedByUser)
+                .HasForeignKey(d => d.ApprovedByUserId)
+                .HasConstraintName("FK_UserRoles_ApprovedBy");
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.UserRolesCreatedByUser)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_UserRoles_CreatedBy");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRoles_Roles");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRolesUser)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRoles_Users");
+        });
+
+        modelBuilder.Entity<Users>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("Users_pkey");
 
@@ -256,44 +308,6 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.Username)
                 .IsRequired()
                 .HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<UserRefreshToken>(entity =>
-        {
-            entity.HasKey(e => e.UserRefreshTokenId).HasName("UserRefreshTokens_pkey");
-
-            entity.HasIndex(e => e.RefreshToken, "UserRefreshTokens_RefreshToken_key").IsUnique();
-
-            entity.Property(e => e.UserRefreshTokenId).UseIdentityAlwaysColumn();
-            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.ExpiredTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.RefreshToken).IsRequired();
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokens)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRefreshTokens_Users");
-        });
-
-        modelBuilder.Entity<UserRole>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("UserRoles_pkey");
-
-            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.UserRoleCreatedByUsers)
-                .HasForeignKey(d => d.CreatedByUserId)
-                .HasConstraintName("FK_UserRoles_CreatedBy");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRoles_Roles");
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserRoleUsers)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRoles_Users");
         });
 
         OnModelCreatingPartial(modelBuilder);

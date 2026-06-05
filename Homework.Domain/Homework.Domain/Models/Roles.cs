@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class Role
+public partial class Roles
 {
     public long RoleId { get; set; }
 
     public string RoleCode { get; set; }
 
-    public string Name { get; set; }
+    public string RoleName { get; set; }
 
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
 }

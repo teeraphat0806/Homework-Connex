@@ -1,0 +1,31 @@
+<div
+  class="homework-button"
+  [class.homework-button-disabled]="disabled"
+  [class.homework-button-enabled]="!disabled"
+  [class.homework-button-primary]="theme === 'Primary'"
+  [class.homework-button-secondary]="theme === 'Secondary'"
+  [class.homework-button-danger]="theme === 'Danger'"
+  [class.homework-button-xs]="size === 'xs'"
+  [class.homework-button-sm]="size === 'sm'"
+  [class.homework-button-md]="size === 'md'"
+  [class.homework-button-lg]="size === 'lg'"
+  [class.homework-button-xl]="size === 'xl'"
+  [class.homework-button-2xl]="size === '2xl'"
+  [style.background-color]="buttonColor || null"
+  [style.color]="textColor ? textColor : defaultTextColor"
+  (click)="onClickButton()"
+>
+  @if (iconCode) {
+    <span
+      class="homework-button-icon"
+      [style.color]="iconColor"
+      [style.font-size.px]="iconSize"
+    >
+      {{ iconCode }}
+    </span>
+  }
+
+  <span class="homework-button-label">
+    {{ label }}
+  </span>
+</div>

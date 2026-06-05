@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class Category
+public partial class Categories
 {
     public long CategoryId { get; set; }
 
@@ -19,9 +19,9 @@ public partial class Category
 
     public DateTime ModifiedTime { get; set; }
 
-    public virtual User CreatedByUser { get; set; }
+    public virtual Users CreatedByUser { get; set; }
 
-    public virtual User ModifiedByUser { get; set; }
+    public virtual Users ModifiedByUser { get; set; }
 
-    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
 }

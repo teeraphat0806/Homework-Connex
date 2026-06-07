@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class Roles
+public partial class RefRoles
 {
     public long RoleId { get; set; }
 
@@ -13,5 +13,9 @@ public partial class Roles
 
     public string RoleName { get; set; }
 
+    public virtual ICollection<UserRoleLogs> UserRoleLogs { get; set; } = new List<UserRoleLogs>();
+
     public virtual ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
+
+    public virtual ICollection<RefPermissions> PermissionCode { get; set; } = new List<RefPermissions>();
 }

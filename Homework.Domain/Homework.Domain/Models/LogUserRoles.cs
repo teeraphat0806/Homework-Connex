@@ -13,8 +13,6 @@ public partial class LogUserRoles
 
     public string Username { get; set; }
 
-    public long RoleId { get; set; }
-
     public string RoleCode { get; set; }
 
     public string Action { get; set; }

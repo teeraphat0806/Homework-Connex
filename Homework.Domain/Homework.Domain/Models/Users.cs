@@ -33,10 +33,6 @@ public partial class Users
 
     public DateTime ModifiedTime { get; set; }
 
-    public virtual ICollection<Categories> CategoriesCreatedByUser { get; set; } = new List<Categories>();
-
-    public virtual ICollection<Categories> CategoriesModifiedByUser { get; set; } = new List<Categories>();
-
     public virtual ICollection<Orders> OrdersCreatedByUser { get; set; } = new List<Orders>();
 
     public virtual ICollection<Orders> OrdersModifiedByUser { get; set; } = new List<Orders>();
@@ -45,9 +41,17 @@ public partial class Users
 
     public virtual ICollection<Products> ProductsModifiedByUser { get; set; } = new List<Products>();
 
+    public virtual ICollection<RefCategories> RefCategoriesCreatedByUser { get; set; } = new List<RefCategories>();
+
+    public virtual ICollection<RefCategories> RefCategoriesModifiedByUser { get; set; } = new List<RefCategories>();
+
     public virtual ICollection<UserRefreshTokens> UserRefreshTokensRevokedByUser { get; set; } = new List<UserRefreshTokens>();
 
     public virtual ICollection<UserRefreshTokens> UserRefreshTokensUser { get; set; } = new List<UserRefreshTokens>();
+
+    public virtual ICollection<UserRoleLogs> UserRoleLogsCreatedByUser { get; set; } = new List<UserRoleLogs>();
+
+    public virtual ICollection<UserRoleLogs> UserRoleLogsUser { get; set; } = new List<UserRoleLogs>();
 
     public virtual ICollection<UserRoles> UserRolesApprovedByUser { get; set; } = new List<UserRoles>();
 

@@ -13,7 +13,7 @@ public partial class postgresContext : DbContext
     {
     }
 
-    public virtual DbSet<Categories> Categories { get; set; }
+    public virtual DbSet<Function_Page_Mapping> Function_Page_Mapping { get; set; }
 
     public virtual DbSet<LogOrders> LogOrders { get; set; }
 
@@ -29,9 +29,19 @@ public partial class postgresContext : DbContext
 
     public virtual DbSet<Products> Products { get; set; }
 
-    public virtual DbSet<Roles> Roles { get; set; }
+    public virtual DbSet<RefCategories> RefCategories { get; set; }
+
+    public virtual DbSet<RefNavbar> RefNavbar { get; set; }
+
+    public virtual DbSet<RefPages> RefPages { get; set; }
+
+    public virtual DbSet<RefPermissions> RefPermissions { get; set; }
+
+    public virtual DbSet<RefRoles> RefRoles { get; set; }
 
     public virtual DbSet<UserRefreshTokens> UserRefreshTokens { get; set; }
+
+    public virtual DbSet<UserRoleLogs> UserRoleLogs { get; set; }
 
     public virtual DbSet<UserRoles> UserRoles { get; set; }
 
@@ -39,26 +49,33 @@ public partial class postgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Categories>(entity =>
+        modelBuilder.Entity<Function_Page_Mapping>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("Categories_pkey");
+            entity.HasKey(e => new { e.FunctionCode, e.PageCode });
 
-            entity.HasIndex(e => e.Name, "Categories_Name_key").IsUnique();
+            entity.HasIndex(e => e.FunctionCode, "IX_FunctionPage_FunctionCode");
 
-            entity.Property(e => e.CategoryId).UseIdentityAlwaysColumn();
-            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.ModifiedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(100);
+            entity.HasIndex(e => e.PageCode, "IX_FunctionPage_PageCode");
 
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.CategoriesCreatedByUser)
-                .HasForeignKey(d => d.CreatedByUserId)
-                .HasConstraintName("FK_Categories_CreatedBy");
+            entity.Property(e => e.FunctionCode).HasMaxLength(100);
+            entity.Property(e => e.PageCode).HasMaxLength(50);
+            entity.Property(e => e.PermissionCode).HasMaxLength(100);
 
-            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.CategoriesModifiedByUser)
-                .HasForeignKey(d => d.ModifiedByUserId)
-                .HasConstraintName("FK_Categories_ModifiedBy");
+            entity.HasOne(d => d.FunctionCodeNavigation).WithMany(p => p.Function_Page_MappingFunctionCodeNavigation)
+                .HasPrincipalKey(p => p.PermissionCode)
+                .HasForeignKey(d => d.FunctionCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FunctionPage_Function");
+
+            entity.HasOne(d => d.PageCodeNavigation).WithMany(p => p.Function_Page_Mapping)
+                .HasForeignKey(d => d.PageCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FunctionPage_Page");
+
+            entity.HasOne(d => d.PermissionCodeNavigation).WithMany(p => p.Function_Page_MappingPermissionCodeNavigation)
+                .HasPrincipalKey(p => p.PermissionCode)
+                .HasForeignKey(d => d.PermissionCode)
+                .HasConstraintName("FK_FunctionPage_Permission");
         });
 
         modelBuilder.Entity<LogOrders>(entity =>
@@ -129,7 +146,7 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20);
             entity.Property(e => e.LogTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.RoleCode).HasMaxLength(100);
+            entity.Property(e => e.RoleCode).HasMaxLength(50);
             entity.Property(e => e.Username).HasMaxLength(100);
         });
 
@@ -140,7 +157,16 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.OrderItemId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Discount).HasPrecision(18, 2);
             entity.Property(e => e.NetAmount).HasPrecision(18, 2);
+            entity.Property(e => e.OrderItemStatus)
+                .IsRequired()
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'PENDING'::character varying");
+            entity.Property(e => e.OrderItemStatusCode)
+                .IsRequired()
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'PENDING'::character varying");
             entity.Property(e => e.Qty).HasDefaultValue(1);
+            entity.Property(e => e.RejectedReason).HasMaxLength(500);
             entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
@@ -205,7 +231,7 @@ public partial class postgresContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK_Products_Categories");
+                .HasConstraintName("FK_Products_RefCategories");
 
             entity.HasOne(d => d.CreatedByUser).WithMany(p => p.ProductsCreatedByUser)
                 .HasForeignKey(d => d.CreatedByUserId)
@@ -216,7 +242,101 @@ public partial class postgresContext : DbContext
                 .HasConstraintName("FK_Products_ModifiedBy");
         });
 
-        modelBuilder.Entity<Roles>(entity =>
+        modelBuilder.Entity<RefCategories>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId).HasName("Categories_pkey");
+
+            entity.HasIndex(e => e.Name, "Categories_Name_key").IsUnique();
+
+            entity.Property(e => e.CategoryId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.ModifiedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.RefCategoriesCreatedByUser)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_Categories_CreatedBy");
+
+            entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.RefCategoriesModifiedByUser)
+                .HasForeignKey(d => d.ModifiedByUserId)
+                .HasConstraintName("FK_Categories_ModifiedBy");
+        });
+
+        modelBuilder.Entity<RefNavbar>(entity =>
+        {
+            entity.HasKey(e => e.NavbarCode);
+
+            entity.HasIndex(e => e.PageCode, "IX_RefNavbar_PageCode");
+
+            entity.Property(e => e.NavbarCode).HasMaxLength(50);
+            entity.Property(e => e.NavbarIcon).HasMaxLength(100);
+            entity.Property(e => e.NavbarName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.PageCode)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.Seq).HasDefaultValue(0);
+
+            entity.HasOne(d => d.PageCodeNavigation).WithMany(p => p.RefNavbar)
+                .HasForeignKey(d => d.PageCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefNavbar_RefPages");
+        });
+
+        modelBuilder.Entity<RefPages>(entity =>
+        {
+            entity.HasKey(e => e.PageCode).HasName("RefPages_pkey");
+
+            entity.HasIndex(e => e.PageUrl, "RefPages_PageUrl_key").IsUnique();
+
+            entity.Property(e => e.PageCode).HasMaxLength(50);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PageDesc)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.PageUrl)
+                .IsRequired()
+                .HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<RefPermissions>(entity =>
+        {
+            entity.HasKey(e => e.PermissionId).HasName("Permissions_pkey");
+
+            entity.HasIndex(e => e.PermissionCode, "Permissions_PermissionCode_key").IsUnique();
+
+            entity.Property(e => e.PermissionId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.PermissionCode)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.PermissionName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.HasMany(d => d.PageCode).WithMany(p => p.PermissionCode)
+                .UsingEntity<Dictionary<string, object>>(
+                    "PermissionPages",
+                    r => r.HasOne<RefPages>().WithMany()
+                        .HasForeignKey("PageCode")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PermissionPages_RefPages"),
+                    l => l.HasOne<RefPermissions>().WithMany()
+                        .HasPrincipalKey("PermissionCode")
+                        .HasForeignKey("PermissionCode")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PermissionPages_RefPermissions"),
+                    j =>
+                    {
+                        j.HasKey("PermissionCode", "PageCode").HasName("PermissionPages_pkey");
+                        j.IndexerProperty<string>("PermissionCode").HasMaxLength(100);
+                        j.IndexerProperty<string>("PageCode").HasMaxLength(50);
+                    });
+        });
+
+        modelBuilder.Entity<RefRoles>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("Roles_pkey");
 
@@ -229,6 +349,26 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.RoleName)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            entity.HasMany(d => d.PermissionCode).WithMany(p => p.RoleCode)
+                .UsingEntity<Dictionary<string, object>>(
+                    "RolePermissions",
+                    r => r.HasOne<RefPermissions>().WithMany()
+                        .HasPrincipalKey("PermissionCode")
+                        .HasForeignKey("PermissionCode")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_RolePermissions_RefPermissions"),
+                    l => l.HasOne<RefRoles>().WithMany()
+                        .HasPrincipalKey("RoleCode")
+                        .HasForeignKey("RoleCode")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_RolePermissions_RefRoles"),
+                    j =>
+                    {
+                        j.HasKey("RoleCode", "PermissionCode");
+                        j.IndexerProperty<string>("RoleCode").HasMaxLength(50);
+                        j.IndexerProperty<string>("PermissionCode").HasMaxLength(100);
+                    });
         });
 
         modelBuilder.Entity<UserRefreshTokens>(entity =>
@@ -253,14 +393,47 @@ public partial class postgresContext : DbContext
                 .HasConstraintName("FK_UserRefreshTokens_Users");
         });
 
+        modelBuilder.Entity<UserRoleLogs>(entity =>
+        {
+            entity.HasKey(e => e.UserRoleLogId).HasName("UserRoleLogs_pkey");
+
+            entity.Property(e => e.UserRoleLogId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.RoleCode)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.UserRoleLogsCreatedByUser)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_UserRoleLogs_CreatedBy");
+
+            entity.HasOne(d => d.RoleCodeNavigation).WithMany(p => p.UserRoleLogs)
+                .HasPrincipalKey(p => p.RoleCode)
+                .HasForeignKey(d => d.RoleCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRoleLogs_RefRoles");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoleLogsUser)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRoleLogs_Users");
+
+            entity.HasOne(d => d.UserRole).WithMany(p => p.UserRoleLogs)
+                .HasForeignKey(d => d.UserRoleId)
+                .HasConstraintName("FK_UserRoleLogs_UserRoles");
+        });
+
         modelBuilder.Entity<UserRoles>(entity =>
         {
             entity.HasKey(e => e.UserRoleId).HasName("UserRoles_pkey");
 
-            entity.HasIndex(e => new { e.UserId, e.RoleId }, "UQ_UserRoles_User_Role").IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.RoleCode }, "UQ_UserRoles_User_RoleCode").IsUnique();
 
             entity.Property(e => e.UserRoleId).UseIdentityAlwaysColumn();
             entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.RoleCode)
+                .IsRequired()
+                .HasMaxLength(50);
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasMaxLength(30)
@@ -274,10 +447,11 @@ public partial class postgresContext : DbContext
                 .HasForeignKey(d => d.CreatedByUserId)
                 .HasConstraintName("FK_UserRoles_CreatedBy");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
-                .HasForeignKey(d => d.RoleId)
+            entity.HasOne(d => d.RoleCodeNavigation).WithMany(p => p.UserRoles)
+                .HasPrincipalKey(p => p.RoleCode)
+                .HasForeignKey(d => d.RoleCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRoles_Roles");
+                .HasConstraintName("FK_UserRoles_RefRoles");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserRolesUser)
                 .HasForeignKey(d => d.UserId)

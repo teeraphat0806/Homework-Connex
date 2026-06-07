@@ -27,6 +27,18 @@ public partial class Orders
 
     public DateTime ModifiedTime { get; set; }
 
+    public long? ApprovedByUserId { get; set; }
+
+    public DateTime? ApprovedTime { get; set; }
+
+    public long? RejectedByUserId { get; set; }
+
+    public DateTime? RejectedTime { get; set; }
+
+    public long? ConfirmedByUserId { get; set; }
+
+    public DateTime? ConfirmedTime { get; set; }
+
     public virtual Users CreatedByUser { get; set; }
 
     public virtual Users ModifiedByUser { get; set; }

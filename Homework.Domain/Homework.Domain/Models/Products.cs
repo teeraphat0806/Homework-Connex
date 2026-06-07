@@ -33,7 +33,7 @@ public partial class Products
 
     public DateTime ModifiedTime { get; set; }
 
-    public virtual Categories Category { get; set; }
+    public virtual RefCategories Category { get; set; }
 
     public virtual Users CreatedByUser { get; set; }
 

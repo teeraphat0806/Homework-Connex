@@ -21,6 +21,20 @@ public partial class OrderItems
 
     public decimal NetAmount { get; set; }
 
+    public string OrderItemStatus { get; set; }
+
+    public long? ApprovedByUserId { get; set; }
+
+    public DateTime? ApprovedTime { get; set; }
+
+    public string OrderItemStatusCode { get; set; }
+
+    public long? RejectedByUserId { get; set; }
+
+    public DateTime? RejectedTime { get; set; }
+
+    public string RejectedReason { get; set; }
+
     public virtual Orders Order { get; set; }
 
     public virtual Products Product { get; set; }

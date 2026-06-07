@@ -5,27 +5,19 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class UserRoles
+public partial class UserRoleLogs
 {
+    public long UserRoleLogId { get; set; }
+
+    public long? UserRoleId { get; set; }
+
     public long UserId { get; set; }
 
     public long? CreatedByUserId { get; set; }
 
     public DateTime CreatedTime { get; set; }
 
-    public long UserRoleId { get; set; }
-
-    public string Status { get; set; }
-
-    public long? ApprovedByUserId { get; set; }
-
-    public DateTime? ApprovedTime { get; set; }
-
-    public DateTime? ExpiredTime { get; set; }
-
     public string RoleCode { get; set; }
-
-    public virtual Users ApprovedByUser { get; set; }
 
     public virtual Users CreatedByUser { get; set; }
 
@@ -33,5 +25,5 @@ public partial class UserRoles
 
     public virtual Users User { get; set; }
 
-    public virtual ICollection<UserRoleLogs> UserRoleLogs { get; set; } = new List<UserRoleLogs>();
+    public virtual UserRoles UserRole { get; set; }
 }

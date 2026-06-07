@@ -19,7 +19,7 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "public.Categories",
+         "Name": "public.Function_Page_Mapping",
          "ObjectType": 0
       },
       {
@@ -47,15 +47,43 @@
          "ObjectType": 0
       },
       {
+         "Name": "public.PermissionPages",
+         "ObjectType": 0
+      },
+      {
          "Name": "public.Products",
          "ObjectType": 0
       },
       {
-         "Name": "public.Roles",
+         "Name": "public.RefCategories",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.RefNavbar",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.RefPages",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.RefPermissions",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.RefRoles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.RolePermissions",
          "ObjectType": 0
       },
       {
          "Name": "public.UserRefreshTokens",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.UserRoleLogs",
          "ObjectType": 0
       },
       {

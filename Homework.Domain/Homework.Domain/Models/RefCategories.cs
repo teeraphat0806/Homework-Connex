@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class Categories
+public partial class RefCategories
 {
     public long CategoryId { get; set; }
 

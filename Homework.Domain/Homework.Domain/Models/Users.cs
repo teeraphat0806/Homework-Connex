@@ -49,13 +49,9 @@ public partial class Users
 
     public virtual ICollection<UserRefreshTokens> UserRefreshTokensUser { get; set; } = new List<UserRefreshTokens>();
 
-    public virtual ICollection<UserRoleLogs> UserRoleLogsCreatedByUser { get; set; } = new List<UserRoleLogs>();
-
-    public virtual ICollection<UserRoleLogs> UserRoleLogsUser { get; set; } = new List<UserRoleLogs>();
+    public virtual ICollection<UserRoleLogs> UserRoleLogs { get; set; } = new List<UserRoleLogs>();
 
     public virtual ICollection<UserRoles> UserRolesApprovedByUser { get; set; } = new List<UserRoles>();
-
-    public virtual ICollection<UserRoles> UserRolesCreatedByUser { get; set; } = new List<UserRoles>();
 
     public virtual ICollection<UserRoles> UserRolesUser { get; set; } = new List<UserRoles>();
 }

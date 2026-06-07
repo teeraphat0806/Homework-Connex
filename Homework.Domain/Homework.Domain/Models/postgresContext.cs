@@ -403,17 +403,13 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
 
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.UserRoleLogsCreatedByUser)
-                .HasForeignKey(d => d.CreatedByUserId)
-                .HasConstraintName("FK_UserRoleLogs_CreatedBy");
-
             entity.HasOne(d => d.RoleCodeNavigation).WithMany(p => p.UserRoleLogs)
                 .HasPrincipalKey(p => p.RoleCode)
                 .HasForeignKey(d => d.RoleCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRoleLogs_RefRoles");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserRoleLogsUser)
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoleLogs)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRoleLogs_Users");
@@ -434,18 +430,10 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.RoleCode)
                 .IsRequired()
                 .HasMaxLength(50);
-            entity.Property(e => e.Status)
-                .IsRequired()
-                .HasMaxLength(30)
-                .HasDefaultValueSql("'ACTIVE'::character varying");
 
             entity.HasOne(d => d.ApprovedByUser).WithMany(p => p.UserRolesApprovedByUser)
                 .HasForeignKey(d => d.ApprovedByUserId)
                 .HasConstraintName("FK_UserRoles_ApprovedBy");
-
-            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.UserRolesCreatedByUser)
-                .HasForeignKey(d => d.CreatedByUserId)
-                .HasConstraintName("FK_UserRoles_CreatedBy");
 
             entity.HasOne(d => d.RoleCodeNavigation).WithMany(p => p.UserRoles)
                 .HasPrincipalKey(p => p.RoleCode)

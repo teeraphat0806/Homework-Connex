@@ -13,13 +13,9 @@ public partial class UserRoleLogs
 
     public long UserId { get; set; }
 
-    public long? CreatedByUserId { get; set; }
-
     public DateTime CreatedTime { get; set; }
 
     public string RoleCode { get; set; }
-
-    public virtual Users CreatedByUser { get; set; }
 
     public virtual RefRoles RoleCodeNavigation { get; set; }
 

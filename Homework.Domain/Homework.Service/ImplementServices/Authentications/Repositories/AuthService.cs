@@ -1,10 +1,13 @@
-﻿using Homework.Domain.Error;
+﻿using Homework.Domain.Configurations;
+using Homework.Domain.Enum;
+using Homework.Domain.Enum;
+using Homework.Domain.Error;
 using Homework.Domain.Interfaces.Services.AuthenticationServices;
+using Homework.Domain.Interfaces.Services.UserServices;
 using Homework.Domain.Models;
 using Homework.Domain.RequestModels.AuthenticationRequestModels;
 using Homework.Domain.ValidateModels.AuthenticationValidateModels;
 using Homework.Domain.ViewModels.AuthenticationViewModels;
-using Homework.Domain.Configurations;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +25,13 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         private readonly postgresContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtConfig _jwtConfig;
-        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor)
+        private readonly IUserContextService _userContextService;
+        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor, IUserContextService userContextService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _jwtConfig = new JwtConfig{};
+            _userContextService = userContextService;
         }
 
         public async Task<LoginViewModel> LoginUser(LoginRequestModel param, CustomError error)
@@ -59,7 +64,14 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 error.AddError("Password", "Password ไม่ถูกต้อง");
             }
             error.ThrowIfError();
-            // validate input
+
+
+            // get current role code of user
+            var currentRoleCode =
+    await _userContextService.GetCurrentRoleCodeAsync(
+        user.UserId,
+        error
+    );
 
             // update last checking time
             user.LastChecking = DateTime.UtcNow;
@@ -76,14 +88,14 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 RefreshToken = refreshToken,
                 CreatedTime = DateTime.UtcNow,
                 ExpiredTime = DateTime.UtcNow.AddDays(
-    Convert.ToDouble(_jwtConfig)
+    Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays)
 ),
                 RevokedTime = null
             };
 
             _context.UserRefreshTokens.Add(userRefreshToken);
             await _context.SaveChangesAsync();
-            await SetJWTTokenService(accessToken, refreshToken);
+            await SetJWTTokenService(accessToken, refreshToken,currentRoleCode);
 
             return new LoginViewModel
             {
@@ -103,7 +115,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_jwtConfig.Audience)
+                Encoding.UTF8.GetBytes(_jwtConfig.Key)
             );
 
             var credentials = new SigningCredentials(
@@ -116,7 +128,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 audience: _jwtConfig.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(
-    Convert.ToDouble(_jwtConfig.Audience)
+    Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes)
 ),
                 signingCredentials: credentials
             );
@@ -156,34 +168,59 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         }
 
         // register user
-        public async Task<RegisterViewModel> RegisterUser(RegisterRequestModel param, CustomError error)
+        public async Task<RegisterViewModel> RegisterUser(
+    RegisterRequestModel param,
+    CustomError error)
         {
             await ValidateUser(param, error);
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(param.Password);
-            var newUser = new Users
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                Username = param.UserName,
-                Password = hashedPassword,
-                FirstName = param.FirstName,
-                LastName = param.LastName,
-                Age = param.Age,
-                Phone = param.Phone,
-                BirthDate = param.BirthDate,
-                CreatedTime = DateTime.UtcNow
-            };
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-            return new RegisterViewModel
+                var hashedPassword =
+                    BCrypt.Net.BCrypt.HashPassword(param.Password);
+
+                var newUser = new Users
+                {
+                    Username = param.UserName,
+                    Password = hashedPassword,
+                    FirstName = param.FirstName,
+                    LastName = param.LastName,
+                    Age = param.Age,
+                    Phone = param.Phone,
+                    BirthDate = param.BirthDate,
+                    CreatedTime = DateTime.UtcNow
+                };
+
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+
+                await AssignDefaultMemberRoleAsync(
+                    newUser.UserId,
+                    newUser.Username
+                );
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new RegisterViewModel
+                {
+                    UserId = newUser.UserId,
+                    UserName = newUser.Username,
+                    FirstName = newUser.FirstName,
+                    LastName = newUser.LastName,
+                    Age = newUser.Age,
+                    Phone = newUser.Phone,
+                    BirthDate = newUser.BirthDate
+                };
+            }
+            catch
             {
-                UserId = newUser.UserId,
-                UserName = newUser.Username,
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName,
-                Age = newUser.Age,
-                Phone = newUser.Phone,
-                BirthDate = newUser.BirthDate
-            };
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         private async Task ValidateUser(RegisterRequestModel param, CustomError error)
@@ -264,7 +301,17 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             }
 
             var user = refreshtokenDb.User;
+            var currentRoleCode =
+       _userContextService.GetCurrentRoleFromCookie();
 
+            if (string.IsNullOrWhiteSpace(currentRoleCode))
+            {
+                currentRoleCode =
+                    await _userContextService.GetCurrentRoleCodeAsync(
+                        user.UserId,
+                        error
+                    );
+            }
             // Generate new access token 
             var newAccessToken = GenerateAccessToken(user, error);
             //Generate new refresh token
@@ -275,11 +322,11 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             refreshtokenDb.RefreshToken = newRefreshToken;
             refreshtokenDb.CreatedTime = DateTime.UtcNow;
             refreshtokenDb.ExpiredTime = DateTime.UtcNow.AddDays(
-            Convert.ToDouble(_jwtConfig.Audience));
+            Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays));
 
             // Revoke old access token and refresh token
             await _context.SaveChangesAsync();
-            await SetJWTTokenService(newAccessToken, newRefreshToken);
+            await SetJWTTokenService(newAccessToken, newRefreshToken, currentRoleCode);
             // Return new access token and refresh token
             return new LoginViewModel
             {
@@ -399,15 +446,15 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
             response?.Cookies.Delete("accessToken");
             response?.Cookies.Delete("refreshToken");
-
+            response?.Cookies.Delete("currentRoleCode");
             return new LogOutViewModel
             {
                 IsSuccess = true,
                 Message = "Logout สำเร็จ"
             };
         }
-
-        public Task SetJWTTokenService(string accessToken, string refreshToken)
+        
+        public Task SetJWTTokenService(string accessToken, string refreshToken, string currentRoleCode)
         {
             var accessExpireMinutes = Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes);
             var refreshExpireDays = Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays);
@@ -426,10 +473,46 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(refreshExpireDays)
             });
+            response?.Cookies.Append(
+                "currentRoleCode",
+                currentRoleCode,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(accessExpireMinutes)
+                }
+            );
             return Task.CompletedTask;
         }
 
         [System.Text.RegularExpressions.GeneratedRegex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$")]
         private static partial System.Text.RegularExpressions.Regex ValidateRegister();
+
+        private async Task AssignDefaultMemberRoleAsync(long userId, string username)
+        {
+            var userRole = new UserRoles
+            {
+                UserId = userId,
+                RoleCode = EnumRoleCodes.MEMBER,
+                CreatedTime = DateTime.UtcNow
+            };
+
+            _context.UserRoles.Add(userRole);
+            await _context.SaveChangesAsync();
+
+            var log = new UserRoleLogs
+            {
+                UserRoleId = userRole.UserRoleId,
+                UserId = userId,
+                RoleCode = EnumRoleCodes.MEMBER,
+                CreatedTime = DateTime.UtcNow
+            };
+
+            _context.UserRoleLogs.Add(log);
+            await Task.CompletedTask;
+        }
+        
     }
 }

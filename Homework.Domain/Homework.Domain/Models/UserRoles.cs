@@ -9,13 +9,9 @@ public partial class UserRoles
 {
     public long UserId { get; set; }
 
-    public long? CreatedByUserId { get; set; }
-
     public DateTime CreatedTime { get; set; }
 
     public long UserRoleId { get; set; }
-
-    public string Status { get; set; }
 
     public long? ApprovedByUserId { get; set; }
 
@@ -26,8 +22,6 @@ public partial class UserRoles
     public string RoleCode { get; set; }
 
     public virtual Users ApprovedByUser { get; set; }
-
-    public virtual Users CreatedByUser { get; set; }
 
     public virtual RefRoles RoleCodeNavigation { get; set; }
 

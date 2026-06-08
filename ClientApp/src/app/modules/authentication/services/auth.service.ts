@@ -20,7 +20,15 @@ export interface SessionViewModel {
   IsValid: boolean;
   Message: string;
 }
-
+export interface RegisterRequest {
+    UserName: string;
+    Password: string;
+    FirstName: string;
+    LastName: string;
+    Age: Number;
+    Phone: Number;
+    BirthDate: Date;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -31,7 +39,7 @@ export class AuthApiService {
     constructor(private http: HttpClient, private router: Router) { 
     }
     Login(params: LoginRequest): Observable<LoginViewModel>{
-        return this.http.post<LoginViewModel>(`${this.url}/Login`, params,{withCredentials: true}).pipe(
+        return this.http.post<LoginViewModel>(`${this.url}/login`, params,{withCredentials: true}).pipe(
             shareReplay(1),
              catchError(error => {
                 console.error('Login failed', error);
@@ -41,6 +49,14 @@ export class AuthApiService {
                 this.currentUser.set(user);
             }),
         );
+    }
+    Register(params: RegisterRequest): Observable<any> {
+        return this.http.post(`${this.url}/register`, params, { withCredentials: true }).pipe(
+            catchError(error => {
+                console.error('Registration failed', error);
+                return throwError(() => new Error('Registration failed. Please check your input and try again.'));
+            }
+        ));
     }
     Logout(): Observable<any> {
         return this.http.post(`${this.url}/Logout`, {}, { withCredentials: true }).pipe(

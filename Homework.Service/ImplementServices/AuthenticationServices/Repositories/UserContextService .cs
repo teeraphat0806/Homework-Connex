@@ -59,10 +59,17 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
             return userId;
         }
-        public string? GetCurrentRoleFromCookie()
+        public string? GetCurrentRoleFromToken()
         {
-            var request = _httpContextAccessor.HttpContext?.Request;
-            return request?.Cookies["currentRoleCode"];
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user?.Identity?.IsAuthenticated != true)
+                return null;
+
+            var role = user.FindFirst(ClaimTypes.Role)?.Value
+                       ?? user.FindFirst("role")?.Value;
+
+            return role;
         }
     }
 }

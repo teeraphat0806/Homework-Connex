@@ -10,7 +10,7 @@ namespace Homework.Domain.Interfaces.Services.UserServices
     public interface IUserContextService
     {
         Task<string> GetCurrentRoleCodeAsync(long userId, CustomError error);
-        string? GetCurrentRoleFromCookie();
+        string? GetCurrentRoleFromToken();
         public string? GetUserIdFromToken();
     }
 }

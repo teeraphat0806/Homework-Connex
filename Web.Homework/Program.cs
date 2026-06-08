@@ -13,8 +13,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using System.Text;
-using Web.Homework.Controllers.ExceptionMiddleware;
 using Web.Homework.ExceptionHandler;
+using Web.Homework.ExceptionMiddleware;
 
 namespace Homework.Web
 {
@@ -31,25 +31,20 @@ namespace Homework.Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IRawSqlService, USP_Query_PermissionAccess>();
-            //builder.Services.Configure<ApiBehaviorOptions>(options =>
-            //{
-            //    options.InvalidModelStateResponseFactory = context =>
-            //    {
-            //        var errors = context.ModelState
-            //            .Where(x => x.Value?.Errors.Count > 0)
-            //            .SelectMany(x => x.Value!.Errors.Select(e => new
-            //            {
-            //                field = x.Key,
-            //                message = e.ErrorMessage
-            //            }))
-            //            .ToList();
 
-            //        return new BadRequestObjectResult(new
-            //        {
-            //            errors
-            //        });amicAutho
-            //    };
-            //});
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder
+                        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                    });
+            });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddHttpContextAccessor();
@@ -113,7 +108,8 @@ namespace Homework.Web
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
+            app.UseCors("AllowAll");
             app.UseCustomExceptionHandler(builder);
             app.UseAuthentication();
             app.UseAuthorization();

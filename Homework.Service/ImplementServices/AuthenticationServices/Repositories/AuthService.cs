@@ -79,7 +79,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             user.LastChecking = DateTime.UtcNow;
 
             // generate access token and refresh token
-            string accessToken = GenerateAccessToken(user, error);
+            string accessToken = GenerateAccessToken(user, currentRoleCode, error);
             string refreshToken = GenerateRefreshToken();
 
             // save refresh token to database
@@ -97,7 +97,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
             _context.UserRefreshTokens.Add(userRefreshToken);
             await _context.SaveChangesAsync();
-            await SetJWTTokenService(accessToken, refreshToken,currentRoleCode);
+            await SetJWTTokenService(accessToken, refreshToken);
 
             return new LoginViewModel
             {
@@ -108,13 +108,14 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         }
 
         // helper methods 
-        private string GenerateAccessToken(Users user, CustomError error)
+        private string GenerateAccessToken(Users user, string currentRoleCode, CustomError error)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim("userId", user.UserId.ToString()),
+                new Claim(ClaimTypes.Role, currentRoleCode),
             };
 
             var key = new SymmetricSecurityKey(
@@ -305,7 +306,7 @@ audience: _configuration["JwtConfig:Audience"],
 
             var user = refreshtokenDb.User;
             var currentRoleCode =
-       _userContextService.GetCurrentRoleFromCookie();
+       _userContextService.GetCurrentRoleFromToken();
 
             if (string.IsNullOrWhiteSpace(currentRoleCode))
             {
@@ -316,7 +317,7 @@ audience: _configuration["JwtConfig:Audience"],
                     );
             }
             // Generate new access token 
-            var newAccessToken = GenerateAccessToken(user, error);
+            var newAccessToken = GenerateAccessToken(user, currentRoleCode, error);
             //Generate new refresh token
             var newRefreshToken = GenerateRefreshToken();
 
@@ -329,7 +330,7 @@ audience: _configuration["JwtConfig:Audience"],
 
             // Revoke old access token and refresh token
             await _context.SaveChangesAsync();
-            await SetJWTTokenService(newAccessToken, newRefreshToken, currentRoleCode);
+            await SetJWTTokenService(newAccessToken, newRefreshToken);
             // Return new access token and refresh token
             return new LoginViewModel
             {
@@ -449,7 +450,7 @@ audience: _configuration["JwtConfig:Audience"],
 
             response?.Cookies.Delete("accessToken");
             response?.Cookies.Delete("refreshToken");
-            response?.Cookies.Delete("currentRoleCode");
+            
             return new LogOutViewModel
             {
                 IsSuccess = true,
@@ -457,7 +458,7 @@ audience: _configuration["JwtConfig:Audience"],
             };
         }
         
-        public Task SetJWTTokenService(string accessToken, string refreshToken, string currentRoleCode)
+        public Task SetJWTTokenService(string accessToken, string refreshToken)
         {
             var accessExpireMinutes = Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes);
             var refreshExpireDays = Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays);
@@ -476,17 +477,6 @@ audience: _configuration["JwtConfig:Audience"],
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(refreshExpireDays)
             });
-            response?.Cookies.Append(
-                "currentRoleCode",
-                currentRoleCode,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(accessExpireMinutes)
-                }
-            );
             return Task.CompletedTask;
         }
 

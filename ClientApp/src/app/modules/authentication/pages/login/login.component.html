@@ -1,26 +1,33 @@
 <div class="login-container">
-  <!-- ช่องกรอก Username (ชนิดข้อความปกติ) -->
-   <div>Login Page</div>
-  <app-homework-input
-    type="Text"
-    label="ชื่อผู้ใช้งาน"
-    placeholder="กรอกชื่อผู้ใช้งาน"
-    [fieldValue]="loginData.username"
-    (fieldValueChange)="loginData.username = $event"
-    [componentState]="errorState"
-    attributeName="username">
-  </app-homework-input>
+  <div class="login-card">
 
-  <!-- ช่องกรอก Password (ชนิด Password) -->
-  <app-homework-input
-    type="Password"
-    label="รหัสผ่าน"
-    placeholder="กรอกรหัสผ่าน"
-    [fieldValue]="loginData.password"
-    (fieldValueChange)="loginData.password = $event"
-    [componentState]="errorState"
-    attributeName="password">
-  </app-homework-input>
+    <div class="login-title">
+      Login Page
+    </div>
 
-  <button (click)="submitLogin()">เข้าสู่ระบบ</button>
+    <app-homework-input
+      type="Text"
+      label="ชื่อผู้ใช้งาน"
+      placeholder="กรอกชื่อผู้ใช้งาน"
+      [fieldValue]="loginData.UserName"
+      (fieldValueChange)="loginData.UserName = $event"
+      [componentState]="errorState"
+      attributeName="UserName">
+    </app-homework-input>
+
+    <app-homework-input
+      type="Password"
+      label="รหัสผ่าน"
+      placeholder="กรอกรหัสผ่าน"
+      [fieldValue]="loginData.Password"
+      (fieldValueChange)="loginData.Password = $event"
+      [componentState]="errorState"
+      attributeName="Password">
+    </app-homework-input>
+
+    <button class="login-button" (click)="submitLogin()">
+      เข้าสู่ระบบ
+    </button>
+
+  </div>
 </div>

@@ -1,1 +1,106 @@
-<p>register.component works!</p>
+<div class="register-container">
+  <div class="register-card">
+
+    <div class="register-title">
+      Create Account
+    </div>
+
+    <div class="register-subtitle">
+      สมัครสมาชิกใหม่
+    </div>
+
+    <app-homework-input
+      type="Text"
+      label="Username"
+      placeholder="กรอก Username"
+      [fieldValue]="registerData.UserName"
+      (fieldValueChange)="registerData.UserName = $event"
+      [componentState]="errorState"
+      attributeName="Username">
+    </app-homework-input>
+
+    <app-homework-input
+      type="Password"
+      label="Password"
+      placeholder="กรอกรหัสผ่าน"
+      [fieldValue]="registerData.Password"
+      (fieldValueChange)="registerData.Password = $event"
+      [componentState]="errorState"
+      attributeName="Password">
+    </app-homework-input>
+
+    <app-homework-input
+      type="Password"
+      label="Confirm Password"
+      placeholder="ยืนยันรหัสผ่าน"
+      [fieldValue]="confirmPassword"
+      (fieldValueChange)="confirmPassword = $event"
+      [componentState]="errorState"
+      attributeName="ConfirmPassword">
+    </app-homework-input>
+
+    <div class="register-row">
+
+      <app-homework-input
+        type="Text"
+        label="First Name"
+        placeholder="ชื่อ"
+        [fieldValue]="registerData.FirstName"
+        (fieldValueChange)="registerData.FirstName = $event"
+        [componentState]="errorState"
+        attributeName="FirstName">
+      </app-homework-input>
+
+      <app-homework-input
+        type="Text"
+        label="Last Name"
+        placeholder="นามสกุล"
+        [fieldValue]="registerData.LastName"
+        (fieldValueChange)="registerData.LastName = $event"
+        [componentState]="errorState"
+        attributeName="LastName">
+      </app-homework-input>
+
+    </div>
+
+    <div class="register-row">
+
+      <app-homework-input
+        type="Number"
+        label="Age"
+        placeholder="อายุ"
+        [fieldValue]="registerData.Age"
+        (fieldValueChange)="registerData.Age = $event"
+        [componentState]="errorState"
+        attributeName="Age">
+      </app-homework-input>
+
+      <app-homework-input
+        type="Text"
+        label="Phone"
+        placeholder="เบอร์โทรศัพท์"
+        [fieldValue]="registerData.Phone"
+        (fieldValueChange)="registerData.Phone = $event"
+        [componentState]="errorState"
+        attributeName="Phone">
+      </app-homework-input>
+
+    </div>
+
+    <app-homework-input
+      type="Date"
+      label="Birth Date"
+      [fieldValue]="registerData.BirthDate"
+      (fieldValueChange)="registerData.BirthDate = $event"
+      [componentState]="errorState"
+      attributeName="BirthDate">
+    </app-homework-input>
+
+    <button
+      class="register-button"
+      (click)="submitRegister()">
+      สมัครสมาชิก
+    </button>
+
+  </div>
+</div>

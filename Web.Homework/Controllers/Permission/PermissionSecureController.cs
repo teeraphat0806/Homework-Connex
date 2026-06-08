@@ -7,17 +7,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Web.Homework.Controllers.Permission
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/permission")]
     [ApiController]
-    public class PermissionController : ControllerBase
+    public class PermissionSecureController : ControllerBase
     {
         private readonly IPermissionAuthorizeService _permissionService;
 
-        public PermissionController(IPermissionAuthorizeService permissionService)
+        public PermissionSecureController(IPermissionAuthorizeService permissionService)
         {
             _permissionService = permissionService;
         }
-        [Authorize]
+       
         [HttpPost("priv-page-check")]
         public async Task<IActionResult> PrivPageCheck(
         [FromBody] PermissionRequestModel param)

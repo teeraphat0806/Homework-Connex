@@ -3,5 +3,5 @@ export const environment = {
     // baseUrl: '/',
     // apiUrl: '/api/'
     baseUrl: '/',
-    apiUrl: 'http://localhost:5100/api/'
+    apiUrl: 'http://localhost:5243/api/'
 }

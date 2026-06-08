@@ -3,7 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
-namespace Web.Homework.Controllers.ExceptionMiddleware
+namespace Web.Homework.ExceptionMiddleware
 {
     public class ExceptionMiddleware
     {

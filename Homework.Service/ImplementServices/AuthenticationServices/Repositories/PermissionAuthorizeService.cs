@@ -1,4 +1,4 @@
-﻿using Homework.Domain.Error;
+using Homework.Domain.Error;
 using Homework.Domain.Interfaces.RawSqlServices;
 using Homework.Domain.Interfaces.Services.PermissionServices;
 using Homework.Domain.Interfaces.Services.UserServices;
@@ -30,11 +30,11 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 error.AddError("User", "ไม่พบ UserId จาก Token");
             }
 
-            var roleCode = _userContextService.GetCurrentRoleFromCookie();
+            var roleCode = _userContextService.GetCurrentRoleFromToken();
 
             if (string.IsNullOrWhiteSpace(roleCode))
             {
-                error.AddError("RoleCode", "ไม่พบ currentRoleCode ใน Cookie");
+                error.AddError("RoleCode", "ไม่พบ RoleCode ใน Token");
             }
 
             if (string.IsNullOrWhiteSpace(param.PageCode))

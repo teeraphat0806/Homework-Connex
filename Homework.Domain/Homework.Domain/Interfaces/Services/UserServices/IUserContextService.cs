@@ -11,5 +11,6 @@ namespace Homework.Domain.Interfaces.Services.UserServices
     {
         Task<string> GetCurrentRoleCodeAsync(long userId, CustomError error);
         string? GetCurrentRoleFromCookie();
+        public string? GetUserIdFromToken();
     }
 }

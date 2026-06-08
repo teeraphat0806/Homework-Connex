@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 namespace Homework.Service.ImplementServices.Authentications.Repositories
 {
     public class UserContextService : IUserContextService
@@ -43,7 +44,21 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
             return currentRoleCode!;
         }
+        public string? GetUserIdFromToken()
+        {
+            
+            var user = _httpContextAccessor.HttpContext?.User;
 
+            if (user?.Identity?.IsAuthenticated != true)
+                return null;
+
+            var userId =
+                user.FindFirst("userId")?.Value
+                ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? user.FindFirst("nameid")?.Value;
+
+            return userId;
+        }
         public string? GetCurrentRoleFromCookie()
         {
             var request = _httpContextAccessor.HttpContext?.Request;

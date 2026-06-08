@@ -4,6 +4,7 @@ using Homework.Domain.RequestModels.AuthenticationRequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Web.Homework.Controllers.Authentication
 {
     [AllowAnonymous]

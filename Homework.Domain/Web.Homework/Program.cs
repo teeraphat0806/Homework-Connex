@@ -1,7 +1,10 @@
+using Homework.Domain.Interfaces.RawSqlServices;
+using Homework.Domain.Interfaces.Services.PermissionServices;
+using Homework.Service.ImplementServices.RawSqlServices;
+using Homework.Service.ImplementServices.Authentications.Repositories;
 using Homework.Domain.Interfaces.Services.AuthenticationServices;
 using Homework.Domain.Models;
 using Homework.Domain.ValidateModels.AuthenticationValidateModels;
-using Homework.Service.ImplementServices.Authentications.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using Web.Homework.Controllers.ExceptionMiddleware;
 using Web.Homework.ExceptionHandler;
+
 namespace Homework.Web
 {
     internal class Program
@@ -26,7 +30,7 @@ namespace Homework.Web
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddScoped<IRawSqlService, USP_Query_PermissionAccess>();
             //builder.Services.Configure<ApiBehaviorOptions>(options =>
             //{
             //    options.InvalidModelStateResponseFactory = context =>
@@ -43,10 +47,10 @@ namespace Homework.Web
             //        return new BadRequestObjectResult(new
             //        {
             //            errors
-            //        });
+            //        });amicAutho
             //    };
             //});
-         
+
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddDbContext<postgresContext>(options =>
@@ -76,6 +80,20 @@ namespace Homework.Web
                     ValidateIssuerSigningKey = true,
                     ClockSkew = TimeSpan.Zero,
                     RequireExpirationTime = true
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Cookies["accessToken"];
+
+                        if (!string.IsNullOrWhiteSpace(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
             builder.Services.AddControllers()

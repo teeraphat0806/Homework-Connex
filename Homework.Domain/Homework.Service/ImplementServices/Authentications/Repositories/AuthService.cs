@@ -25,13 +25,15 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
         private readonly postgresContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtConfig _jwtConfig;
+        private readonly IConfiguration _configuration;
         private readonly IUserContextService _userContextService;
-        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor, IUserContextService userContextService)
+        public AuthService(postgresContext context, IHttpContextAccessor httpContextAccessor, IUserContextService userContextService, IConfiguration configuration)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _jwtConfig = new JwtConfig{};
             _userContextService = userContextService;
+            _configuration = configuration;
         }
 
         public async Task<LoginViewModel> LoginUser(LoginRequestModel param, CustomError error)
@@ -111,11 +113,12 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("userId", user.UserId.ToString()),
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_jwtConfig.Key)
+                Encoding.UTF8.GetBytes(_configuration["JwtConfig:Key"])
             );
 
             var credentials = new SigningCredentials(
@@ -124,8 +127,8 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             );
 
             var token = new JwtSecurityToken(
-                issuer: _jwtConfig.Issuer,
-                audience: _jwtConfig.Audience,
+                issuer: _configuration["JwtConfig:Issuer"],
+audience: _configuration["JwtConfig:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(
     Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes)

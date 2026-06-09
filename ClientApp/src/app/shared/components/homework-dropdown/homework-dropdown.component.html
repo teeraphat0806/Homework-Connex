@@ -1,0 +1,17 @@
+<div class="homework-dropdown-wrapper">
+  <dx-drop-down-button
+    [items]="items"
+    [splitButton]="splitButton"
+    [text]="text"
+    [icon]="icon"
+    [disabled]="disabled"
+    [stylingMode]="stylingMode"
+    [type]="type"
+    [useSelectMode]="useSelectMode"
+    [selectedItemKey]="selectedItemKey"
+    [displayExpr]="displayExpr"
+    [keyExpr]="keyExpr"
+    (onItemClick)="onDropdownItemClick($event)"
+    (onButtonClick)="onMainButtonClick($event)">
+  </dx-drop-down-button>
+</div>

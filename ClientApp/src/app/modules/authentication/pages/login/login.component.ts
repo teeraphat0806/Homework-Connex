@@ -1,41 +1,55 @@
-import { Component , OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {HomeworkInputComponent} from "../../../../shared/components/homework-input/homework-input.component";
+import { Router } from "@angular/router";
+
+// Components & Directives
+import { HomeworkInputComponent } from "../../../../shared/components/homework-input/homework-input.component";
+
 import { ErrorEditorState } from '../../../../shared/directives/validate-error.directive';
-import { AuthApiService } from '../../services/auth.service';
-import {LoginRequest} from '../../services/auth.service';
-import {Router} from "@angular/router";
+
+// Services
+import { AuthApiService, LoginRequest } from '../../services/auth.service';
+
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, HomeworkInputComponent],
+  standalone: true, // ตรวจสอบให้แน่ใจว่าเปิดใช้งาน standalone
+  imports: [
+    CommonModule, 
+    HomeworkInputComponent, 
+    
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
-  loginData: LoginRequest = {
+  
+  // ข้อมูลฟอร์ม Login
+  public loginData: LoginRequest = {
     UserName: '',
     Password: ''
   };
-  
-  ngOnInit() {
+
+  // ตัวจัดการ Error Validation
+  public errorState = new ErrorEditorState();
+
+  // ใช้ Parameter Properties ใน Constructor เพื่อฉีด Service ได้ทันที (โค้ดจะสั้นลงมาก)
+  constructor(
+    private authService: AuthApiService, 
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
     console.log('LoginComponent initialized');
-
   }
+
   
-  // สร้าง Instance สำหรับจัดการ Error
-  errorState = new ErrorEditorState();
-  authService: AuthApiService;
-  router: Router;
-  constructor(authService: AuthApiService, router: Router) {
-    this.authService = authService;
-    this.router = router;
 
-  }
-  submitLogin() {
-    // ล้าง Error เก่าก่อนทำการตรวจสอบใหม่
+  // ทำงานเมื่อกด Submit ฟอร์ม
+  submitLogin(): void {
+    // 1. ล้าง Error เก่าก่อนตรวจสอบใหม่
     this.errorState.clearAllError();
 
-    // ตัวอย่างการ Validate
+    // 2. ตรวจสอบความถูกต้อง (Validation)
     if (!this.loginData.UserName) {
       this.errorState.setError('UserName', 'กรุณาระบุชื่อผู้ใช้งาน');
     }
@@ -44,19 +58,19 @@ export class LoginComponent implements OnInit {
       this.errorState.setError('Password', 'กรุณาระบุรหัสผ่าน');
     }
 
+    // หากมี Error ค้างอยู่ ให้หยุดทำงานทันที
     if (this.errorState.errors.length > 0) {
-      return; // หากมี Error ให้หยุดการทำงาน
+      return; 
     }
 
+    // 3. เรียก API เพื่อยืนยันตัวตน
     this.authService.Login(this.loginData).subscribe({
       next: (response) => {
         console.log('Login successful', response);
-        // ทำการนำทางไปยังหน้าอื่นหรือแสดงข้อความสำเร็จ
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         console.error('Login failed', error);
-        // แสดงข้อความผิดพลาดให้ผู้ใช้ทราบ
         this.errorState.setError('general', 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง');
       }
     }); 

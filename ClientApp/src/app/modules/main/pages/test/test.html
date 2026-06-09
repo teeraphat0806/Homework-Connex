@@ -1,0 +1,27 @@
+<div>
+  <homework-dropdown
+        [items]="statusItems"
+        [useSelectMode]="true"
+        [(selectedItemKey)]="currentStatus"
+        [type]="typecolor"
+        (onItemClick)="changeStatus($event)"
+        (selectedItemKeyChange)="currentStatus = $event">
+  </homework-dropdown>
+  <button (click)="openDeleteModal()">Delete Member</button>
+
+<homework-confirmation-modal
+  [(visible)]="isDeleteModalOpen"
+  title="ยืนยันการลบสมาชิก"
+  message="คุณต้องการลบข้อมูลสมาชิกคนนี้ใช่หรือไม่? เมื่อลบแล้วจะไม่สามารถกู้คืนได้"
+  confirmText="ใช่, ลบเลย"
+  cancelText="ยกเลิก"
+  cancelTheme="Secondary"
+  confirmTheme="Danger"
+  colorCancelButton="lightgray"
+  colorCancelText="black"
+  colorConfirmButton="red"
+  colorConfirmText="white"
+  (confirm)="executeDeleteMemberLogic()"
+  (cancel)="closeDeleteModal()">
+</homework-confirmation-modal>
+</div>

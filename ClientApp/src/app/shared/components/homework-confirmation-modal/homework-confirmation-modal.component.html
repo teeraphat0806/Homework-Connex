@@ -1,0 +1,42 @@
+<dx-popup
+  [(visible)]="isPopupVisible"
+  [title]="title"
+  [width]="width"
+  [height]="height"
+  [showTitle]="showTitle"
+  [showCloseButton]="showCloseButton"
+  [dragEnabled]="draggable"
+  [resizeEnabled]="resizable"
+  [hideOnOutsideClick]="closingOutside"
+  (onHiding)="onCancel()">
+  
+  <div *dxTemplate="let data of 'content'" class="modal-content-wrapper">
+    <p class="modal-message">{{ message }}</p>
+    
+    <div class="modal-buttons-container">
+      
+      <homework-button
+        [label]="cancelText"
+        [theme]="cancelTheme"
+        [stylingMode]="cancelStylingMode"
+        [size]="cancelSize"
+        [disabled]="cancelDisabled"
+        [buttonColor]="colorCancelButton"
+        [textColor]="colorCancelText"
+        (onClick)="onCancel()">
+      </homework-button>
+      
+      <homework-button
+        [label]="confirmText"
+        [theme]="confirmTheme"
+        [stylingMode]="confirmStylingMode"
+        [size]="confirmSize"
+        [disabled]="confirmDisabled"
+        [buttonColor]="colorConfirmButton"
+        [textColor]="colorConfirmText"
+        (onClick)="onConfirm()">
+      </homework-button>
+
+    </div>
+  </div>
+</dx-popup>

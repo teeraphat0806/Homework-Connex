@@ -8,6 +8,7 @@ import { Forbidden } from './layouts/forbidden/forbidden.component';
 import { NetworkError } from './layouts/network-error/network-error.component';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { Test } from './modules/main/pages/test/test';
 // import { MainRoute } from './shared/routers/main.const';
 export const routes: Routes = [
   {
@@ -47,5 +48,6 @@ export const routes: Routes = [
   { path: 'unauthorized', component: Unauthorized },
   { path: 'forbidden', component: Forbidden },
   { path: 'network-error', component: NetworkError },
+  { path:'test', component:Test},
   { path: '**', redirectTo: 'not-found' },
 ];

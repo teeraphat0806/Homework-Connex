@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ButtonTheme } from '../../models/pages-design.model';
 
 @Component({
-  selector: 'app-homework-button.component',
+  selector: 'homework-button',
   imports: [],
   templateUrl: './homework-button.component.html',
   styleUrl: './homework-button.component.css',
@@ -15,6 +15,8 @@ export class HomeworkButton {
   @Input() iconColor: string = '';
   @Input() buttonColor: string = '';
   @Input() disabled: boolean = false;
+  @Input() type: 'normal' | 'default' | 'success' | 'danger' = 'default';
+  @Input() stylingMode: 'contained' | 'outlined' | 'text' = 'contained';
 
   @Input() textColor: string | null = null;
   @Input() size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' = 'md';

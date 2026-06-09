@@ -40,4 +40,6 @@ public partial class Products
     public virtual Users ModifiedByUser { get; set; }
 
     public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
+
+    public virtual ICollection<ProductCategoryMapping> ProductCategoryMapping { get; set; } = new List<ProductCategoryMapping>();
 }

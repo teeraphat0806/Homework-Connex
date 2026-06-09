@@ -27,6 +27,8 @@ public partial class postgresContext : DbContext
 
     public virtual DbSet<Orders> Orders { get; set; }
 
+    public virtual DbSet<ProductCategoryMapping> ProductCategoryMapping { get; set; }
+
     public virtual DbSet<Products> Products { get; set; }
 
     public virtual DbSet<RefCategories> RefCategories { get; set; }
@@ -207,6 +209,25 @@ public partial class postgresContext : DbContext
             entity.HasOne(d => d.ModifiedByUser).WithMany(p => p.OrdersModifiedByUser)
                 .HasForeignKey(d => d.ModifiedByUserId)
                 .HasConstraintName("FK_Orders_ModifiedBy");
+        });
+
+        modelBuilder.Entity<ProductCategoryMapping>(entity =>
+        {
+            entity.HasKey(e => e.MappingId).HasName("ProductCategoryMapping_pkey");
+
+            entity.HasIndex(e => e.CategoryId, "IX_ProductCategoryMapping_CategoryId");
+
+            entity.HasIndex(e => e.ProductId, "IX_ProductCategoryMapping_ProductId");
+
+            entity.HasIndex(e => new { e.ProductId, e.CategoryId }, "UQ_ProductCategory").IsUnique();
+
+            entity.HasOne(d => d.Category).WithMany(p => p.ProductCategoryMapping)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK_ProductCategory_Category");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductCategoryMapping)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK_ProductCategory_Product");
         });
 
         modelBuilder.Entity<Products>(entity =>

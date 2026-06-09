@@ -51,6 +51,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "public.ProductCategoryMapping",
+         "ObjectType": 0
+      },
+      {
          "Name": "public.Products",
          "ObjectType": 0
       },

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { map, take } from 'rxjs';
+import { catchError, map, of, take } from 'rxjs';
 import { AuthApiService } from '../../modules/authentication/services/auth.service';
 
 export const guestGuard: CanActivateFn = () => {
@@ -15,12 +15,15 @@ export const guestGuard: CanActivateFn = () => {
   return authApiService.IsSessionValid().pipe(
     take(1),
     map(session => {
-      if (!session.IsValid) {
+      if (!session.isValid) {
         return true;
       }
 
       router.navigate(['/main/dashboard']);
       return false;
+    }),
+    catchError(() => {
+      return of(true);
     })
   );
 };

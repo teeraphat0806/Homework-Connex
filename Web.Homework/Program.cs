@@ -30,7 +30,7 @@ namespace Homework.Web
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IRawSqlService, USP_Query_PermissionAccess>();
+            builder.Services.AddScoped<IRawSqlService, RawSqlService>();
 
             // Add CORS
             builder.Services.AddCors(options =>

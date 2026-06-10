@@ -1,9 +1,8 @@
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import { environment } from "../../../../environments/environment";
 import { HttpClient } from "@angular/common/http";
-import { catchError, Observable, tap, map, throwError } from "rxjs";
+import { catchError, Observable, tap, map, throwError, of } from "rxjs";
 import { Router } from "@angular/router";
-import { shareReplay } from "rxjs/operators";
 
 export interface LoginRequest {
   UserName: string;
@@ -17,7 +16,7 @@ export interface LoginViewModel {
 }
 
 export interface SessionViewModel {
-  IsValid: boolean;
+  isValid: boolean;
   Message: string;
 }
 export interface RegisterRequest {
@@ -40,7 +39,7 @@ export class AuthApiService {
     }
     Login(params: LoginRequest): Observable<LoginViewModel>{
         return this.http.post<LoginViewModel>(`${this.url}/login`, params,{withCredentials: true}).pipe(
-            shareReplay(1),
+            
              catchError(error => {
                 console.error('Login failed', error);
                 return throwError(() => new Error('Login failed. Please check your credentials and try again.'));
@@ -66,12 +65,18 @@ export class AuthApiService {
         ));
     }
     IsSessionValid(): Observable<SessionViewModel> {
-        return this.http.post<SessionViewModel>(`${this.url}/IsSessionValid`, {}, { withCredentials: true }).pipe(
+        return this.http.post<SessionViewModel>(`${this.url}/is-session-valid`, {}, { withCredentials: true }).pipe(
             map(res => {
-                if (!res.IsValid) {
+                if (!res.isValid) {
                     this.currentUser.set(null);
                 }
+                console.log('Session validation result:', res);
                 return res;
+            }),
+            catchError(err => {
+                console.error("IsSessionValid Error:", err);
+                this.currentUser.set(null);
+                return of({ isValid: false, Message: 'Error validating session' });
             })
         );
     }   

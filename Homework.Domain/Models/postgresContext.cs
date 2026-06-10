@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-
+using Homework.Domain.ViewModels.RawSql;
 namespace Homework.Domain.Models;
 
 public partial class postgresContext : DbContext
@@ -12,7 +12,9 @@ public partial class postgresContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<USP_Query_NavbarViewModel> USP_Query_NavbarViewModels { get; set; }
 
+    public virtual DbSet<USP_Query_PermissionAccessViewModel> USP_Query_PermissionAccessViewModels { get; set; }
     public virtual DbSet<Function_Page_Mapping> Function_Page_Mapping { get; set; }
 
     public virtual DbSet<LogOrders> LogOrders { get; set; }
@@ -492,7 +494,19 @@ public partial class postgresContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
         });
+        modelBuilder.Entity<USP_Query_NavbarViewModel>(entity =>
+        {
+            entity.HasNoKey();
+        });
 
+        modelBuilder.Entity<USP_Query_PermissionAccessViewModel>(entity =>
+        {
+            entity.HasNoKey();
+        });
+        modelBuilder.Entity<USP_Query_NavbarViewModel>(entity =>
+        {
+            entity.HasNoKey();
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

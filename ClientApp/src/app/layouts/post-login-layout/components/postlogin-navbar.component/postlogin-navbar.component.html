@@ -1,19 +1,35 @@
-<nav class="post-nav">
-  <!-- <div class="nav-brand">BACKOFFICE</div>
-
-  <div class="nav-menu">
-    @for (item of menuItems; track $index) {
-      <a [routerLink]="item.pageUrl" 
-         routerLinkActive="nav-link-active"
-         [routerLinkActiveOptions]="{exact: true}"
-         class="nav-link">
-        <i [class]="item.navbarIcon"></i> 
-        <span>{{ item.navbarName }}</span>
-      </a>
-    }
+<nav class="main-navbar">
+  <div class="navbar-logo">
+    <span class="logo-text">Connex</span>
   </div>
 
-  <div class="profile-container">
-    <div class="username">{{username}}</div>
-  </div> -->
+  <div class="navbar-actions">
+    <div class="desktop-menu">
+      <div class="desktop-nav-container">
+        
+        <div class="desktop-links">
+          @for (item of navItems; track item.pageUrl) {
+            <a 
+              [routerLink]="'/' + item.pageUrl" 
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="desktop-menu-item">
+              {{ item.navbarName }} 
+            </a>
+          }
+        </div>
+
+        <div class="desktop-logout">
+          <homework-button
+            icon="logout"
+            text="ออกจากระบบ"
+            type="danger"
+            stylingMode="outlined"
+            (onClick)="onLogOut()">
+          </homework-button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </nav>

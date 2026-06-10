@@ -43,6 +43,14 @@ export class HomeworkButton {
     this.onClick.emit();
   }
 
+    public get themeClass(): string {
+    const map: Record<string, string> = {
+      'Primary': 'bg-blue-500 hover:bg-blue-600',
+      'Secondary': 'bg-gray-500 hover:bg-gray-600',
+      'Danger': 'bg-red-500 hover:bg-red-600',
+    };
+    return map[this.theme] ?? map['Primary'];
+  }
   public get sizeClass(): string {
     const map: Record<string, string> = {
       'xs': 'px-2  py-0.5 text-[10px]',

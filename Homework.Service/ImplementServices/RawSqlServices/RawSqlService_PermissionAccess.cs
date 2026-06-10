@@ -1,23 +1,14 @@
-﻿using Homework.Domain.Interfaces.RawSqlServices;
-using Homework.Domain.Models;
 using Homework.Domain.RequestModels.PermissionRequestModels;
 using Homework.Domain.ViewModels.RawSql;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using System.Threading.Tasks;
 
 namespace Homework.Service.ImplementServices.RawSqlServices
 {
-    public partial class USP_Query_PermissionAccess : IRawSqlService
+    public partial class RawSqlService
     {
-        private readonly postgresContext _context;
-
-        public USP_Query_PermissionAccess(postgresContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<USP_Query_PermissionAccessViewModel?>
-            QueryPermissionAccessAsync(
+        public async Task<USP_Query_PermissionAccessViewModel?> QueryPermissionAccessAsync(
                 PermissionRequestModel param,
                 string roleCode)
         {

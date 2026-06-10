@@ -19,7 +19,7 @@ namespace Web.Homework.Controllers.Permission
             _permissionService = permissionService;
         }
        
-        [HttpPost("priv-page-check")]
+        [HttpPost("GetPrivPage")]
         public async Task<IActionResult> PrivPageCheck(
         [FromBody] PermissionRequestModel param)
         {

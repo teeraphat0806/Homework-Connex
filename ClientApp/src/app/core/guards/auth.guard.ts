@@ -8,12 +8,13 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return authApiService.IsSessionValid().pipe(
-    take(1),
+    
     map(session => {
-      if (session.IsValid) {
+      console.log('AuthGuard session validation result:', session);
+      if (session.isValid) {
+        console.log('Session is valid, allowing access to route');
         return true;
       }
-
       router.navigate(['/login']);
       return false;
     })

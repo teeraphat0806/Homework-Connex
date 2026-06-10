@@ -1,1 +1,27 @@
-<p>prelogin-navbar.component works!</p>
+<nav class="main-navbar">
+  <div class="navbar-logo">
+    <span class="logo-text">Connex</span>
+  </div>
+
+  <div class="navbar-actions">
+    <div class="desktop-menu">
+      <div class="desktop-nav-container">
+        
+        <div class="desktop-links">
+          @for (item of navItems; track item.pageUrl) {
+            <a 
+              [routerLink]="'/' + item.pageUrl" 
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="desktop-menu-item">
+              {{ item.navbarName }} 
+            </a>
+          }
+        </div>
+
+       
+
+      </div>
+    </div>
+  </div>
+</nav>

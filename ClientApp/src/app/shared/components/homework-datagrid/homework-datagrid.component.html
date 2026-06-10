@@ -1,0 +1,68 @@
+<dx-data-grid
+  [dataSource]="gridDataSource"
+  [keyExpr]="config.keyExpr"
+  [showBorders]="config.showBorders ?? true">
+
+  @for (column of config.columns; track column.caption) {
+    @if(column.columnType === 'action') {
+      <dxi-column
+        [caption]="column.caption"
+        [width]="column.width"
+        [dataType]="column.dataType"
+        [format]="column.format"
+        [cellTemplate]="column.cellTemplate"
+        [alignment]="getColumnAlignment(column)"
+        >
+      </dxi-column>
+    } @else {
+       
+    <dxi-column
+      [dataField]="column.dataField"
+      [caption]="column.caption"
+      [width]="column.width"
+      [dataType]="column.dataType"
+      [format]="column.format"
+      [cellTemplate]="column.cellTemplate"
+      [visible]="column.visible ?? true"
+      [alignment]="getColumnAlignment(column)">
+    </dxi-column>
+    }
+  }
+
+  <div *dxTemplate="let item of 'actionTemplate'" class="action-buttons">
+    <homework-button
+      label="View"
+      theme="Primary"
+      stylingMode="outlined"
+      (onClick)="viewClick.emit(item.data)">
+    </homework-button>
+
+    <homework-button
+      label="Edit"
+      theme="Secondary"
+      stylingMode="outlined"
+      (onClick)="editClick.emit(item.data)">
+    </homework-button>
+
+    <homework-button
+      label="Delete"
+      theme="Danger"
+      stylingMode="outlined"
+      (onClick)="deleteClick.emit(item.data)">
+    </homework-button>
+    </div>
+  <ng-content></ng-content>
+
+  <dxo-paging
+    [pageSize]="config.pageSize ?? 10">
+  </dxo-paging>
+
+  <dxo-pager
+    [visible]="true"
+    [showInfo]="true"
+    [showPageSizeSelector]="true"
+    [allowedPageSizes]="[5, 10, 20, 50]">
+  </dxo-pager>
+
+
+</dx-data-grid>

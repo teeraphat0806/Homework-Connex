@@ -8,35 +8,17 @@
   [dragEnabled]="draggable"
   [resizeEnabled]="resizable"
   [hideOnOutsideClick]="closingOutside"
-  (onHiding)="onCancel()">
-  
+  (onHiding)="onCancel()"
+>
   <div *dxTemplate="let data of 'content'" class="modal-content-wrapper">
-    <p class="modal-message">{{ message }}</p>
-    
-    <div class="modal-buttons-container">
-      
-      <homework-button
-        [label]="cancelText"
-        [theme]="cancelTheme"
-        [stylingMode]="cancelStylingMode"
-        [size]="cancelSize"
-        [disabled]="cancelDisabled"
-        [buttonColor]="colorCancelButton"
-        [textColor]="colorCancelText"
-        (onClick)="onCancel()">
-      </homework-button>
-      
-      <homework-button
-        [label]="confirmText"
-        [theme]="confirmTheme"
-        [stylingMode]="confirmStylingMode"
-        [size]="confirmSize"
-        [disabled]="confirmDisabled"
-        [buttonColor]="colorConfirmButton"
-        [textColor]="colorConfirmText"
-        (onClick)="onConfirm()">
-      </homework-button>
 
+    <div class="modal-body">
+      <ng-content select="[modal-body]"></ng-content>
     </div>
+
+    <div class="modal-footer">
+      <ng-content select="[modal-footer]"></ng-content>
+    </div>
+
   </div>
 </dx-popup>

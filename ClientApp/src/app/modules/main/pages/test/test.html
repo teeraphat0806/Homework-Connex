@@ -8,20 +8,44 @@
         (selectedItemKeyChange)="currentStatus = $event">
   </homework-dropdown>
   <button (click)="openDeleteModal()">Delete Member</button>
-
 <homework-confirmation-modal
-  [(visible)]="isDeleteModalOpen"
-  title="ยืนยันการลบสมาชิก"
-  message="คุณต้องการลบข้อมูลสมาชิกคนนี้ใช่หรือไม่? เมื่อลบแล้วจะไม่สามารถกู้คืนได้"
-  confirmText="ใช่, ลบเลย"
-  cancelText="ยกเลิก"
-  cancelTheme="Secondary"
-  confirmTheme="Danger"
-  colorCancelButton="lightgray"
-  colorCancelText="black"
-  colorConfirmButton="red"
-  colorConfirmText="white"
-  (confirm)="executeDeleteMemberLogic()"
-  (cancel)="closeDeleteModal()">
+  [(visible)]="isDeleteModalVisible"
+  [config]="deleteModalConfig"
+  (cancel)="closeDeleteModal()"
+>
+
+  <ng-container modal-body>
+    <p>
+      คุณต้องการลบสินค้า
+      <strong>{{ selectedProduct.name }}</strong>
+      ใช่หรือไม่?
+    </p>
+
+    <p style="color: red; font-size: 13px;">
+      เมื่อลบแล้วจะไม่สามารถกู้คืนข้อมูลได้
+    </p>
+  </ng-container>
+
+  <ng-container modal-footer>
+    <homework-button
+      label="Cancel"
+      theme="Danger"
+      stylingMode="outlined"
+      (onClick)="closeDeleteModal()"
+    >
+    </homework-button>
+      
+    <homework-button
+      label="Delete"
+      theme="Primary"
+      stylingMode="outlined"
+      (onClick)="deleteProduct()"
+    >
+    </homework-button>
+  </ng-container>
+
 </homework-confirmation-modal>
+  <div style="margin-top: 20px; margin-left: 20px;margin-right: 20px;">
+    <homework-order-list></homework-order-list>
+  </div>
 </div>

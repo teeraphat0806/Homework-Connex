@@ -1,1 +1,7 @@
-<p>homework-order-list.component works!</p>
+<homework-datagrid
+  [dataSource]="orders"
+  [config]="gridConfig"
+  (viewClick)="viewOrder($event)"
+  (editClick)="editOrder($event)"
+  (deleteClick)="deleteOrder($event)">
+</homework-datagrid>

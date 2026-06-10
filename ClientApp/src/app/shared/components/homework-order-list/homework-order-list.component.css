@@ -1,0 +1,14 @@
+h2 {
+  margin: 24px 0 12px;
+  font-size: 20px;
+}
+
+hr {
+  margin: 32px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+dx-button {
+  margin-right: 6px;
+}

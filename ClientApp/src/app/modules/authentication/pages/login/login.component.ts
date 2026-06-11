@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 
 // Components & Directives
 import { HomeworkInputComponent } from "../../../../shared/components/homework-input/homework-input.component";
+import { HomeworkButton } from "../../../../shared/components/homework-button/homework-button.component";
 
 import { ErrorEditorState } from '../../../../shared/directives/validate-error.directive';
 
@@ -16,7 +17,7 @@ import { AuthApiService, LoginRequest } from '../../services/auth.service';
   imports: [
     CommonModule, 
     HomeworkInputComponent, 
-    
+    HomeworkButton
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',

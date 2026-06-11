@@ -10,7 +10,7 @@ namespace Homework.Domain.ViewModels.NavbarViewModels
     {
         public string PageCode { get; set; }
         public string NavbarName { get; set; }
-        public string PageURL { get; set; }
+        public string PageUrl  { get; set; }
         public int Seq { get; set; }
     }
 }

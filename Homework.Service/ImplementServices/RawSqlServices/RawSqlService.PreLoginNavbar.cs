@@ -10,13 +10,13 @@ namespace Homework.Service.ImplementServices.RawSqlServices
             var query = @"
 SELECT
     n.""NavbarName"",
-    p.""PageUrl"" AS ""PageURL"",
+    p.""PageUrl"" AS ""PageUrl"",
     n.""Seq"",
     n.""PageCode""
 FROM ""RefNavbar"" n
 INNER JOIN ""RefPages"" p
     ON n.""PageCode"" = p.""PageCode""
-WHERE n.""NavbarCode"" IN ('PRE_HOME', 'PRE_LOGIN')
+WHERE n.""NavbarCode"" IN ('PRE_REGISTER', 'PRE_LOGIN')
   AND p.""IsActive"" = TRUE
 ORDER BY n.""Seq"";
 ";

@@ -6,11 +6,13 @@ import {RegisterModel} from "../../models/authentiscation.model";
 import { AuthApiService } from '../../services/auth.service';
 import {RegisterRequest} from '../../services/auth.service';
 import {Router} from "@angular/router";
+import { HomeworkButton } from '../../../../shared/components/homework-button/homework-button.component';
 @Component({
   selector: 'app-register.component',
   imports: [
     CommonModule,
-    HomeworkInputComponent
+    HomeworkInputComponent,
+    HomeworkButton
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',

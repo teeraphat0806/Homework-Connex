@@ -4,58 +4,48 @@
   [showBorders]="config.showBorders ?? true">
 
   @for (column of config.columns; track column.caption) {
-    @if(column.columnType === 'action') {
+    @if (column.columnType === 'action') {
       <dxi-column
         [caption]="column.caption"
         [width]="column.width"
         [dataType]="column.dataType"
         [format]="column.format"
-        [cellTemplate]="column.cellTemplate"
-        [alignment]="getColumnAlignment(column)"
-        >
+        [cellTemplate]="column.cellTemplate ?? 'actionTemplate'"
+        [visible]="column.visible ?? true"
+        [alignment]="getColumnAlignment(column)">
       </dxi-column>
     } @else {
-       
-    <dxi-column
-      [dataField]="column.dataField"
-      [caption]="column.caption"
-      [width]="column.width"
-      [dataType]="column.dataType"
-      [format]="column.format"
-      [cellTemplate]="column.cellTemplate"
-      [visible]="column.visible ?? true"
-      [alignment]="getColumnAlignment(column)">
-    </dxi-column>
+      <dxi-column
+        [dataField]="column.dataField"
+        [caption]="column.caption"
+        [width]="column.width"
+        [dataType]="column.dataType"
+        [format]="column.format"
+        [cellTemplate]="column.cellTemplate"
+        [visible]="column.visible ?? true"
+        [alignment]="getColumnAlignment(column)">
+      </dxi-column>
     }
   }
 
   <div *dxTemplate="let item of 'actionTemplate'" class="action-buttons">
-    <homework-button
-      label="View"
-      theme="Primary"
-      stylingMode="outlined"
-      (onClick)="viewClick.emit(item.data)">
-    </homework-button>
+    @for (action of config.actions ?? []; track action.label) {
+      @if (isActionVisible(action, item.data)) {
+        <homework-button
+          [label]="action.label"
+          [theme]="action.theme"
+          [size]="action.size ?? 'md'"
+          [stylingMode]="action.stylingMode ?? 'outlined'"
+          [disabled]="isActionDisabled(action, item.data)"
+          (onClick)="onActionClick(action, item.data)">
+        </homework-button>
+      }
+    }
+  </div>
 
-    <homework-button
-      label="Edit"
-      theme="Secondary"
-      stylingMode="outlined"
-      (onClick)="editClick.emit(item.data)">
-    </homework-button>
-
-    <homework-button
-      label="Delete"
-      theme="Danger"
-      stylingMode="outlined"
-      (onClick)="deleteClick.emit(item.data)">
-    </homework-button>
-    </div>
   <ng-content></ng-content>
 
-  <dxo-paging
-    [pageSize]="config.pageSize ?? 10">
-  </dxo-paging>
+  <dxo-paging [pageSize]="config.pageSize ?? 10"></dxo-paging>
 
   <dxo-pager
     [visible]="true"
@@ -63,6 +53,5 @@
     [showPageSizeSelector]="true"
     [allowedPageSizes]="[5, 10, 20, 50]">
   </dxo-pager>
-
 
 </dx-data-grid>

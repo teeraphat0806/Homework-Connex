@@ -35,7 +35,7 @@ namespace Homework.Service.ImplementServices.NavbarServices
             {
                 PageCode = m.PageCode,
                 NavbarName = m.NavbarName,
-                PageURL = m.PageURL
+                PageUrl  = m.PageUrl 
             }).ToList();
         }
         public async Task<List<NavbarViewModels>> GetPreLoginNavBar()
@@ -46,7 +46,7 @@ namespace Homework.Service.ImplementServices.NavbarServices
             {
                 PageCode = m.PageCode,
                 NavbarName = m.NavbarName,
-                PageURL = m.PageURL
+                PageUrl  = m.PageUrl 
             }).ToList();
         }
     }

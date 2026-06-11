@@ -19,7 +19,7 @@ namespace Homework.Domain.ViewModels.RawSql
     public class USP_Query_NavbarViewModel
     {
         public string NavbarName { get; set; } = string.Empty;
-        public string PageURL { get; set; } = string.Empty;
+        public string PageUrl  { get; set; } = string.Empty;
         public int? Seq { get; set; }
         public string PageCode { get; set; } = string.Empty;
     }

@@ -12,7 +12,7 @@ namespace Homework.Service.ImplementServices.RawSqlServices
             var query = @"
 SELECT DISTINCT
     n.""NavbarName"",
-    p.""PageUrl"" AS ""PageURL"",
+    p.""PageUrl"" AS ""PageUrl"",
     n.""Seq"",
     n.""PageCode""
 FROM ""RefNavbar"" n
@@ -42,7 +42,7 @@ ORDER BY n.""Seq"";
 
             foreach (var item in res)
             {
-                Console.WriteLine($"{item.NavbarName} | {item.PageCode} | {item.PageURL}");
+                Console.WriteLine($"{item.NavbarName} | {item.PageCode} | {item.PageUrl }");
             }
 
             return res;

@@ -31,7 +31,7 @@ export class PostloginNavbarComponent {
   public onLogOut(): void {
     this.authService.Logout().subscribe({
       next: () => {
-        this.router.navigate(['Auth/login']);
+        this.router.navigate(['/login']);
       },
       error: (error) => {
         console.error('Logout failed:', error);

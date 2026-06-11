@@ -13,8 +13,6 @@ import { CommonModule } from '@angular/common';
 })
 export class PreloginNavbarComponent {
   public navItems: NavbarItemModel[] = [];
-  private router = inject(Router);
-  private authService = inject(AuthApiService);  
   private preLoginNavbarService = inject(PreLoginNavbarService);
   private cdr = inject(ChangeDetectorRef);
   ngOnInit() : void{

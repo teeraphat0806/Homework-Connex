@@ -10,7 +10,7 @@
         <div class="desktop-links">
           @for (item of navItems; track item.pageUrl) {
             <a 
-              [routerLink]="'/' + item.pageUrl" 
+              [routerLink]="'/main/' + item.pageUrl" 
               routerLinkActive="active-link"
               [routerLinkActiveOptions]="{ exact: true }"
               class="desktop-menu-item">
@@ -22,8 +22,8 @@
         <div class="desktop-logout">
           <homework-button
             icon="logout"
-            text="ออกจากระบบ"
-            type="danger"
+            label="ออกจากระบบ"
+            theme="Danger"
             stylingMode="outlined"
             (onClick)="onLogOut()">
           </homework-button>

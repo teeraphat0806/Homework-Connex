@@ -1,7 +1,32 @@
 <homework-datagrid
   [dataSource]="orders"
-  [config]="gridConfig"
-  (viewClick)="viewOrder($event)"
-  (editClick)="editOrder($event)"
-  (deleteClick)="deleteOrder($event)">
+  [config]="gridConfig">
 </homework-datagrid>
+
+<dx-popup
+  [(visible)]="isEditPopupVisible"
+  title="Edit Order"
+  [width]="400"
+  [height]="300"
+  [showCloseButton]="true">
+
+  @if (selectedOrder) {
+    <div class="edit-form">
+      <label>Order No</label>
+      <input [(ngModel)]="selectedOrder.orderNo" />
+
+      <label>Total Amount</label>
+      <input
+        type="number"
+        [(ngModel)]="selectedOrder.totalAmount" />
+
+      <label>Status</label>
+      <input [(ngModel)]="selectedOrder.status" />
+
+      <div class="popup-actions">
+        <button (click)="saveEditOrder()">Save</button>
+        <button (click)="closeEditPopup()">Cancel</button>
+      </div>
+    </div>
+  }
+</dx-popup>

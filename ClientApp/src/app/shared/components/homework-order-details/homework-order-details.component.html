@@ -1,4 +1,4 @@
-<homework-formpopup 
+<homework-formpopup
   [(visible)]="isAddPopupVisible"
   title="Add Product"
   [width]="400"
@@ -16,7 +16,7 @@
       placeholder="กรอกชื่อสินค้า"
       [fieldValue]="newProduct.name"
       (fieldValueChange)="newProduct.name = $event"
-    ></app-homework-input>  
+    ></app-homework-input>
     <app-homework-input
       type="Text"
       label="ราคา"
@@ -31,13 +31,7 @@
       [fieldValue]="newProduct.description"
       (fieldValueChange)="newProduct.description = $event"
     ></app-homework-input>
-    <app-homework-input
-      type="Number"
-      label="ราคาต้นทุน"
-      placeholder="กรอกราคาต้นทุน"
-      [fieldValue]="newProduct.cost"
-      (fieldValueChange)="newProduct.cost = $event"
-    ></app-homework-input>
+
     <app-homework-input
       type="Number"
       label="จำนวนในสต็อก"
@@ -48,21 +42,20 @@
   </div>
 </homework-formpopup>
 
-
 <homework-datagrid [dataSource]="products" [config]="gridConfig">
   <ng-template gridTemplate="priceTemplate" let-item>
     <strong>{{ item.data.price | number }}</strong> บาท
   </ng-template>
 </homework-datagrid>
 <homework-formpopup
-   [(visible)]="isEditPopupVisible"
+  [(visible)]="isEditPopupVisible"
   title="Edit Product"
   [width]="400"
   [height]="300"
   [showCloseButton]="true"
-    (save)="saveEditProduct()"
-    (cancel)="closeEditPopup()"
-    [showOpenButton]="false"
+  (save)="saveEditProduct()"
+  (cancel)="closeEditPopup()"
+  [showOpenButton]="false"
 >
   @if (selectedProduct) {
     <div class="edit-form">
@@ -89,8 +82,6 @@
         [fieldValue]="selectedProduct.description"
         (fieldValueChange)="selectedProduct.description = $event"
       ></app-homework-input>
-
-      
     </div>
   }
 </homework-formpopup>

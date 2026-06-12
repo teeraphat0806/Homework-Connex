@@ -1,19 +1,21 @@
 import { Component, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HomeworkDatagridComponent, GridTemplateDirective} from '../homework-datagrid/homework-datagrid.component';
+import {
+  HomeworkDatagridComponent,
+  GridTemplateDirective,
+} from '../homework-datagrid/homework-datagrid.component';
 import { DynamicGridConfig } from '../../models/homework-datagrid.model';
 import { HomeworkButton } from '../homework-button/homework-button.component';
 import { HomeworkInputComponent } from '../homework-input/homework-input.component';
 import { DxPopupModule } from 'devextreme-angular/ui/popup';
 import { mockDatabase } from '../../../mock/mock-data';
 import { DxTemplateModule } from 'devextreme-angular';
-import {HomeworkFormpopup} from '../homework-formpopup/homework-formpopup.component';
+import { HomeworkFormpopup } from '../homework-formpopup/homework-formpopup.component';
 export interface product {
   productId: number;
   name: string;
   description: string;
   price: number;
-  cost: number;
   stockQty: number;
   categoryId: number;
   isActive: boolean;
@@ -28,7 +30,7 @@ export interface product {
     HomeworkInputComponent,
     DxPopupModule,
     DxTemplateModule,
-    GridTemplateDirective
+    GridTemplateDirective,
   ],
   templateUrl: './homework-order-details.component.html',
   styleUrl: './homework-order-details.component.css',
@@ -50,7 +52,6 @@ export class HomeworkOrderDetailsComponent implements OnChanges, OnDestroy {
         columnType: 'number',
         cellTemplate: 'priceTemplate',
       },
-      { dataField: 'cost', caption: 'Cost', dataType: 'number', columnType: 'number' },
       { dataField: 'stockQty', caption: 'Stock Qty', dataType: 'number', columnType: 'number' },
       {
         caption: 'Actions',
@@ -58,7 +59,6 @@ export class HomeworkOrderDetailsComponent implements OnChanges, OnDestroy {
         cellTemplate: 'actionTemplate',
         alignment: 'center',
       },
-     
     ],
     actions: [
       {
@@ -84,7 +84,6 @@ export class HomeworkOrderDetailsComponent implements OnChanges, OnDestroy {
     name: '',
     description: '',
     price: 0,
-    cost: 0,
     stockQty: 0,
     categoryId: 0,
     isActive: true,
@@ -107,12 +106,11 @@ export class HomeworkOrderDetailsComponent implements OnChanges, OnDestroy {
     newProduct.name = '';
     newProduct.description = '';
     newProduct.price = 0;
-    newProduct.cost = 0;
     newProduct.stockQty = 0;
     newProduct.categoryId = 0;
     newProduct.isActive = true;
   }
-  
+
   isEditPopupVisible = false;
   selectedProduct: product | null = null;
   editProduct(product: product): void {

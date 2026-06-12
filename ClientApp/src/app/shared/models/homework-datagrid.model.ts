@@ -61,4 +61,8 @@ export interface DynamicGridConfig<T> {
   showBorders?: boolean;
   pageSize?: number;
   actions?: DynamicGridAction<T>[];
+  masterDetail?: {
+    enabled: boolean;
+    templateName: string;
+  };
 }

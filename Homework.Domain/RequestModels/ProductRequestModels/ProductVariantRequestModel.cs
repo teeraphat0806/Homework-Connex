@@ -12,7 +12,6 @@ namespace Homework.Domain.RequestModels.ProductRequestModels
         public string VariantName { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public decimal Cost { get; set; }
         public int StockQty { get; set; }
     }
 }

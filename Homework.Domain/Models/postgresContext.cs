@@ -16,6 +16,7 @@ public partial class postgresContext : DbContext
     public virtual DbSet<USP_Query_NavbarViewModel> USP_Query_NavbarViewModels { get; set; }
 
     public virtual DbSet<USP_Query_PermissionAccessViewModel> USP_Query_PermissionAccessViewModels { get; set; }
+
     public virtual DbSet<Function_Page_Mapping> Function_Page_Mapping { get; set; }
 
     public virtual DbSet<LogOrders> LogOrders { get; set; }
@@ -112,20 +113,19 @@ public partial class postgresContext : DbContext
         {
             entity.HasKey(e => e.LogProductId).HasName("LogProducts_pkey");
 
-            entity.HasIndex(e => e.SKU, "LogProducts_SKU_key").IsUnique();
+            entity.HasIndex(e => e.ProductCode, "LogProducts_SKU_key").IsUnique();
 
             entity.Property(e => e.LogProductId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Action)
                 .IsRequired()
                 .HasMaxLength(20);
-            entity.Property(e => e.Cost).HasPrecision(18, 2);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LogTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Price).HasPrecision(18, 2);
-            entity.Property(e => e.SKU)
+            entity.Property(e => e.ProductCode)
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.StockQty).HasDefaultValue(0);
@@ -248,7 +248,6 @@ public partial class postgresContext : DbContext
 
             entity.Property(e => e.ProductVariantId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Color).HasMaxLength(50);
-            entity.Property(e => e.Cost).HasPrecision(18, 2);
             entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Price).HasPrecision(18, 2);

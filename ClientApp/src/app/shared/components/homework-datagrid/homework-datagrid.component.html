@@ -42,6 +42,15 @@
     }
   </div>
 
+  @if (config.masterDetail?.enabled) {
+    <dxo-master-detail [enabled]="true" template="detailTemplate"></dxo-master-detail>
+  }
+
+  <div *dxTemplate="let row of 'detailTemplate'">
+    <ng-container *ngTemplateOutlet="getCustomTemplate(config.masterDetail?.templateName); context: { $implicit: row }">
+    </ng-container>
+  </div>
+
   <dxo-paging [pageSize]="config.pageSize ?? 10"></dxo-paging>
 
   <dxo-pager

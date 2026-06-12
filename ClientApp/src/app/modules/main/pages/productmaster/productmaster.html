@@ -6,24 +6,18 @@
     </div>
 
     <homework-button
-      label="Create Product"
+      label="เพิ่มสินค้า"
       theme="Primary"
       iconCode="add"
       [iconSize]="18"
-      (onClick)="openCreatePopup()">
+      (onClick)="openCreatePopup()"
+    >
     </homework-button>
   </div>
 
-  <homework-datagrid
-    [dataSource]="products"
-    [config]="gridConfig">
-
+  <homework-datagrid [dataSource]="products" [config]="gridConfig">
     <ng-template gridTemplate="priceTemplate" let-item>
       <strong>{{ item.data.price | number }}</strong> บาท
-    </ng-template>
-
-    <ng-template gridTemplate="costTemplate" let-item>
-      <span>{{ item.data.cost | number }}</span> บาท
     </ng-template>
 
     <ng-template gridTemplate="statusTemplate" let-item>
@@ -31,31 +25,154 @@
         class="status-badge"
         [ngClass]="{
           'status-active': item.data.isActive,
-          'status-inactive': !item.data.isActive
-        }">
+          'status-inactive': !item.data.isActive,
+        }"
+      >
         {{ item.data.isActive ? 'Active' : 'Inactive' }}
       </span>
     </ng-template>
 
+    <ng-template gridTemplate="productDetailTemplate" let-parentRow>
+      <div
+        style="
+          padding: 16px;
+          background-color: #fcfcfd;
+          border: 1px solid #eaecf0;
+          border-radius: 8px;
+          margin: 8px 0;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+          "
+        >
+          <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #344054">
+            รายการ Variant สินค้า
+          </h4>
+          <homework-button
+            label="เพิ่มสินค้า"
+            theme="Primary"
+            size="sm"
+            iconCode="add"
+            [iconSize]="16"
+            (onClick)="openCreateVariantPopup(parentRow.data?.productId ?? parentRow.key)"
+          >
+          </homework-button>
+        </div>
+
+        @let variants = getProductVariants(parentRow.data?.productId ?? parentRow.key);
+        @if (variants === null) {
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 0;
+              color: #475467;
+              font-size: 13px;
+            "
+          >
+            <div
+              class="spinner"
+              style="
+                width: 16px;
+                height: 16px;
+                border: 2px solid #f3f3f3;
+                border-top: 2px solid #4f46e5;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+              "
+            ></div>
+            กำลังโหลดรายละเอียด...
+          </div>
+        } @else if (variants.length > 0) {
+          <homework-datagrid [dataSource]="variants" [config]="variantGridConfig">
+            <ng-template gridTemplate="actionTemplate" let-variantRow>
+              <div style="display: flex; gap: 8px">
+                <homework-button
+                  label=""
+                  theme="Secondary"
+                  size="sm"
+                  iconCode="edit"
+                  [iconSize]="18"
+                  (onClick)="
+                    openEditVariantPopup(
+                      variantRow.data,
+                      parentRow.data?.productId ?? parentRow.key
+                    )
+                  "
+                >
+                </homework-button>
+                <homework-button
+                  label=""
+                  theme="Danger"
+                  size="sm"
+                  iconCode="delete"
+                  [iconSize]="18"
+                  (onClick)="
+                    deleteVariant(variantRow.data, parentRow.data?.productId ?? parentRow.key)
+                  "
+                >
+                </homework-button>
+              </div>
+            </ng-template>
+            <ng-template gridTemplate="priceTemplate" let-row>
+              <span>{{ row.data.price | number }} บาท</span>
+            </ng-template>
+
+            <ng-template gridTemplate="statusTemplate" let-row>
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-active': row.data.isActive,
+                  'status-inactive': !row.data.isActive,
+                }"
+              >
+                {{ row.data.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </ng-template>
+          </homework-datagrid>
+        } @else {
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 0;
+              color: #667085;
+              font-size: 13px;
+            "
+          >
+            <span class="material-icons" style="font-size: 18px; color: #98a2b3">info</span>
+            ไม่มีรายการ Variant สำหรับสินค้านี้
+          </div>
+        }
+      </div>
+    </ng-template>
   </homework-datagrid>
 
   <homework-formpopup
     [(visible)]="isProductPopupVisible"
     [title]="popupTitle"
     [width]="500"
-    [height]="620"
+    [height]="450"
     [showOpenButton]="false"
     (save)="saveProduct()"
-    (cancel)="closePopup()">
-
+    (cancel)="closePopup()"
+  >
     @if (selectedProduct) {
       <div class="product-form">
         <app-homework-input
           type="Text"
-          label="SKU"
+          label="ProductCode"
           placeholder="กรอกรหัสสินค้า"
-          [fieldValue]="selectedProduct.sku"
-          (fieldValueChange)="selectedProduct.sku = $event">
+          [fieldValue]="selectedProduct.productCode"
+          (fieldValueChange)="selectedProduct.productCode = $event"
+        >
         </app-homework-input>
 
         <app-homework-input
@@ -63,7 +180,8 @@
           label="Product Name"
           placeholder="กรอกชื่อสินค้า"
           [fieldValue]="selectedProduct.name"
-          (fieldValueChange)="selectedProduct.name = $event">
+          (fieldValueChange)="selectedProduct.name = $event"
+        >
         </app-homework-input>
 
         <app-homework-input
@@ -71,42 +189,119 @@
           label="Description"
           placeholder="กรอกรายละเอียดสินค้า"
           [fieldValue]="selectedProduct.description"
-          (fieldValueChange)="selectedProduct.description = $event">
+          (fieldValueChange)="selectedProduct.description = $event"
+        >
+        </app-homework-input>
+        <div class="hw-input-full" style="margin-bottom: 16px">
+          <div class="hw-input-header">
+            <label class="hw-label hw-label-top">Category</label>
+          </div>
+          <dx-tag-box
+            [items]="categoryDropdownItems"
+            valueExpr="key"
+            displayExpr="value"
+            [value]="selectedProduct.categoryId ? [selectedProduct.categoryId.toString()] : []"
+            (valueChange)="
+              selectedProduct.categoryId = $event && $event.length > 0 ? +$event[0] : undefined
+            "
+            placeholder="เลือกหมวดหมู่"
+          >
+          </dx-tag-box>
+        </div>
+        <app-homework-input type="Text" label="Color" placeholder="กรอกสี" [fieldValue]="">
         </app-homework-input>
 
-        <app-homework-input
-          type="Text"
-          label="Category"
-          placeholder="กรอกหมวดหมู่"
-          [fieldValue]="selectedProduct.categoryName"
-          (fieldValueChange)="selectedProduct.categoryName = $event">
-        </app-homework-input>
-
-        <app-homework-input
-          type="Text"
-          label="Price"
-          placeholder="กรอกราคาขาย"
-          [fieldValue]="selectedProduct.price"
-          (fieldValueChange)="selectedProduct.price = +$event">
-        </app-homework-input>
-
-        <app-homework-input
-          type="Text"
-          label="Cost"
-          placeholder="กรอกต้นทุน"
-          [fieldValue]="selectedProduct.cost"
-          (fieldValueChange)="selectedProduct.cost = +$event">
+        <app-homework-input type="Text" label="Price" placeholder="กรอกราคาขาย" [fieldValue]="">
         </app-homework-input>
 
         <app-homework-input
           type="Text"
           label="Stock Qty"
           placeholder="กรอกจำนวนสินค้า"
-          [fieldValue]="selectedProduct.stockQty"
-          (fieldValueChange)="selectedProduct.stockQty = +$event">
+          [fieldValue]=""
+        >
         </app-homework-input>
+        @if (popupMode === 'edit') {
+          <app-homework-input
+            type="Text"
+            label="Status"
+            placeholder="กรอกสถานะ (Active / Inactive)"
+            [fieldValue]="selectedProduct.isActive ? 'Active' : 'Inactive'"
+            (fieldValueChange)="selectedProduct.isActive = $event.toLowerCase() === 'active'"
+          >
+          </app-homework-input>
+        }
       </div>
     }
+  </homework-formpopup>
 
+  <homework-formpopup
+    [(visible)]="isVariantPopupVisible"
+    [title]="variantPopupTitle"
+    [width]="500"
+    [height]="550"
+    [showOpenButton]="false"
+    (save)="saveVariant()"
+    (cancel)="closeVariantPopup()"
+  >
+    @if (selectedVariant) {
+      <div class="product-form">
+        <app-homework-input
+          type="Text"
+          label="Variant Code"
+          placeholder="กรอกรหัส Variant"
+          [fieldValue]="selectedVariant.variantCode"
+          (fieldValueChange)="selectedVariant.variantCode = $event"
+        >
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Variant Name"
+          placeholder="กรอกชื่อ Variant"
+          [fieldValue]="selectedVariant.variantName"
+          (fieldValueChange)="selectedVariant.variantName = $event"
+        >
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Color"
+          placeholder="กรอกสี"
+          [fieldValue]="selectedVariant.color"
+          (fieldValueChange)="selectedVariant.color = $event"
+        >
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Price"
+          placeholder="กรอกราคาขาย"
+          [fieldValue]="selectedVariant.price"
+          (fieldValueChange)="selectedVariant.price = +$event"
+        >
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Stock Qty"
+          placeholder="กรอกจำนวนสินค้า"
+          [fieldValue]="selectedVariant.stockQty"
+          (fieldValueChange)="selectedVariant.stockQty = +$event"
+        >
+        </app-homework-input>
+
+        @if (variantPopupMode === 'edit') {
+          <app-homework-input
+            type="Text"
+            label="Status"
+            placeholder="กรอกสถานะ (Active / Inactive)"
+            [fieldValue]="selectedVariant.isActive ? 'Active' : 'Inactive'"
+            (fieldValueChange)="selectedVariant.isActive = $event.toLowerCase() === 'active'"
+          >
+          </app-homework-input>
+        }
+      </div>
+    }
   </homework-formpopup>
 </div>

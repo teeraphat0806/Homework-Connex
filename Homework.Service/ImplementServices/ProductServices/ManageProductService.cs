@@ -27,32 +27,7 @@ namespace Homework.Service.ImplementServices.ProductServices
         public async Task<ProductManageViewModel> CreateProduct(
             CreateProductRequestModel request, CustomError error)
         {
-            // 1. Validate Category selection
-            if (!request.CategoryId.HasValue || request.CategoryId.Value <= 0)
-            {
-                error.AddError("CategoryId", "กรุณาเลือกหมวดหมู่สินค้า");
-            }
-            error.ThrowIfError();
-
-            // 2. Validate SKU (ProductCode) and Name
-            if (string.IsNullOrWhiteSpace(request.SKu))
-            {
-                error.AddError("SKU", "กรุณากรอก SKU");
-            }
-            else
-            {
-                var isSkuExists = await _context.Products.AnyAsync(x => x.ProductCode == request.SKu);
-                if (isSkuExists)
-                {
-                    error.AddError("SKU", "SKU นี้มีในระบบแล้ว");
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Name))
-            {
-                error.AddError("Name", "กรุณากรอกชื่อสินค้า");
-            }
-            error.ThrowIfError();
+            await ValidateProduct(request, error);
 
             // 3. Get User ID
             long? userId = null;
@@ -65,7 +40,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             // 4. Create Product Entity
             var newProduct = new Products
             {
-                ProductCode = request.SKu,
+                ProductCode = request.ProductCode,
                 Name = request.Name,
                 Description = request.Description,
                 IsActive = true,
@@ -92,22 +67,9 @@ namespace Homework.Service.ImplementServices.ProductServices
                 for (int i = 0; i < request.Variants.Count; i++)
                 {
                     var v = request.Variants[i];
-                    if (string.IsNullOrWhiteSpace(v.VariantCode))
+                    bool flowControl = await ValidateVariantProduct(error, variantCodes, i, v);
+                    if (!flowControl)
                     {
-                        error.AddError($"Variants[{i}].VariantCode", $"กรุณากรอกรหัส Variant ที่ {i + 1}");
-                        continue;
-                    }
-                    if (variantCodes.Contains(v.VariantCode))
-                    {
-                        error.AddError($"Variants[{i}].VariantCode", $"รหัส Variant '{v.VariantCode}' ซ้ำในรายการ");
-                        continue;
-                    }
-                    variantCodes.Add(v.VariantCode);
-
-                    var isVariantCodeExists = await _context.ProductVariants.AnyAsync(x => x.VariantCode == v.VariantCode);
-                    if (isVariantCodeExists)
-                    {
-                        error.AddError($"Variants[{i}].VariantCode", $"รหัส Variant '{v.VariantCode}' นี้มีในระบบแล้ว");
                         continue;
                     }
 
@@ -118,7 +80,6 @@ namespace Homework.Service.ImplementServices.ProductServices
                         VariantName = string.IsNullOrWhiteSpace(v.VariantName) ? request.Name : v.VariantName,
                         Color = v.Color,
                         Price = v.Price,
-                        Cost = v.Cost,
                         StockQty = v.StockQty,
                         IsActive = true,
                         CreatedTime = DateTime.UtcNow
@@ -129,21 +90,20 @@ namespace Homework.Service.ImplementServices.ProductServices
             else
             {
                 // Create a default variant if none provided
-                var isVariantCodeExists = await _context.ProductVariants.AnyAsync(x => x.VariantCode == request.SKu);
+                var isVariantCodeExists = await _context.ProductVariants.AnyAsync(x => x.VariantCode == request.ProductCode);
                 if (isVariantCodeExists)
                 {
-                    error.AddError("SKU", "รหัส Variant สำหรับ SKU นี้มีในระบบแล้ว");
+                    error.AddError("ProductCode", "รหัส Variant สำหรับ ProductCode นี้มีในระบบแล้ว");
                 }
                 error.ThrowIfError();
 
                 var defaultVariant = new ProductVariants
                 {
                     ProductId = newProduct.ProductId,
-                    VariantCode = request.SKu,
+                    VariantCode = request.ProductCode,
                     VariantName = request.Name,
                     Color = string.Empty,
                     Price = request.Price,
-                    Cost = request.Cost,
                     StockQty = request.StockQty,
                     IsActive = true,
                     CreatedTime = DateTime.UtcNow
@@ -160,6 +120,60 @@ namespace Homework.Service.ImplementServices.ProductServices
                 Message = "สร้างสินค้าเรียบร้อยแล้ว",
                 ProductId = newProduct.ProductId
             };
+        }
+
+        private async Task<bool> ValidateVariantProduct(CustomError error, HashSet<string> variantCodes, int i, ProductVariantRequestModel v)
+        {
+            if (string.IsNullOrWhiteSpace(v.VariantCode))
+            {
+                error.AddError($"Variants[{i}].VariantCode", $"กรุณากรอกรหัส Variant ที่ {i + 1}");
+                return false;
+            }
+            if (variantCodes.Contains(v.VariantCode))
+            {
+                error.AddError($"Variants[{i}].VariantCode", $"รหัส Variant '{v.VariantCode}' ซ้ำในรายการ");
+                return false;
+            }
+            variantCodes.Add(v.VariantCode);
+
+            var isVariantCodeExists = await _context.ProductVariants.AnyAsync(x => x.VariantCode == v.VariantCode);
+            if (isVariantCodeExists)
+            {
+                error.AddError($"Variants[{i}].VariantCode", $"รหัส Variant '{v.VariantCode}' นี้มีในระบบแล้ว");
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task ValidateProduct(CreateProductRequestModel request, CustomError error)
+        {
+            // 1. Validate Category selection
+            if (!request.CategoryId.HasValue || request.CategoryId.Value <= 0)
+            {
+                error.AddError("CategoryId", "กรุณาเลือกหมวดหมู่สินค้า");
+            }
+            error.ThrowIfError();
+
+            // 2. Validate ProductCode (ProductCode) and Name
+            if (string.IsNullOrWhiteSpace(request.ProductCode))
+            {
+                error.AddError("ProductCode", "กรุณากรอก ProductCode");
+            }
+            else
+            {
+                var isProductCodeExists = await _context.Products.AnyAsync(x => x.ProductCode == request.ProductCode);
+                if (isProductCodeExists)
+                {
+                    error.AddError("ProductCode", "ProductCode นี้มีในระบบแล้ว");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                error.AddError("Name", "กรุณากรอกชื่อสินค้า");
+            }
+            error.ThrowIfError();
         }
 
         public async Task<ProductManageViewModel> UpdateProduct(
@@ -184,17 +198,17 @@ namespace Homework.Service.ImplementServices.ProductServices
             }
             error.ThrowIfError();
 
-            // 3. Validate SKU uniqueness (if modified)
-            if (string.IsNullOrWhiteSpace(request.SKU))
+            // 3. Validate ProductCode uniqueness (if modified)
+            if (string.IsNullOrWhiteSpace(request.ProductCode))
             {
-                error.AddError("SKU", "กรุณากรอก SKU");
+                error.AddError("ProductCode", "กรุณากรอก ProductCode");
             }
-            else if (product.ProductCode != request.SKU)
+            else if (product.ProductCode != request.ProductCode)
             {
-                var isSkuExists = await _context.Products.AnyAsync(x => x.ProductCode == request.SKU && x.ProductId != request.ProductId);
-                if (isSkuExists)
+                var isProductCodeExists = await _context.Products.AnyAsync(x => x.ProductCode == request.ProductCode && x.ProductId != request.ProductId);
+                if (isProductCodeExists)
                 {
-                    error.AddError("SKU", "SKU นี้มีในระบบแล้ว");
+                    error.AddError("ProductCode", "ProductCode นี้มีในระบบแล้ว");
                 }
             }
 
@@ -212,7 +226,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                 userId = parsedUserId;
             }
 
-            product.ProductCode = request.SKU;
+            product.ProductCode = request.ProductCode;
             product.Name = request.Name;
             product.Description = request.Description;
             product.IsActive = request.IsActive;
@@ -270,7 +284,6 @@ namespace Homework.Service.ImplementServices.ProductServices
                         existingVariant.VariantName = string.IsNullOrWhiteSpace(v.VariantName) ? request.Name : v.VariantName;
                         existingVariant.Color = v.Color;
                         existingVariant.Price = v.Price;
-                        existingVariant.Cost = v.Cost;
                         existingVariant.StockQty = v.StockQty;
                         existingVariant.IsActive = request.IsActive;
                     }
@@ -284,7 +297,6 @@ namespace Homework.Service.ImplementServices.ProductServices
                             VariantName = string.IsNullOrWhiteSpace(v.VariantName) ? request.Name : v.VariantName,
                             Color = v.Color,
                             Price = v.Price,
-                            Cost = v.Cost,
                             StockQty = v.StockQty,
                             IsActive = true,
                             CreatedTime = DateTime.UtcNow
@@ -296,15 +308,14 @@ namespace Homework.Service.ImplementServices.ProductServices
             else
             {
                 // If no variants list is provided, update or create default variant based on the root properties
-                var existingVariant = product.ProductVariants.FirstOrDefault(x => x.VariantCode == request.SKU)
+                var existingVariant = product.ProductVariants.FirstOrDefault(x => x.VariantCode == request.ProductCode)
                                       ?? product.ProductVariants.FirstOrDefault();
 
                 if (existingVariant != null)
                 {
-                    existingVariant.VariantCode = request.SKU;
+                    existingVariant.VariantCode = request.ProductCode;
                     existingVariant.VariantName = request.Name;
                     existingVariant.Price = request.Price;
-                    existingVariant.Cost = request.Cost;
                     existingVariant.StockQty = request.StockQty;
                     existingVariant.IsActive = request.IsActive;
                 }
@@ -314,11 +325,10 @@ namespace Homework.Service.ImplementServices.ProductServices
                     var defaultVariant = new ProductVariants
                     {
                         ProductId = product.ProductId,
-                        VariantCode = request.SKU,
+                        VariantCode = request.ProductCode,
                         VariantName = request.Name,
                         Color = string.Empty,
                         Price = request.Price,
-                        Cost = request.Cost,
                         StockQty = request.StockQty,
                         IsActive = true,
                         CreatedTime = DateTime.UtcNow

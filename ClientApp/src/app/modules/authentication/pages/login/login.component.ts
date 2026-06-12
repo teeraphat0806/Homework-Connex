@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthApiService,
     private router: Router,
-    public loadingService: LoadingService
+    public loadingService: LoadingService,
   ) {}
 
   ngOnInit(): void {
@@ -83,37 +83,15 @@ export class LoginComponent implements OnInit {
     // 3. เรียก API เพื่อยืนยันตัวตน
     this.authService
       .Login(this.loginData)
-      // .pipe(
-      //   catchError((x) => {
-      //     return catchErrorHandler(x, this.errorState);
-      //   }),
-      // )
+      .pipe(
+        catchError((x) => {
+          return catchErrorHandler(x, this.errorState);
+        }),
+      )
       .subscribe({
         next: (response) => {
           console.log('Login successful', response);
           this.router.navigate(['/main/products']);
-        },
-
-        error: (error) => {
-          console.error('Login failed', error);
-
-          const apiErrors = error?.error?.errors;
-
-          if (Array.isArray(apiErrors)) {
-            apiErrors.forEach((item: { field: string; message: string }) => {
-              const fieldName = item.field === 'Username' ? 'UserName' : item.field;
-
-              console.log('Set error for field', fieldName, 'message: ', item.message);
-
-              this.errorState.setError(fieldName, item.message);
-            });
-
-            console.log('All errors:', this.errorState.errors);
-
-            this.refreshErrorState();
-
-            return;
-          }
         },
       });
   }

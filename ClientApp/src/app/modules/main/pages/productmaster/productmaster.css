@@ -53,3 +53,8 @@
   color: #b91c1c;
   background: #fee2e2;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

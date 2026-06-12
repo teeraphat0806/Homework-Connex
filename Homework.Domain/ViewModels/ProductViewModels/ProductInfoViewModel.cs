@@ -6,20 +6,7 @@ using System.Threading.Tasks;
 
 namespace Homework.Domain.ViewModels.ProductViewModels
 {
-    public class ProductInfoViewModel
-    {
-        public long ProductId { get; set; }
-        public string SKU { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public decimal Cost { get; set; }
-        public int StockQty { get; set; }
-        public long? CategoryId { get; set; }
-        public bool IsActive { get; set; }
-        public List<ProductVariantViewModel> Variants { get; set; } = new List<ProductVariantViewModel>();
-    }
-
+   
     public class ProductVariantViewModel
     {
         public long ProductVariantId { get; set; }
@@ -27,7 +14,6 @@ namespace Homework.Domain.ViewModels.ProductViewModels
         public string VariantName { get; set; }
         public string Color { get; set; }
         public decimal Price { get; set; }
-        public decimal Cost { get; set; }
         public int StockQty { get; set; }
         public bool IsActive { get; set; }
     }

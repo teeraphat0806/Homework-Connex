@@ -1,15 +1,8 @@
 @if (loading.isLoading()) {
-<div class="loading-container" [class.is-fullscreen]="fullscreen">
-  <div class="loading-wrapper">
-    
-    <div class="loading-spinner"></div>
-
-    @if (text) {
-    <p class="loading-text">
-      <span>{{text}}</span>
-      <span class="loading-dots"></span>
-    </p>
-    }
+  <div class="loading-container" [class.is-fullscreen]="fullscreen">
+    <div class="loading-wrapper">
+      <dx-load-indicator id="medium-indicator" height="40" width="40"></dx-load-indicator>
+      <span class="loading-text">กำลังโหลดข้อมูล โปรดรอสักครู่...</span>
+    </div>
   </div>
-</div>
 }

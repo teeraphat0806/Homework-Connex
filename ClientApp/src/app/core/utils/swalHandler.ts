@@ -156,8 +156,18 @@ export const catchErrorHandler = ((httpErrorResponse: HttpErrorResponse, validat
                 }
             }
 
-            // Fallback: no errorMessage and no errorList
-            if (!httpErrorResponse?.error?.errorMessage && !httpErrorResponse.error.errorList) {
+            // Set field-level errors from errors array (common in login validation)
+            if (Array.isArray(httpErrorResponse.error?.errors) && validateHelper) {
+                httpErrorResponse.error.errors.forEach((item: any) => {
+                    if (item && typeof item.field === 'string' && typeof item.message === 'string') {
+                        const fieldName = item.field === 'Username' ? 'UserName' : item.field;
+                        validateHelper.setError(fieldName, item.message);
+                    }
+                });
+            }
+
+            // Fallback: no errorMessage, no errorList, and no errors array
+            if (!httpErrorResponse?.error?.errorMessage && !httpErrorResponse.error.errorList && !httpErrorResponse.error.errors) {
                 alertError(`Http failure response`);
             }
 

@@ -243,11 +243,10 @@ export const mockRefCategories = [
 export const mockProducts = [
   {
     productId: 1,
-    sku: 'P-KEYBOARD-001',
+    ProductCode: 'P-KEYBOARD-001',
     name: 'Mechanical Keyboard',
     description: 'RGB mechanical keyboard',
     price: 2500,
-    cost: 1800,
     stockQty: 20,
     categoryId: 1,
     isActive: true,
@@ -256,18 +255,16 @@ export const mockProducts = [
   },
   {
     productId: 2,
-    sku: 'P-MOUSE-001',
+    ProductCode: 'P-MOUSE-001',
     name: 'Wireless Mouse',
     description: 'Bluetooth wireless mouse',
     price: 890,
-    cost: 500,
     stockQty: 50,
     categoryId: 1,
     isActive: true,
     createdByUserId: 1,
     createdTime: '2026-06-10T09:10:00',
   },
-  
 ];
 
 export const mockProductCategoryMapping = [
@@ -422,11 +419,10 @@ export const mockLogProducts = [
   {
     logProductId: 1,
     productId: 1,
-    sku: 'P-KEYBOARD-001',
+    ProductCode: 'P-KEYBOARD-001',
     name: 'Mechanical Keyboard',
     description: 'RGB mechanical keyboard',
     price: 2500,
-    cost: 1800,
     stockQty: 20,
     categoryId: 1,
     isActive: true,

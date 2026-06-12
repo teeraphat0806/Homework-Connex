@@ -21,7 +21,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             _error = error;
         }
 
-        public async Task<List<ProductListViewModel>> GetProductList(
+        public async Task<List<ProductViewModel>> GetProductList(
             GetProductListRequestModel request, CustomError error)
         {
             var query = _context.Products.AsQueryable();
@@ -42,38 +42,20 @@ namespace Homework.Service.ImplementServices.ProductServices
             {
                 query = query.Where(x => x.IsActive == request.IsActive.Value);
             }
+            
 
             return await query
                 .OrderByDescending(x => x.ProductId)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .Select(x => new ProductListViewModel
+                .Select(x => new ProductViewModel
                 {
                     ProductId = x.ProductId,
-                    SKU = x.ProductCode,
-                    Name = x.Name,
-                    Price = x.ProductVariants.OrderBy(v => v.ProductVariantId).Select(v => v.Price).FirstOrDefault(),
-                    StockQty = x.ProductVariants.Sum(v => v.StockQty),
-                    IsActive = x.IsActive
-                })
-                .ToListAsync();
-        }
-
-        public async Task<ProductInfoViewModel?> GetProductInfo(
-            GetProductInfoRequestModel request, CustomError error)
-        {
-            return await _context.Products
-                .Where(x => x.ProductId == request.ProductId)
-                .Select(x => new ProductInfoViewModel
-                {
-                    ProductId = x.ProductId,
-                    SKU = x.ProductCode,
+                    ProductCode = x.ProductCode,
                     Name = x.Name,
                     Description = x.Description,
-                    Price = x.ProductVariants.OrderBy(v => v.ProductVariantId).Select(v => v.Price).FirstOrDefault(),
-                    Cost = x.ProductVariants.OrderBy(v => v.ProductVariantId).Select(v => v.Cost).FirstOrDefault(),
-                    StockQty = x.ProductVariants.Sum(v => v.StockQty),
                     CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
+                    CategoryName = x.ProductCategoryMapping.Select(m=> m.Category.Name).FirstOrDefault(),
                     IsActive = x.IsActive,
                     Variants = x.ProductVariants.Select(v => new ProductVariantViewModel
                     {
@@ -82,7 +64,34 @@ namespace Homework.Service.ImplementServices.ProductServices
                         VariantName = v.VariantName,
                         Color = v.Color,
                         Price = v.Price,
-                        Cost = v.Cost,
+                        StockQty = v.StockQty,
+                        IsActive = v.IsActive
+                    }).ToList()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ProductViewModel?> GetProductInfo(
+            GetProductInfoRequestModel request, CustomError error)
+        {
+            return await _context.Products
+                .Where(x => x.ProductId == request.ProductId)
+                .Select(x => new ProductViewModel
+                {
+                    ProductId = x.ProductId,
+                    ProductCode = x.ProductCode,
+                    Name = x.Name,
+                    Description = x.Description,
+                    CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
+                    CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
+                    IsActive = x.IsActive,
+                    Variants = x.ProductVariants.Select(v => new ProductVariantViewModel
+                    {
+                        ProductVariantId = v.ProductVariantId,
+                        VariantCode = v.VariantCode,
+                        VariantName = v.VariantName,
+                        Color = v.Color,
+                        Price = v.Price,
                         StockQty = v.StockQty,
                         IsActive = v.IsActive
                     }).ToList()

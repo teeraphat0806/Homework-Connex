@@ -19,8 +19,6 @@ public partial class ProductVariants
 
     public decimal Price { get; set; }
 
-    public decimal Cost { get; set; }
-
     public int StockQty { get; set; }
 
     public bool IsActive { get; set; }

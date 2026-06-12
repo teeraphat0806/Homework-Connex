@@ -5,9 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { mockDatabase } from '../../../mock/mock-data';
 import {
   HomeworkDatagridComponent,
-  DynamicGridConfig,
 } from '../homework-datagrid/homework-datagrid.component';
-
+import { DynamicGridConfig } from '../../models/homework-datagrid.model';
 export interface OrderRow {
   orderId: number;
   orderNo: string;
@@ -51,21 +50,18 @@ export class HomeworkOrderListComponent implements OnChanges, OnDestroy {
         label: 'Edit',
         theme: 'Secondary',
         size: 'sm',
-        visible: (row) => row.status !== 'Pending',
         onClick: (row) => this.editOrder(row),
       },
       {
         label: 'Delete',
         theme: 'Danger',
         size: 'sm',
-        visible: (row) => row.status !== 'Pending',
         onClick: (row) => this.deleteOrder(row),
       },
       {
         label: 'Confirm',
         theme: 'Primary',
         size: 'sm',
-        visible: (row) => row.status !== 'Pending',
         onClick: (row) => this.confirmOrder(row),
       },
     ],

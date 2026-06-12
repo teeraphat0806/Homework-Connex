@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,5 +25,7 @@ namespace Homework.Domain.RequestModels.ProductRequestModels
         public long? CategoryId { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<ProductVariantRequestModel>? Variants { get; set; }
     }
 }

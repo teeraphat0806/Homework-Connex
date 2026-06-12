@@ -1,1 +1,96 @@
-<p>homework-order-details.component works!</p>
+<homework-formpopup 
+  [(visible)]="isAddPopupVisible"
+  title="Add Product"
+  [width]="400"
+  [height]="300"
+  [showCloseButton]="true"
+  (save)="saveNewProduct(newProduct)"
+  (cancel)="closeCreatePopup()"
+  [showOpenButton]="true"
+  [openButtonLabel]="'Add Product'"
+>
+  <div class="add-form">
+    <app-homework-input
+      type="Text"
+      label="ชื่อสินค้า"
+      placeholder="กรอกชื่อสินค้า"
+      [fieldValue]="newProduct.name"
+      (fieldValueChange)="newProduct.name = $event"
+    ></app-homework-input>  
+    <app-homework-input
+      type="Text"
+      label="ราคา"
+      placeholder="กรอกราคา"
+      [fieldValue]="newProduct.price"
+      (fieldValueChange)="newProduct.price = $event"
+    ></app-homework-input>
+    <app-homework-input
+      type="Text"
+      label="คำอธิบาย"
+      placeholder="กรอกคำอธิบาย"
+      [fieldValue]="newProduct.description"
+      (fieldValueChange)="newProduct.description = $event"
+    ></app-homework-input>
+    <app-homework-input
+      type="Number"
+      label="ราคาต้นทุน"
+      placeholder="กรอกราคาต้นทุน"
+      [fieldValue]="newProduct.cost"
+      (fieldValueChange)="newProduct.cost = $event"
+    ></app-homework-input>
+    <app-homework-input
+      type="Number"
+      label="จำนวนในสต็อก"
+      placeholder="กรอกจำนวนในสต็อก"
+      [fieldValue]="newProduct.stockQty"
+      (fieldValueChange)="newProduct.stockQty = $event"
+    ></app-homework-input>
+  </div>
+</homework-formpopup>
+
+
+<homework-datagrid [dataSource]="products" [config]="gridConfig">
+  <ng-template gridTemplate="priceTemplate" let-item>
+    <strong>{{ item.data.price | number }}</strong> บาท
+  </ng-template>
+</homework-datagrid>
+<homework-formpopup
+   [(visible)]="isEditPopupVisible"
+  title="Edit Product"
+  [width]="400"
+  [height]="300"
+  [showCloseButton]="true"
+    (save)="saveEditProduct()"
+    (cancel)="closeEditPopup()"
+    [showOpenButton]="false"
+>
+  @if (selectedProduct) {
+    <div class="edit-form">
+      <app-homework-input
+        type="Text"
+        label="ชื่อสินค้า"
+        placeholder="กรอกชื่อสินค้า"
+        [fieldValue]="selectedProduct.name"
+        (fieldValueChange)="selectedProduct.name = $event"
+      ></app-homework-input>
+
+      <app-homework-input
+        type="Text"
+        label="ราคา"
+        placeholder="กรอกราคา"
+        [fieldValue]="selectedProduct.price"
+        (fieldValueChange)="selectedProduct.price = $event"
+      ></app-homework-input>
+
+      <app-homework-input
+        type="Text"
+        label="คำอธิบาย"
+        placeholder="กรอกคำอธิบาย"
+        [fieldValue]="selectedProduct.description"
+        (fieldValueChange)="selectedProduct.description = $event"
+      ></app-homework-input>
+
+      
+    </div>
+  }
+</homework-formpopup>

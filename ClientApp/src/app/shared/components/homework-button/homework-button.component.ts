@@ -9,10 +9,9 @@ import { ButtonTheme } from '../../models/pages-design.model';
   styleUrl: './homework-button.component.css',
 })
 export class HomeworkButton implements OnInit {
-
   @Input() label: string = '';
   @Input() theme: ButtonTheme = 'Primary';
-
+  @Input() showDefaultLabel: boolean = true;
   @Input() iconCode: string = '';
   @Input() iconSize: number = 16;
   @Input() iconColor: string = '';
@@ -31,7 +30,7 @@ export class HomeworkButton implements OnInit {
   public defaultTextColor: string | null = '#000000';
 
   ngOnInit(): void {
-    if (!this.label) {
+    if (!this.label && this.showDefaultLabel) {
       this.setDefaultLabel();
     }
 
@@ -40,11 +39,7 @@ export class HomeworkButton implements OnInit {
 
   private setDefaultLabel(): void {
     this.label =
-      this.theme === 'Primary'
-        ? 'Confirm'
-        : this.theme === 'Secondary'
-        ? 'Cancel'
-        : 'Delete';
+      this.theme === 'Primary' ? 'Confirm' : this.theme === 'Secondary' ? 'Cancel' : 'Delete';
   }
 
   public onClickButton(): void {

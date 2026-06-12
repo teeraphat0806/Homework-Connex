@@ -1,0 +1,28 @@
+.form-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+  min-height: 180px;
+}
+
+.form-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+}
+.form-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+
+  max-height: 60vh;
+  overflow-y: auto;
+}

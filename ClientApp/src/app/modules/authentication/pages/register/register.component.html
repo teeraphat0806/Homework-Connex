@@ -9,6 +9,10 @@
       สมัครสมาชิกใหม่
     </div>
 
+    <div *ngIf="errorState.hasError('general')" style="color: red; margin-bottom: 15px; text-align: center; font-size: 0.85em;">
+      {{ errorState.getError('general')[0] }}
+    </div>
+
     <app-homework-input
       type="Text"
       label="Username"
@@ -16,7 +20,8 @@
       [fieldValue]="registerData.UserName"
       (fieldValueChange)="registerData.UserName = $event"
       [componentState]="errorState"
-      attributeName="Username">
+      attributeName="Username"
+      [isDisabled]="loadingService.isLoading()">
     </app-homework-input>
 
     <app-homework-input
@@ -26,7 +31,8 @@
       [fieldValue]="registerData.Password"
       (fieldValueChange)="registerData.Password = $event"
       [componentState]="errorState"
-      attributeName="Password">
+      attributeName="Password"
+      [isDisabled]="loadingService.isLoading()">
     </app-homework-input>
 
     <app-homework-input
@@ -36,7 +42,8 @@
       [fieldValue]="confirmPassword"
       (fieldValueChange)="confirmPassword = $event"
       [componentState]="errorState"
-      attributeName="ConfirmPassword">
+      attributeName="ConfirmPassword"
+      [isDisabled]="loadingService.isLoading()">
     </app-homework-input>
 
     <div class="register-row">
@@ -48,7 +55,8 @@
         [fieldValue]="registerData.FirstName"
         (fieldValueChange)="registerData.FirstName = $event"
         [componentState]="errorState"
-        attributeName="FirstName">
+        attributeName="FirstName"
+        [isDisabled]="loadingService.isLoading()">
       </app-homework-input>
 
       <app-homework-input
@@ -58,7 +66,8 @@
         [fieldValue]="registerData.LastName"
         (fieldValueChange)="registerData.LastName = $event"
         [componentState]="errorState"
-        attributeName="LastName">
+        attributeName="LastName"
+        [isDisabled]="loadingService.isLoading()">
       </app-homework-input>
 
     </div>
@@ -72,7 +81,8 @@
         [fieldValue]="registerData.Age"
         (fieldValueChange)="registerData.Age = $event"
         [componentState]="errorState"
-        attributeName="Age">
+        attributeName="Age"
+        [isDisabled]="loadingService.isLoading()">
       </app-homework-input>
 
       <app-homework-input
@@ -82,7 +92,8 @@
         [fieldValue]="registerData.Phone"
         (fieldValueChange)="registerData.Phone = $event"
         [componentState]="errorState"
-        attributeName="Phone">
+        attributeName="Phone"
+        [isDisabled]="loadingService.isLoading()">
       </app-homework-input>
 
     </div>
@@ -93,12 +104,14 @@
       [fieldValue]="registerData.BirthDate"
       (fieldValueChange)="registerData.BirthDate = $event"
       [componentState]="errorState"
-      attributeName="BirthDate">
+      attributeName="BirthDate"
+      [isDisabled]="loadingService.isLoading()">
     </app-homework-input>
 
     <homework-button
       label="สมัครสมาชิก"
-      (onClick)="submitRegister()">
+      (onClick)="submitRegister()"
+      [disabled]="loadingService.isLoading()">
     </homework-button>
 
   </div>

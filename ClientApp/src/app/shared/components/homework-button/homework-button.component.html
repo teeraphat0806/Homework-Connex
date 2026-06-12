@@ -5,13 +5,8 @@
   [style.color]="textColor ? textColor : defaultTextColor"
   (click)="onClickButton()"
 >
-
   @if (iconCode) {
-    <span
-      class="homework-button-icon"
-      [style.color]="iconColor"
-      [style.font-size.px]="iconSize"
-    >
+    <span class="material-icons" [style.color]="iconColor" [style.font-size.px]="iconSize">
       {{ iconCode }}
     </span>
   }
@@ -19,5 +14,4 @@
   <span class="homework-button-label">
     {{ label }}
   </span>
-
 </div>

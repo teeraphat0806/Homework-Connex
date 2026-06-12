@@ -3,9 +3,11 @@ import { HomeworkDropdownComponent } from "../../../../shared/components/homewor
 import {HomeworkConfirmationModalComponent} from "../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component";
 import {HomeworkButton} from "../../../../shared/components/homework-button/homework-button.component";
 import {HomeworkOrderListComponent} from "../../../../shared/components/homework-order-list/homework-order-list.component";
+import {HomeworkMemberFormComponent} from "../../../../shared/components/homework-member-form/homework-member-form.component";
+import {HomeworkOrderDetailsComponent} from "../../../../shared/components/homework-order-details/homework-order-details.component";
 @Component({
   selector: 'test',
-  imports: [HomeworkDropdownComponent,HomeworkConfirmationModalComponent,HomeworkButton,HomeworkOrderListComponent],
+  imports: [HomeworkDropdownComponent,HomeworkConfirmationModalComponent,HomeworkButton,HomeworkOrderListComponent,HomeworkMemberFormComponent,HomeworkOrderDetailsComponent],
   templateUrl: './test.html',
   styleUrl: './test.css',
 })

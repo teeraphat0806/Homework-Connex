@@ -59,6 +59,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "public.ProductVariants",
+         "ObjectType": 0
+      },
+      {
          "Name": "public.RefCategories",
          "ObjectType": 0
       },

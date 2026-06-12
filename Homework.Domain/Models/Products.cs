@@ -9,19 +9,11 @@ public partial class Products
 {
     public long ProductId { get; set; }
 
-    public string SKU { get; set; }
+    public string ProductCode { get; set; }
 
     public string Name { get; set; }
 
     public string Description { get; set; }
-
-    public decimal Price { get; set; }
-
-    public decimal Cost { get; set; }
-
-    public int StockQty { get; set; }
-
-    public long? CategoryId { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -33,13 +25,7 @@ public partial class Products
 
     public DateTime ModifiedTime { get; set; }
 
-    public virtual RefCategories Category { get; set; }
-
-    public virtual Users CreatedByUser { get; set; }
-
-    public virtual Users ModifiedByUser { get; set; }
-
-    public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
-
     public virtual ICollection<ProductCategoryMapping> ProductCategoryMapping { get; set; } = new List<ProductCategoryMapping>();
+
+    public virtual ICollection<ProductVariants> ProductVariants { get; set; } = new List<ProductVariants>();
 }

@@ -1,32 +1,26 @@
 <dx-data-grid
   [dataSource]="gridDataSource"
   [keyExpr]="config.keyExpr"
-  [showBorders]="config.showBorders ?? true">
-
+  [showBorders]="config.showBorders ?? true"
+>
   @for (column of config.columns; track column.caption) {
-    @if (column.columnType === 'action') {
-      <dxi-column
-        [caption]="column.caption"
-        [width]="column.width"
-        [dataType]="column.dataType"
-        [format]="column.format"
-        [cellTemplate]="column.cellTemplate ?? 'actionTemplate'"
-        [visible]="column.visible ?? true"
-        [alignment]="getColumnAlignment(column)">
-      </dxi-column>
-    } @else {
-      <dxi-column
-        [dataField]="column.dataField"
-        [caption]="column.caption"
-        [width]="column.width"
-        [dataType]="column.dataType"
-        [format]="column.format"
-        [cellTemplate]="column.cellTemplate"
-        [visible]="column.visible ?? true"
-        [alignment]="getColumnAlignment(column)">
-      </dxi-column>
-    }
+    <dxi-column
+      [dataField]="column.dataField"
+      [caption]="column.caption"
+      [width]="column.width"
+      [dataType]="column.dataType"
+      [format]="column.format"
+      [cellTemplate]="getColumnCellTemplate(column)"
+      [visible]="column.visible ?? true"
+      [alignment]="getColumnAlignment(column)"
+    >
+    </dxi-column>
   }
+
+  <div *dxTemplate="let item of 'customColumnTemplate'">
+    <ng-container *ngTemplateOutlet="getCustomTemplateByItem(item); context: { $implicit: item }">
+    </ng-container>
+  </div>
 
   <div *dxTemplate="let item of 'actionTemplate'" class="action-buttons">
     @for (action of config.actions ?? []; track action.label) {
@@ -35,15 +29,18 @@
           [label]="action.label"
           [theme]="action.theme"
           [size]="action.size ?? 'md'"
+          [iconCode]="action.iconCode ?? ''"
+          [iconColor]="action.iconColor ?? ''"
+          [iconSize]="action.iconSize ?? 16"
+          [showDefaultLabel]="action.showDefaultLabel ?? false"
           [stylingMode]="action.stylingMode ?? 'outlined'"
           [disabled]="isActionDisabled(action, item.data)"
-          (onClick)="onActionClick(action, item.data)">
+          (onClick)="onActionClick(action, item.data)"
+        >
         </homework-button>
       }
     }
   </div>
-
-  <ng-content></ng-content>
 
   <dxo-paging [pageSize]="config.pageSize ?? 10"></dxo-paging>
 
@@ -51,7 +48,7 @@
     [visible]="true"
     [showInfo]="true"
     [showPageSizeSelector]="true"
-    [allowedPageSizes]="[5, 10, 20, 50]">
+    [allowedPageSizes]="[5, 10, 20, 50]"
+  >
   </dxo-pager>
-
 </dx-data-grid>

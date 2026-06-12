@@ -24,6 +24,4 @@ public partial class RefCategories
     public virtual Users ModifiedByUser { get; set; }
 
     public virtual ICollection<ProductCategoryMapping> ProductCategoryMapping { get; set; } = new List<ProductCategoryMapping>();
-
-    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
 }

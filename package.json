@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@angular/material": "^22.0.1",
+    "sweetalert2": "^11.26.25"
+  }
+}

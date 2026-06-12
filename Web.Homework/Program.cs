@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using Web.Homework.ExceptionHandler;
 using Web.Homework.ExceptionMiddleware;
+using Homework.Domain.Error;
 
 namespace Homework.Web
 {
@@ -31,6 +32,7 @@ namespace Homework.Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IRawSqlService, RawSqlService>();
+            builder.Services.AddScoped<CustomError>();
 
             // Add CORS
             builder.Services.AddCors(options =>

@@ -24,8 +24,8 @@ export interface RegisterRequest {
     Password: string;
     FirstName: string;
     LastName: string;
-    Age: Number;
-    Phone: Number;
+    Age: number;
+    Phone: string;
     BirthDate: Date;
 }
 
@@ -42,7 +42,7 @@ export class AuthApiService {
             
              catchError(error => {
                 console.error('Login failed', error);
-                return throwError(() => new Error('Login failed. Please check your credentials and try again.'));
+                return throwError(() => error);
             }),
             tap(user => {
                 this.currentUser.set(user);
@@ -53,7 +53,7 @@ export class AuthApiService {
         return this.http.post(`${this.url}/register`, params, { withCredentials: true }).pipe(
             catchError(error => {
                 console.error('Registration failed', error);
-                return throwError(() => new Error('Registration failed. Please check your input and try again.'));
+                return throwError(() => error);
             }
         ));
     }

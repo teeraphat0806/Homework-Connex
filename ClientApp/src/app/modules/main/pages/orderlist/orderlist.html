@@ -1,0 +1,58 @@
+<div class="order-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Order List</h2>
+      <p>รายการคำสั่งซื้อทั้งหมด</p>
+    </div>
+
+    <homework-button
+      label="Create Order"
+      theme="Primary"
+      iconCode="add"
+      [iconSize]="18"
+      (onClick)="goToCreateOrder()"
+    >
+    </homework-button>
+  </div>
+
+  <homework-datagrid [dataSource]="orders" [config]="gridConfig">
+    <ng-template gridTemplate="amountTemplate" let-item>
+      <strong>{{ item.data.totalAmount | number }}</strong> บาท
+    </ng-template>
+
+    <ng-template gridTemplate="statusTemplate" let-item>
+      <span
+        class="status-badge"
+        [ngClass]="{
+          'status-draft': item.data.status === 'Draft',
+          'status-submit': item.data.status === 'Submit',
+          'status-approved': item.data.status === 'Approved',
+        }"
+      >
+        {{ item.data.status }}
+      </span>
+    </ng-template>
+    <ng-template gridTemplate="orderActionTemplate" let-item>
+      @if (item.data.status === 'Submit') {
+        <span class="waiting-confirm-text"> Waiting Confirm </span>
+      } @else {
+        <div class="action-buttons">
+          @for (action of gridConfig.actions ?? []; track $index) {
+            @if (!action.visible || action.visible(item.data)) {
+              <homework-button
+                [label]="action.label"
+                [theme]="action.theme"
+                [size]="action.size ?? 'md'"
+                [iconCode]="action.iconCode ?? ''"
+                [iconSize]="action.iconSize ?? 16"
+                [showDefaultLabel]="action.showDefaultLabel ?? true"
+                (onClick)="action.onClick(item.data)"
+              >
+              </homework-button>
+            }
+          }
+        </div>
+      }
+    </ng-template>
+  </homework-datagrid>
+</div>

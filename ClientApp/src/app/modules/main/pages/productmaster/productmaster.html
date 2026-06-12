@@ -1,0 +1,112 @@
+<div class="product-master-page">
+  <div class="page-header">
+    <div>
+      <h2>Product Master</h2>
+      <p>จัดการข้อมูลสินค้า</p>
+    </div>
+
+    <homework-button
+      label="Create Product"
+      theme="Primary"
+      iconCode="add"
+      [iconSize]="18"
+      (onClick)="openCreatePopup()">
+    </homework-button>
+  </div>
+
+  <homework-datagrid
+    [dataSource]="products"
+    [config]="gridConfig">
+
+    <ng-template gridTemplate="priceTemplate" let-item>
+      <strong>{{ item.data.price | number }}</strong> บาท
+    </ng-template>
+
+    <ng-template gridTemplate="costTemplate" let-item>
+      <span>{{ item.data.cost | number }}</span> บาท
+    </ng-template>
+
+    <ng-template gridTemplate="statusTemplate" let-item>
+      <span
+        class="status-badge"
+        [ngClass]="{
+          'status-active': item.data.isActive,
+          'status-inactive': !item.data.isActive
+        }">
+        {{ item.data.isActive ? 'Active' : 'Inactive' }}
+      </span>
+    </ng-template>
+
+  </homework-datagrid>
+
+  <homework-formpopup
+    [(visible)]="isProductPopupVisible"
+    [title]="popupTitle"
+    [width]="500"
+    [height]="620"
+    [showOpenButton]="false"
+    (save)="saveProduct()"
+    (cancel)="closePopup()">
+
+    @if (selectedProduct) {
+      <div class="product-form">
+        <app-homework-input
+          type="Text"
+          label="SKU"
+          placeholder="กรอกรหัสสินค้า"
+          [fieldValue]="selectedProduct.sku"
+          (fieldValueChange)="selectedProduct.sku = $event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Product Name"
+          placeholder="กรอกชื่อสินค้า"
+          [fieldValue]="selectedProduct.name"
+          (fieldValueChange)="selectedProduct.name = $event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Description"
+          placeholder="กรอกรายละเอียดสินค้า"
+          [fieldValue]="selectedProduct.description"
+          (fieldValueChange)="selectedProduct.description = $event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Category"
+          placeholder="กรอกหมวดหมู่"
+          [fieldValue]="selectedProduct.categoryName"
+          (fieldValueChange)="selectedProduct.categoryName = $event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Price"
+          placeholder="กรอกราคาขาย"
+          [fieldValue]="selectedProduct.price"
+          (fieldValueChange)="selectedProduct.price = +$event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Cost"
+          placeholder="กรอกต้นทุน"
+          [fieldValue]="selectedProduct.cost"
+          (fieldValueChange)="selectedProduct.cost = +$event">
+        </app-homework-input>
+
+        <app-homework-input
+          type="Text"
+          label="Stock Qty"
+          placeholder="กรอกจำนวนสินค้า"
+          [fieldValue]="selectedProduct.stockQty"
+          (fieldValueChange)="selectedProduct.stockQty = +$event">
+        </app-homework-input>
+      </div>
+    }
+
+  </homework-formpopup>
+</div>

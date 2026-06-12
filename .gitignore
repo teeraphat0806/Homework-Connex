@@ -6,6 +6,7 @@ obj/
 *.suo
 
 # === Node / Frontend (ClientApp) ===
+node_modules/
 ClientApp/node_modules/
 ClientApp/build/
 ClientApp/dist/

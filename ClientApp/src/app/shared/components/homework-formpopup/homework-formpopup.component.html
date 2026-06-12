@@ -1,0 +1,44 @@
+@if (showOpenButton) {
+  <homework-button
+    [label]="openButtonLabel"
+    theme="Primary"
+    (onClick)="showPopup()">
+  </homework-button>
+}
+
+<dx-popup
+  [visible]="visible"
+  (visibleChange)="onVisibleChange($event)"
+  [title]="title"
+  [width]="width"
+  [height]="height"
+  [showTitle]="showTitle"
+  [showCloseButton]="showCloseButton"
+  [dragEnabled]="draggable"
+  [resizeEnabled]="resizable"
+  [hideOnOutsideClick]="closeOnOutsideClick">
+
+  <div class="form-popup-content">
+    <ng-content></ng-content>
+  </div>
+
+  @if (showFooter) {
+    <div class="form-popup-actions">
+      @if (showCancelButton) {
+        <homework-button
+          [label]="cancelButtonLabel"
+          theme="Secondary"
+          (onClick)="closePopup()">
+        </homework-button>
+      }
+
+      @if (showSaveButton) {
+        <homework-button
+          [label]="saveButtonLabel"
+          theme="Primary"
+          (onClick)="onSave()">
+        </homework-button>
+      }
+    </div>
+  }
+</dx-popup>

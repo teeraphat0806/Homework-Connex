@@ -7,6 +7,8 @@ import { AuthApiService } from '../../services/auth.service';
 import {RegisterRequest} from '../../services/auth.service';
 import {Router} from "@angular/router";
 import { HomeworkButton } from '../../../../shared/components/homework-button/homework-button.component';
+import { LoadingService } from '../../../../core/services/loading.service';
+
 @Component({
   selector: 'app-register.component',
   imports: [
@@ -24,10 +26,12 @@ ngOnInit() {
 errorState = new ErrorEditorState();
   authService: AuthApiService;
   router: Router;
-  constructor(authService: AuthApiService, router: Router) {
+  public loadingService: LoadingService;
+
+  constructor(authService: AuthApiService, router: Router, loadingService: LoadingService) {
     this.authService = authService;
     this.router = router;
-
+    this.loadingService = loadingService;
   }
 registerData: RegisterRequest = {
   UserName: '',
@@ -35,7 +39,7 @@ registerData: RegisterRequest = {
   FirstName: '',
   LastName: '',
   Age: 0,
-  Phone: 0,
+  Phone: '',
   BirthDate: new Date()
 };
 confirmPassword: string = '';
@@ -59,7 +63,6 @@ confirmPassword: string = '';
     if (this.registerData.Password !== this.confirmPassword) {
       this.errorState.setError('confirmPassword', 'รหัสผ่านไม่ตรงกัน');
     }
-
     if (this.errorState.errors.length > 0) {
       return; // หากมี Error ให้หยุดการทำงาน
     }

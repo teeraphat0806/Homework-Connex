@@ -1,48 +1,36 @@
-import { Component, Input, SimpleChanges, OnChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  SimpleChanges,
+  OnChanges,
+  ContentChildren,
+  QueryList,
+  TemplateRef,
+  AfterContentInit,
+  Directive,
+} from '@angular/core';
 
-import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
+import { CommonModule } from '@angular/common';
+import { DxDataGridModule, DxTemplateModule } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { HomeworkButton } from '../homework-button/homework-button.component';
 import { ButtonTheme } from '../../models/pages-design.model';
+import {
+  DynamicGridConfig,
+  DynamicGridColumn,
+  DynamicGridAction,
+  DynamicGridColumnType,
+  GridCellTemplateItem,
+} from '../../models/homework-datagrid.model';
+import DataSource from 'devextreme/data/data_source';
+@Directive({
+  selector: 'ng-template[gridTemplate]',
+  standalone: true,
+})
+export class GridTemplateDirective {
+  @Input('gridTemplate') name!: string;
 
-export type DynamicGridColumnType =
-  | 'text'
-  | 'status'
-  | 'date'
-  | 'shortNumber'
-  | 'accountNo'
-  | 'number'
-  | 'action'
-  | 'legend';
-
-export interface DynamicGridColumn {
-  dataField?: string;
-  caption: string;
-  width?: number | string;
-  dataType?: 'string' | 'number' | 'date' | 'boolean';
-  format?: string;
-  cellTemplate?: string;
-  visible?: boolean;
-  columnType?: DynamicGridColumnType;
-  alignment?: 'left' | 'center' | 'right';
-}
-
-export interface DynamicGridAction<T> {
-  label: string;
-  theme: ButtonTheme;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-  stylingMode?: 'contained' | 'outlined' | 'text';
-  visible?: (row: T) => boolean;
-  disabled?: (row: T) => boolean;
-  onClick: (row: T) => void;
-}
-
-export interface DynamicGridConfig<T> {
-  keyExpr: string;
-  columns: DynamicGridColumn[];
-  showBorders?: boolean;
-  pageSize?: number;
-  actions?: DynamicGridAction<T>[];
+  constructor(public template: TemplateRef<any>) {}
 }
 
 export interface DynamicGridPageEvent {
@@ -56,15 +44,52 @@ export interface DynamicGridPageEvent {
 @Component({
   selector: 'homework-datagrid',
   standalone: true,
-  imports: [DxDataGridModule, HomeworkButton],
+  imports: [
+    CommonModule,
+    DxDataGridModule,
+    DxTemplateModule,
+    HomeworkButton,
+    GridTemplateDirective,
+  ],
   templateUrl: './homework-datagrid.component.html',
   styleUrl: './homework-datagrid.component.css',
 })
-export class HomeworkDatagridComponent<T> implements OnChanges {
+export class HomeworkDatagridComponent<T> implements OnChanges, AfterContentInit {
   public gridDataSource!: CustomStore;
 
   @Input() dataSource: T[] = [];
   @Input() config!: DynamicGridConfig<T>;
+  @Input() data!: DataSource;
+  @ContentChildren(GridTemplateDirective)
+  public templates!: QueryList<GridTemplateDirective>;
+
+  public templateMap = new Map<string, TemplateRef<any>>();
+
+  ngAfterContentInit(): void {
+    this.templates.forEach((item) => {
+      this.templateMap.set(item.name, item.template);
+    });
+  }
+
+  public getCustomTemplate(templateName?: string): TemplateRef<any> | null {
+    if (!templateName) {
+      return null;
+    }
+
+    return this.templateMap.get(templateName) ?? null;
+  }
+
+  public getColumnCellTemplate(column: DynamicGridColumn): string | undefined {
+    if (column.columnType === 'action') {
+      return column.cellTemplate ?? 'actionTemplate';
+    }
+
+    if (column.cellTemplate) {
+      return 'customColumnTemplate';
+    }
+
+    return undefined;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['dataSource'] || changes['config']) {
@@ -98,6 +123,18 @@ export class HomeworkDatagridComponent<T> implements OnChanges {
     return column.columnType ? map[column.columnType] : 'left';
   }
 
+  public getCustomTemplateByItem(item: GridCellTemplateItem<T>): TemplateRef<unknown> | null {
+    const columnConfig = this.config.columns.find(
+      (column) =>
+        column.dataField === item.column.dataField && column.caption === item.column.caption,
+    );
+
+    if (!columnConfig?.cellTemplate) {
+      return null;
+    }
+
+    return this.getCustomTemplate(columnConfig.cellTemplate);
+  }
   public isActionVisible(action: DynamicGridAction<T>, row: T): boolean {
     return action.visible ? action.visible(row) : true;
   }

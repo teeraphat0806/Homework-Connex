@@ -1,23 +1,30 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeRoute } from '../../shared/routers/home.const';
-import { HomepageComponent } from './pages/home/homepage.component';
+import { OrderRoute } from '../../shared/routers/order.const';
+import { ProductMasterRoute } from '../../shared/routers/productmaster.const';
+import {ProductMaster} from "./pages/productmaster/productmaster";
 // import { DashboardComponent } from './pages/dashboard/dashboard.component';
 // import { ProfileComponent } from './pages/profile/profile.component';
-
+import {OrderList} from "./pages/orderlist/orderlist";
+import {OrderDetail} from "./pages/orderdetail/orderdetail";
 const MainRoutes: Routes = [
   {
-    path: HomeRoute.home,
-    component: HomepageComponent,
+    path: '',
+    redirectTo: ProductMasterRoute.productMasterList,
+    pathMatch: 'full'
   },
-  // {
-  //   path: 'dashboard',
-  //   // component: DashboardComponent
-  // },
-  // {
-  //   path: 'profile',
-  //   // component: ProfileComponent
-  // }
+  {
+    path: OrderRoute.orderList,
+    component: OrderList
+  },
+  {
+    path: OrderRoute.orderDetails,
+    component: OrderDetail
+  },
+  {
+    path: ProductMasterRoute.productMasterList,
+    component: ProductMaster
+  }
 ];
 
 @NgModule({

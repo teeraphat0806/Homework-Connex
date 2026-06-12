@@ -49,8 +49,15 @@
 
   @case ('Password') {
   <div class="hw-password-wrapper">
-    <dx-text-box [disabled]="isDisabled" [maxLength]="max ?? ''" [value]="uiValue" [showClearButton]="false"
-      [mode]="showPassword ? 'text' : 'password'" valueChangeEvent="keyup input"
+    <dx-text-box
+      [disabled]="isDisabled"
+      [maxLength]="max ?? ''"
+      [value]="uiValue"
+      [showClearButton]="false"
+      [mode]="showPassword ? 'text' : 'password'"
+      valueChangeEvent="keyup input"
+      [isValid]="errors.length ? false : !componentState.hasError(attributeName || fieldName)"
+      [validationError]="{ message: errors.length ? errors[0] : componentState.getError(attributeName || fieldName)[0] }"
       [inputAttr]="{ autocomplete: 'off', style: 'padding-right: 60px;' }"
       (onValueChanged)="onValueChange($event.value)"
       [placeholder]="placeholder"
@@ -59,19 +66,19 @@
 
     <div class="hw-password-actions">
       @if (uiValue && !isDisabled) {
-      <button type="button" class="hw-icon-button hw-clear-button" (click)="clearValue()">
-        ✕
-      </button>
+        <button type="button" class="hw-icon-button hw-clear-button" (click)="clearValue()">
+          ✕
+        </button>
       }
 
       @if (uiValue) {
-      <button type="button" class="hw-icon-button hw-toggle-button" (click)="togglePassword()">
-        {{ showPassword ? '🙈' : '👁' }}
-      </button>
+        <button type="button" class="hw-icon-button hw-toggle-button" (click)="togglePassword()">
+          {{ showPassword ? '🙈' : '👁' }}
+        </button>
       }
     </div>
   </div>
-  }
+}
 
   @case ('TextArea') {
   <dx-text-area [maxLength]="max ?? ''" [disabled]="false" [readOnly]="isReadOnly || isDisabled" [value]="uiValue"
@@ -216,9 +223,11 @@
   }
 
   @if (attributeName || fieldName) {
-  <div [fieldName]="attributeName || fieldName"
+  <div
+    [fieldName]="attributeName || fieldName"
     [errors]="errors.length ? errors : componentState.getError(attributeName || fieldName)"
-    [attr.errFieldContainer]="attributeName || fieldName">
+    [attr.errFieldContainer]="attributeName || fieldName"
+    [attr.errorKey]="componentState.getAllErrors(attributeName || fieldName).join('|')">
   </div>
-  }
+}
 </div>

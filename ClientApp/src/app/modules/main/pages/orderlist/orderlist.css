@@ -1,0 +1,11 @@
+.waiting-confirm-text {
+  color: #d97706;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}

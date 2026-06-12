@@ -1,9 +1,6 @@
 <div class="login-container">
   <div class="login-card">
-    
-    <div class="login-title">
-      Login Page
-    </div>
+    <div class="login-title">Login Page</div>
 
     <app-homework-input
       type="Text"
@@ -12,9 +9,18 @@
       [fieldValue]="loginData.UserName"
       (fieldValueChange)="loginData.UserName = $event"
       [componentState]="errorState"
-      attributeName="UserName">
+      attributeName="UserName"
+      [isDisabled]="loadingService.isLoading()"
+    >
     </app-homework-input>
-
+    <div class="w-full">
+      <div
+        [fieldName]="'Login'"
+        [errors]="errorState.getError('Login')"
+        [attr.errFieldContainer]="'Login'"
+        class="p-3 mb-4 text-sm font-bold text-red-500 bg-red-50 rounded-xl empty:hidden"
+      ></div>
+    </div>
     <app-homework-input
       type="Password"
       label="รหัสผ่าน"
@@ -22,13 +28,11 @@
       [fieldValue]="loginData.Password"
       (fieldValueChange)="loginData.Password = $event"
       [componentState]="errorState"
-      attributeName="Password">
+      attributeName="Password"
+      [isDisabled]="loadingService.isLoading()"
+    >
     </app-homework-input>
 
-    <homework-button 
-      label="เข้าสู่ระบบ" 
-      (onClick)="submitLogin()">
-    </homework-button>
-
+    <homework-button label="เข้าสู่ระบบ" (onClick)="submitLogin()" [disabled]="loadingService.isLoading()"> </homework-button>
   </div>
 </div>

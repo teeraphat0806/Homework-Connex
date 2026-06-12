@@ -11,8 +11,6 @@ public partial class OrderItems
 
     public long OrderId { get; set; }
 
-    public long ProductId { get; set; }
-
     public int Qty { get; set; }
 
     public decimal UnitPrice { get; set; }
@@ -35,7 +33,9 @@ public partial class OrderItems
 
     public string RejectedReason { get; set; }
 
+    public long ProductVariantId { get; set; }
+
     public virtual Orders Order { get; set; }
 
-    public virtual Products Product { get; set; }
+    public virtual ProductVariants ProductVariant { get; set; }
 }

@@ -37,10 +37,6 @@ public partial class Users
 
     public virtual ICollection<Orders> OrdersModifiedByUser { get; set; } = new List<Orders>();
 
-    public virtual ICollection<Products> ProductsCreatedByUser { get; set; } = new List<Products>();
-
-    public virtual ICollection<Products> ProductsModifiedByUser { get; set; } = new List<Products>();
-
     public virtual ICollection<RefCategories> RefCategoriesCreatedByUser { get; set; } = new List<RefCategories>();
 
     public virtual ICollection<RefCategories> RefCategoriesModifiedByUser { get; set; } = new List<RefCategories>();

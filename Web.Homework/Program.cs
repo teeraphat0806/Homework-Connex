@@ -115,7 +115,7 @@ namespace Homework.Web
             app.UseCustomExceptionHandler(builder);
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseMiddleware<SimpleErrorMiddleware>();
             app.MapControllers();
 
             app.Run();

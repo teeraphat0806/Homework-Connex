@@ -21,7 +21,7 @@ import {
   CategoriesMasterApiService,
   CategoryViewModel,
 } from '../../services/categoriesmaster.service';
-
+import { DxTextBoxModule } from 'devextreme-angular';
 export interface ProductMasterRow {
   productId: number;
   productCode: string;
@@ -42,6 +42,7 @@ export interface ProductMasterRow {
     CommonModule,
     HomeworkDatagridComponent,
     GridTemplateDirective,
+    DxTextBoxModule,
     HomeworkButton,
     HomeworkInputComponent,
     HomeworkFormpopup,
@@ -49,12 +50,15 @@ export interface ProductMasterRow {
   ],
   templateUrl: './productmaster.html',
   styleUrl: './productmaster.css',
- })
+})
 export class ProductMaster implements OnInit {
   products: ProductMasterViewModel[] = [];
   categoryList: CategoryViewModel[] = [];
   categoryDropdownItems: { key: string; value: string }[] = [];
-  request: ProductMasterSearchRequest = {
+
+  request = {
+    keyword: '',
+    categoryIds: [],
     pageNumber: 1,
     pageSize: 10,
   };
@@ -70,7 +74,14 @@ export class ProductMaster implements OnInit {
   }
 
   loadProducts(): void {
-    this.productService.GetProductList(this.request).subscribe({
+    const categoryIdsAsNumbers = this.request.categoryIds.map((id) => +id);
+    const searchRequest: ProductMasterSearchRequest = {
+      keyword: this.request.keyword,
+      categoryIds: categoryIdsAsNumbers,
+      pageNumber: this.request.pageNumber,
+      pageSize: this.request.pageSize,
+    };
+    this.productService.GetProductList(searchRequest).subscribe({
       next: (res) => {
         this.products = res;
       },
@@ -83,11 +94,13 @@ export class ProductMaster implements OnInit {
   selectedProduct: (ProductMasterViewModel & { categoryIdsText?: string[] }) | null = null;
   isProductPopupVisible = false;
   popupMode: 'create' | 'edit' = 'create';
-
   gridConfig: DynamicGridConfig<ProductMasterViewModel> = {
     keyExpr: 'productId',
     pageSize: 10,
-
+    masterDetail: {
+      enabled: true,
+      templateName: 'productDescriptionDetail',
+    },
     columns: [
       {
         dataField: 'productCode',

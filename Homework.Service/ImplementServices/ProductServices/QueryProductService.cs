@@ -29,11 +29,15 @@ namespace Homework.Service.ImplementServices.ProductServices
             if (!string.IsNullOrWhiteSpace(param.Keyword))
             {
                 queryDb = queryDb.Where(x =>
-                    x.ProductCode.Contains(param.Keyword) ||
-                    x.Name.Contains(param.Keyword));
+                    EF.Functions.ILike(x.ProductCode, $"%{param.Keyword}%") ||
+                    EF.Functions.ILike(x.Name, $"%{param.Keyword}%"));
             }
 
-            if (param.CategoryId.HasValue)
+            if (param.CategoryIds != null && param.CategoryIds.Any())
+            {
+                queryDb = queryDb.Where(x => x.ProductCategoryMapping.Any(m => param.CategoryIds.Contains(m.CategoryId)));
+            }
+            else if (param.CategoryId.HasValue)
             {
                 queryDb = queryDb.Where(x => x.ProductCategoryMapping.Any(m => m.CategoryId == param.CategoryId.Value));
             }

@@ -15,13 +15,83 @@
     </homework-button>
   </div>
 
+  <div
+    class="filter-panel"
+    style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center"
+  >
+    <div style="flex: 1; max-width: 300px">
+      <dx-text-box
+        placeholder="ค้นหาชื่อสินค้า..."
+        mode="search"
+        [(value)]="request.keyword"
+        [showClearButton]="true"
+        valueChangeEvent="keyup"
+        (valueChange)="loadProducts()"
+      >
+      </dx-text-box>
+    </div>
+    <div style="flex: 1; max-width: 300px">
+      <dx-tag-box
+        [items]="categoryDropdownItems"
+        valueExpr="key"
+        displayExpr="value"
+        placeholder="เลือกประเภทสินค้า..."
+        [(value)]="request.categoryIds"
+        [showSelectionControls]="true"
+        applyValueMode="useButtons"
+        (valueChange)="loadProducts()"
+      >
+      </dx-tag-box>
+    </div>
+  </div>
+
   <homework-datagrid [dataSource]="products" [config]="gridConfig">
+    <ng-template gridTemplate="productDescriptionDetail" let-row>
+      <div class="product-detail-expanded">
+        @if (row.data.imageUrl) {
+          <div class="product-detail-img-container">
+            <img [src]="row.data.imageUrl" alt="Product Image" />
+          </div>
+        } @else {
+          <div class="product-detail-img-placeholder">
+            <span>No Image</span>
+          </div>
+        }
+        <div class="product-detail-info">
+          <h5>
+            รายละเอียดเพิ่มเติมของ: {{ row.data.name }}
+            <span class="product-detail-code">({{ row.data.productCode }})</span>
+          </h5>
+          <p class="product-detail-desc">
+            <strong>คำอธิบาย:</strong> {{ row.data.description || 'ไม่มีคำอธิบาย' }}
+          </p>
+          <div class="product-detail-stats">
+            <span
+              ><strong>ราคา:</strong>
+              <strong class="price-val">{{ row.data.price | number }}</strong> บาท</span
+            >
+            @if (row.data.stockQty) {
+              <span
+                ><strong>คงเหลือ:</strong>
+                <strong class="stock-val">{{ row.data.stockQty | number }}</strong> ชิ้น</span
+              >
+            } @else {
+              <span><strong>คงเหลือ:</strong> <strong class="stock-out">สินค้าหมด</strong></span>
+            }
+          </div>
+        </div>
+      </div>
+    </ng-template>
     <ng-template gridTemplate="priceTemplate" let-item>
       <strong>{{ item.data.price | number }}</strong> บาท
     </ng-template>
 
     <ng-template gridTemplate="categoriesTemplate" let-item>
-      <span>{{ item.data.categoryNames && item.data.categoryNames.length > 0 ? item.data.categoryNames.join(', ') : (item.data.categoryName || '-') }}</span>
+      <span>{{
+        item.data.categoryNames && item.data.categoryNames.length > 0
+          ? item.data.categoryNames.join(', ')
+          : item.data.categoryName || '-'
+      }}</span>
     </ng-template>
 
     <ng-template gridTemplate="statusTemplate" let-item>

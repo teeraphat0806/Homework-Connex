@@ -29,7 +29,7 @@ export interface ProductMasterRequestCreate {
 
 export interface ProductMasterSearchRequest {
   keyword?: string;
-  categoryId?: number;
+  categoryIds?: number[];
   isActive?: boolean;
   pageNumber: number;
   pageSize: number;

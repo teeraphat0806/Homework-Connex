@@ -60,7 +60,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                     OrderItems = x.OrderItems.Select(item => new
                     {
                         item.OrderItemId,
-                        ProductId = item.ProductVariant.ProductId,
+                        ProductId = item.ProductId ?? 0,
                         item.Qty,
                         item.UnitPrice,
                         item.Discount,

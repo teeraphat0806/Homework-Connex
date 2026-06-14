@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Homework.Domain.Models;
+namespace Web.Homework.Models;
 
-public partial class LogProducts
+public partial class LogProduct
 {
     public long LogProductId { get; set; }
 

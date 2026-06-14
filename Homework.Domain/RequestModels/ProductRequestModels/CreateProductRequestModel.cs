@@ -20,7 +20,9 @@ namespace Homework.Domain.RequestModels.ProductRequestModels
             public int StockQty { get; set; }
 
             public long? CategoryId { get; set; }
-        
-            public List<ProductVariantRequestModel>? Variants { get; set; }
+
+            public List<long> CategoryIds { get; set; } = new List<long>();
+
+            public string? ImageUrl { get; set; }
     }
 }

@@ -6,76 +6,47 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Homework.Domain.Error;
+
 namespace Homework.Service.ImplementServices.ProductServices
 {
     public class QueryProductService : IQueryProductService
     {
         private readonly postgresContext _context;
         private readonly CustomError _error;
+
         public QueryProductService(postgresContext context, CustomError error)
         {
             _context = context;
             _error = error;
         }
 
-        public async Task<List<ProductViewModel>> GetProductList(
-            GetProductListRequestModel request, CustomError error)
+        public async Task<List<ProductViewModel>> GetProductList(GetProductListRequestModel param, CustomError error)
         {
-            var query = _context.Products.AsQueryable();
+            var queryDb = _context.Products.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            if (!string.IsNullOrWhiteSpace(param.Keyword))
             {
-                query = query.Where(x =>
-                    x.ProductCode.Contains(request.Keyword) ||
-                    x.Name.Contains(request.Keyword));
+                queryDb = queryDb.Where(x =>
+                    x.ProductCode.Contains(param.Keyword) ||
+                    x.Name.Contains(param.Keyword));
             }
 
-            if (request.CategoryId.HasValue)
+            if (param.CategoryId.HasValue)
             {
-                query = query.Where(x => x.ProductCategoryMapping.Any(m => m.CategoryId == request.CategoryId.Value));
+                queryDb = queryDb.Where(x => x.ProductCategoryMapping.Any(m => m.CategoryId == param.CategoryId.Value));
             }
 
-            if (request.IsActive.HasValue)
+            if (param.IsActive.HasValue)
             {
-                query = query.Where(x => x.IsActive == request.IsActive.Value);
+                queryDb = queryDb.Where(x => x.IsActive == param.IsActive.Value);
             }
-            
 
-            return await query
+            var productDbList = await queryDb
                 .OrderByDescending(x => x.ProductId)
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .Select(x => new ProductViewModel
-                {
-                    ProductId = x.ProductId,
-                    ProductCode = x.ProductCode,
-                    Name = x.Name,
-                    Description = x.Description,
-                    CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
-                    CategoryName = x.ProductCategoryMapping.Select(m=> m.Category.Name).FirstOrDefault(),
-                    IsActive = x.IsActive,
-                    Variants = x.ProductVariants.Select(v => new ProductVariantViewModel
-                    {
-                        ProductVariantId = v.ProductVariantId,
-                        VariantCode = v.VariantCode,
-                        VariantName = v.VariantName,
-                        Color = v.Color,
-                        Price = v.Price,
-                        StockQty = v.StockQty,
-                        IsActive = v.IsActive
-                    }).ToList()
-                })
-                .ToListAsync();
-        }
-
-        public async Task<ProductViewModel?> GetProductInfo(
-            GetProductInfoRequestModel request, CustomError error)
-        {
-            return await _context.Products
-                .Where(x => x.ProductId == request.ProductId)
+                .Skip((param.PageNumber - 1) * param.PageSize)
+                .Take(param.PageSize)
                 .Select(x => new ProductViewModel
                 {
                     ProductId = x.ProductId,
@@ -84,19 +55,40 @@ namespace Homework.Service.ImplementServices.ProductServices
                     Description = x.Description,
                     CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
                     CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
+                    CategoryIds = x.ProductCategoryMapping.Select(m => m.CategoryId).ToList(),
+                    CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
                     IsActive = x.IsActive,
-                    Variants = x.ProductVariants.Select(v => new ProductVariantViewModel
-                    {
-                        ProductVariantId = v.ProductVariantId,
-                        VariantCode = v.VariantCode,
-                        VariantName = v.VariantName,
-                        Color = v.Color,
-                        Price = v.Price,
-                        StockQty = v.StockQty,
-                        IsActive = v.IsActive
-                    }).ToList()
+                    Price = x.Price,
+                    StockQty = x.StockQty,
+                    ImageUrl = x.ImageUrl
+                })
+                .ToListAsync();
+
+            return productDbList;
+        }
+
+        public async Task<ProductViewModel?> GetProductInfo(GetProductInfoRequestModel param, CustomError error)
+        {
+            var productDb = await _context.Products
+                .Where(x => x.ProductId == param.ProductId)
+                .Select(x => new ProductViewModel
+                {
+                    ProductId = x.ProductId,
+                    ProductCode = x.ProductCode,
+                    Name = x.Name,
+                    Description = x.Description,
+                    CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
+                    CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
+                    CategoryIds = x.ProductCategoryMapping.Select(m => m.CategoryId).ToList(),
+                    CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
+                    IsActive = x.IsActive,
+                    Price = x.Price,
+                    StockQty = x.StockQty,
+                    ImageUrl = x.ImageUrl
                 })
                 .FirstOrDefaultAsync();
+
+            return productDb;
         }
     }
 }

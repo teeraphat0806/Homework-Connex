@@ -19,7 +19,5 @@ namespace Homework.Domain.Interfaces.Services.ProductServices
 
         Task<ProductManageViewModel> DeleteProduct(
         DeleteProductRequestModel request, CustomError error);
-
-        Task<ProductManageViewModel> DeleteProductVariant(DeleteProductVariantRequestModel request,CustomError error);
     }
 }

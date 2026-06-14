@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Homework.Domain.Models;
+namespace Web.Homework.Models;
 
-public partial class OrderItems
+public partial class OrderItem
 {
     public long OrderItemId { get; set; }
 
@@ -35,7 +35,7 @@ public partial class OrderItems
 
     public long? ProductId { get; set; }
 
-    public virtual Orders Order { get; set; }
+    public virtual Order Order { get; set; }
 
-    public virtual Products Product { get; set; }
+    public virtual Product Product { get; set; }
 }

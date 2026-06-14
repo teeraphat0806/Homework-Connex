@@ -1,52 +1,5 @@
-.register-container {
-  min-height: 100vh;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 24px;
-
-  background: linear-gradient(
-    135deg,
-    #667eea,
-    #764ba2
-  );
-}
-
 .register-card {
-  width: 100%;
   max-width: 650px;
-
-  background: #fff;
-
-  border-radius: 20px;
-
-  padding: 32px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-
-  box-shadow:
-    0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-.register-title {
-  text-align: center;
-
-  font-size: 30px;
-  font-weight: 700;
-
-  color: #2d3748;
-}
-
-.register-subtitle {
-  text-align: center;
-
-  color: #718096;
-
-  margin-bottom: 10px;
 }
 
 .register-row {
@@ -55,46 +8,7 @@
   gap: 16px;
 }
 
-.register-button {
-  margin-top: 10px;
-
-  height: 48px;
-
-  border: none;
-  border-radius: 12px;
-
-  background: linear-gradient(
-    135deg,
-    #667eea,
-    #764ba2
-  );
-
-  color: white;
-
-  font-size: 16px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all 0.25s ease;
-}
-
-.register-button:hover {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 10px 25px rgba(102, 126, 234, 0.4);
-}
-
-.register-button:active {
-  transform: translateY(0);
-}
-
 @media (max-width: 768px) {
-  .register-card {
-    padding: 24px;
-  }
-
   .register-row {
     grid-template-columns: 1fr;
   }

@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace Homework.Domain.Models;
 
-public partial class OrderItems
+public partial class LogOrderItems
 {
+    public long LogOrderItemId { get; set; }
+
     public long OrderItemId { get; set; }
 
     public long OrderId { get; set; }
+
+    public long? ProductId { get; set; }
 
     public int Qty { get; set; }
 
@@ -21,11 +25,11 @@ public partial class OrderItems
 
     public string OrderItemStatus { get; set; }
 
+    public string OrderItemStatusCode { get; set; }
+
     public long? ApprovedByUserId { get; set; }
 
     public DateTime? ApprovedTime { get; set; }
-
-    public string OrderItemStatusCode { get; set; }
 
     public long? RejectedByUserId { get; set; }
 
@@ -33,9 +37,9 @@ public partial class OrderItems
 
     public string RejectedReason { get; set; }
 
-    public long? ProductId { get; set; }
+    public string Action { get; set; }
 
-    public virtual Orders Order { get; set; }
+    public long? CreatedByUserId { get; set; }
 
-    public virtual Products Product { get; set; }
+    public DateTime LogTime { get; set; }
 }

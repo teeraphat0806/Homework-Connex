@@ -66,12 +66,5 @@ namespace Web.Homework.Controllers.Product
             var result = await _manageProductService.DeleteProduct(request, error);
             return Ok(result);
         }
-        [HttpPost("delete-variant")]
-        public async Task<IActionResult> DeleteProductVariant([FromBody] DeleteProductVariantRequestModel request)
-        {
-            var error = new CustomError();
-            var result = await _manageProductService.DeleteProductVariant(request, error);
-            return Ok(result);
-        }
-}
+    }
 }

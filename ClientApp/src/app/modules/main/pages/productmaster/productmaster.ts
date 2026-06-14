@@ -16,7 +16,6 @@ import {
   ProductMasterSearchRequest,
   ProductMasterRequestCreate,
   ProductMasterRequest,
-  ProductVariantViewModel,
 } from '../../services/productmaster.service';
 import {
   CategoriesMasterApiService,
@@ -31,8 +30,9 @@ export interface ProductMasterRow {
   price: number;
   stockQty: number;
   categoryName: string;
+  categoryNames?: string[];
   isActive: boolean;
-  variants?: ProductVariantViewModel[];
+  imageUrl?: string;
 }
 
 @Component({
@@ -49,7 +49,7 @@ export interface ProductMasterRow {
   ],
   templateUrl: './productmaster.html',
   styleUrl: './productmaster.css',
-})
+ })
 export class ProductMaster implements OnInit {
   products: ProductMasterViewModel[] = [];
   categoryList: CategoryViewModel[] = [];
@@ -61,7 +61,7 @@ export class ProductMaster implements OnInit {
 
   constructor(
     private productService: ProductMasterApiService,
-    private CategoriesMasterApiService: CategoriesMasterApiService,
+    private categoriesMasterApiService: CategoriesMasterApiService,
   ) {}
 
   ngOnInit(): void {
@@ -80,93 +80,13 @@ export class ProductMaster implements OnInit {
     });
   }
 
-  selectedProduct: ProductMasterViewModel | null = null;
+  selectedProduct: (ProductMasterViewModel & { categoryIdsText?: string[] }) | null = null;
   isProductPopupVisible = false;
   popupMode: 'create' | 'edit' = 'create';
-
-  isVariantPopupVisible = false;
-  selectedVariant: (ProductVariantViewModel & { parentProductId?: number }) | null = null;
-  variantPopupMode: 'create' | 'edit' = 'create';
-
-  variantGridConfig: DynamicGridConfig<ProductVariantViewModel> = {
-    keyExpr: 'productVariantId',
-    pageSize: 10,
-
-    columns: [
-      {
-        dataField: 'variantCode',
-        caption: 'Variant Code',
-        dataType: 'string',
-        columnType: 'text',
-      },
-      {
-        dataField: 'variantName',
-        caption: 'Variant Name',
-        dataType: 'string',
-        columnType: 'text',
-      },
-      {
-        dataField: 'color',
-        caption: 'Color',
-        dataType: 'string',
-        columnType: 'text',
-      },
-      {
-        dataField: 'price',
-        caption: 'Price',
-        dataType: 'number',
-        columnType: 'number',
-        cellTemplate: 'priceTemplate',
-      },
-      {
-        dataField: 'stockQty',
-        caption: 'Stock Qty',
-        dataType: 'number',
-        columnType: 'number',
-      },
-      {
-        dataField: 'isActive',
-        caption: 'Status',
-        dataType: 'boolean',
-        columnType: 'status',
-        cellTemplate: 'statusTemplate',
-      },
-      {
-        caption: 'Actions',
-        columnType: 'action',
-        cellTemplate: 'actionTemplate',
-        alignment: 'center',
-      },
-    ],
-
-    actions: [
-      {
-        label: '',
-        theme: 'Secondary',
-        size: 'sm',
-        iconCode: 'edit',
-        showDefaultLabel: false,
-        onClick: (row) => this.openEditVariantPopup(row),
-      },
-      {
-        label: '',
-        theme: 'Danger',
-        size: 'sm',
-        iconCode: 'delete',
-        showDefaultLabel: false,
-        onClick: (row) => this.deleteVariant(row),
-      },
-    ],
-  };
 
   gridConfig: DynamicGridConfig<ProductMasterViewModel> = {
     keyExpr: 'productId',
     pageSize: 10,
-
-    masterDetail: {
-      enabled: true,
-      templateName: 'productDetailTemplate',
-    },
 
     columns: [
       {
@@ -188,10 +108,24 @@ export class ProductMaster implements OnInit {
         columnType: 'text',
       },
       {
-        dataField: 'categoryName',
-        caption: 'Category Name',
+        dataField: 'price',
+        caption: 'Price',
+        dataType: 'number',
+        columnType: 'number',
+        cellTemplate: 'priceTemplate',
+      },
+      {
+        dataField: 'stockQty',
+        caption: 'Stock Qty',
+        dataType: 'number',
+        columnType: 'number',
+      },
+      {
+        dataField: 'categoryNames',
+        caption: 'Categories',
         dataType: 'string',
         columnType: 'text',
+        cellTemplate: 'categoriesTemplate',
       },
       {
         dataField: 'isActive',
@@ -233,7 +167,7 @@ export class ProductMaster implements OnInit {
   }
 
   getCategoryList(): void {
-    this.CategoriesMasterApiService.GetCategoriesList().subscribe({
+    this.categoriesMasterApiService.GetCategoriesList().subscribe({
       next: (res) => {
         this.categoryList = res;
         this.categoryDropdownItems = res.map((c) => ({
@@ -247,17 +181,6 @@ export class ProductMaster implements OnInit {
     });
   }
 
-  productVariantsMap = new Map<number, ProductVariantViewModel[] | null>();
-
-  getProductVariants(productId: any): ProductVariantViewModel[] | null {
-    const id = Number(productId);
-    if (isNaN(id) || id <= 0) {
-      return [];
-    }
-    const product = this.products.find((p) => p.productId === id);
-    return product?.variants || [];
-  }
-
   openCreatePopup(): void {
     this.popupMode = 'create';
     this.selectedProduct = {
@@ -266,8 +189,12 @@ export class ProductMaster implements OnInit {
       name: '',
       description: '',
       categoryId: undefined,
+      categoryIds: [],
+      categoryIdsText: [],
       isActive: true,
-      variants: [],
+      price: 0,
+      stockQty: 0,
+      imageUrl: '',
     };
 
     this.isProductPopupVisible = true;
@@ -277,14 +204,19 @@ export class ProductMaster implements OnInit {
     this.popupMode = 'edit';
     this.productService.GetProductInfo(product.productId).subscribe({
       next: (info) => {
+        const catIds = info.categoryIds || [];
         this.selectedProduct = {
           productId: info.productId,
           productCode: info.productCode,
           name: info.name,
           description: info.description || '',
           categoryId: info.categoryId,
+          categoryIds: catIds,
+          categoryIdsText: catIds.map((id) => id.toString()),
           isActive: info.isActive,
-          variants: info.variants || [],
+          price: info.price,
+          stockQty: info.stockQty,
+          imageUrl: info.imageUrl || '',
         };
         this.isProductPopupVisible = true;
       },
@@ -309,10 +241,11 @@ export class ProductMaster implements OnInit {
         ProductCode: this.selectedProduct.productCode,
         name: this.selectedProduct.name,
         description: this.selectedProduct.description,
-        price: 0,
-        stockQty: 0,
+        price: this.selectedProduct.price || 0,
+        stockQty: this.selectedProduct.stockQty || 0,
         categoryId: this.selectedProduct.categoryId,
-        variants: [], // Empty default variants list
+        categoryIds: this.selectedProduct.categoryIds,
+        imageUrl: this.selectedProduct.imageUrl,
       };
 
       this.productService.CreateProduct(createReq).subscribe({
@@ -334,17 +267,12 @@ export class ProductMaster implements OnInit {
         ProductCode: this.selectedProduct.productCode,
         name: this.selectedProduct.name,
         description: this.selectedProduct.description,
-        price: 0,
-        stockQty: 0,
+        price: this.selectedProduct.price || 0,
+        stockQty: this.selectedProduct.stockQty || 0,
         categoryId: this.selectedProduct.categoryId,
+        categoryIds: this.selectedProduct.categoryIds,
         isActive: this.selectedProduct.isActive,
-        variants: (this.selectedProduct.variants || []).map((v) => ({
-          variantCode: v.variantCode,
-          variantName: v.variantName,
-          color: v.color,
-          price: v.price,
-          stockQty: v.stockQty,
-        })),
+        imageUrl: this.selectedProduct.imageUrl,
       };
 
       this.productService.UpdateProduct(updateReq).subscribe({
@@ -380,138 +308,16 @@ export class ProductMaster implements OnInit {
     }
   }
 
-  get variantPopupTitle(): string {
-    return this.variantPopupMode === 'create' ? 'Create Variant' : 'Edit Variant';
-  }
-
-  openCreateVariantPopup(parentProductId: number): void {
-    this.variantPopupMode = 'create';
-    this.selectedVariant = {
-      productVariantId: 0,
-      variantCode: '',
-      variantName: '',
-      color: '',
-      price: 0,
-      stockQty: 0,
-      isActive: true,
-      parentProductId: parentProductId,
-    };
-    this.isVariantPopupVisible = true;
-  }
-
-  openEditVariantPopup(variant: ProductVariantViewModel, parentProductId?: number): void {
-    this.variantPopupMode = 'edit';
-    this.selectedVariant = {
-      ...variant,
-      parentProductId: parentProductId,
-    };
-    this.isVariantPopupVisible = true;
-  }
-
-  closeVariantPopup(): void {
-    this.isVariantPopupVisible = false;
-    this.selectedVariant = null;
-  }
-
-  saveVariant(): void {
-    if (!this.selectedVariant || !this.selectedVariant.parentProductId) {
+  onCategorySelectionChange(selectedKeys: string[]): void {
+    if (!this.selectedProduct) {
       return;
     }
-
-    const parentId = this.selectedVariant.parentProductId;
-
-    this.productService.GetProductInfo(parentId).subscribe({
-      next: (productInfo) => {
-        let variantsList = productInfo.variants || [];
-
-        if (this.variantPopupMode === 'create') {
-          const newVariant: ProductVariantViewModel = {
-            productVariantId: 0,
-            variantCode: this.selectedVariant!.variantCode,
-            variantName: this.selectedVariant!.variantName,
-            color: this.selectedVariant!.color,
-            price: this.selectedVariant!.price,
-            stockQty: this.selectedVariant!.stockQty,
-            isActive: true,
-          };
-          variantsList.push(newVariant);
-        } else {
-          variantsList = variantsList.map((v) =>
-            v.productVariantId === this.selectedVariant!.productVariantId
-              ? {
-                  ...v,
-                  variantCode: this.selectedVariant!.variantCode,
-                  variantName: this.selectedVariant!.variantName,
-                  color: this.selectedVariant!.color,
-                  price: this.selectedVariant!.price,
-                  stockQty: this.selectedVariant!.stockQty,
-                  isActive: this.selectedVariant!.isActive,
-                }
-              : v,
-          );
-        }
-
-        const variantsToSend = variantsList.map((v) => ({
-          variantCode: v.variantCode,
-          variantName: v.variantName,
-          color: v.color,
-          price: v.price,
-          stockQty: v.stockQty,
-        }));
-
-        const updateReq: ProductMasterRequest = {
-          productId: productInfo.productId,
-          ProductCode: productInfo.productCode,
-          name: productInfo.name,
-          description: productInfo.description,
-          price: (productInfo as any).price || 0,
-          stockQty: (productInfo as any).stockQty || 0,
-          categoryId: productInfo.categoryId,
-          isActive: productInfo.isActive,
-          variants: variantsToSend,
-        };
-
-        this.productService.UpdateProduct(updateReq).subscribe({
-          next: (res) => {
-            if (res.isSuccess) {
-              this.loadProducts();
-              this.closeVariantPopup();
-            } else {
-              console.error('Failed to save variant:', res.message);
-            }
-          },
-          error: (err) => {
-            console.error('Error updating product with variant:', err);
-          },
-        });
-      },
-      error: (err) => {
-        console.error('Failed to get product info for variant save', err);
-      },
-    });
-  }
-
-  deleteVariant(variant: ProductVariantViewModel, parentProductId?: number): void {
-    if (!parentProductId) return;
-    if (
-      confirm(`คุณต้องการลบ Variant "${variant.variantName || variant.variantCode}" ใช่หรือไม่?`)
-    ) {
-      if (variant.productVariantId > 0) {
-        this.productService
-          .DeleteProductVariant(parentProductId, variant.productVariantId)
-          .subscribe({
-            next: (res) => {
-              if (res.isSuccess) {
-                this.loadProducts();
-              } else {
-                console.error('Failed to delete variant:', res.message);
-              }
-            },
-            error: (err: any) => {
-              console.error('Error deleting variant:', err);
-            },
-          });
-      }
+    this.selectedProduct.categoryIds = (selectedKeys || []).map((k) => +k);
+    this.selectedProduct.categoryIdsText = selectedKeys;
+    if (this.selectedProduct.categoryIds.length > 0) {
+      this.selectedProduct.categoryId = this.selectedProduct.categoryIds[0];
+    } else {
+      this.selectedProduct.categoryId = undefined;
     }
   }
 }

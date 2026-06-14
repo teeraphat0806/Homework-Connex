@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Homework.Domain.Models;
+namespace Web.Homework.Models;
 
-public partial class Products
+public partial class Product
 {
     public long ProductId { get; set; }
 
@@ -31,7 +31,7 @@ public partial class Products
 
     public string ImageUrl { get; set; }
 
-    public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
+    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
-    public virtual ICollection<ProductCategoryMapping> ProductCategoryMapping { get; set; } = new List<ProductCategoryMapping>();
+    public virtual ICollection<ProductCategoryMapping> ProductCategoryMappings { get; set; } = new List<ProductCategoryMapping>();
 }

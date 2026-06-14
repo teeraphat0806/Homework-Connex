@@ -1,1 +1,213 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+/* ==========================================================================
+   Authentication Shared Styles (Login & Register)
+   ========================================================================== */
+
+/* Container styling for login & register */
+.login-container,
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at center, #1c1c1f 0%, #0c0c0e 100%) !important;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.login-container::before,
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 85, 0, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Card styling for login & register */
+.login-card,
+.register-card {
+  width: 100%;
+  background: rgba(18, 18, 18, 0.85) !important;
+  border: 1px solid rgba(255, 85, 0, 0.2) !important;
+  border-radius: 16px !important;
+  padding: 40px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 20px !important;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.8),
+    0 0 25px rgba(255, 85, 0, 0.05) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e2e8f0 !important;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.login-card:hover,
+.register-card:hover {
+  border-color: rgba(255, 85, 0, 0.3) !important;
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.9),
+    0 0 35px rgba(255, 85, 0, 0.08) !important;
+}
+
+/* Title styling for login & register */
+.login-title,
+.register-title {
+  text-align: center;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #ff5500 !important;
+  margin-bottom: 4px !important;
+  font-family: 'Orbitron', sans-serif !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 0 10px rgba(255, 85, 0, 0.3) !important;
+}
+
+/* Subtitle styling for register (and general subtitle) */
+.register-subtitle,
+.auth-subtitle {
+  text-align: center;
+  color: #9f9f9f !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Component overrides for inputs and buttons inside both login and register (Global scope) */
+.login-card .hw-label,
+.register-card .hw-label {
+  color: #cbd5e1 !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+.login-card .dx-texteditor,
+.register-card .dx-texteditor {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 85, 0, 0.15) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.login-card .dx-texteditor.dx-state-hover,
+.register-card .dx-texteditor.dx-state-hover {
+  border-color: rgba(255, 85, 0, 0.4) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.login-card .dx-texteditor.dx-state-focused,
+.register-card .dx-texteditor.dx-state-focused {
+  border-color: #ff5500 !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 0 8px rgba(255, 85, 0, 0.25) !important;
+}
+
+.login-card .dx-texteditor-input,
+.register-card .dx-texteditor-input {
+  color: #ffffff !important;
+  font-family: 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 14px !important;
+}
+
+.login-card .dx-placeholder,
+.register-card .dx-placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.login-card .dx-texteditor-buttons-container,
+.register-card .dx-texteditor-buttons-container {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.login-card .dx-dropdowneditor-icon,
+.register-card .dx-dropdowneditor-icon {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.login-card .dx-button-normal,
+.register-card .dx-button-normal {
+  background-color: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.login-card .hw-error-message,
+.register-card .hw-error-message {
+  color: #f87171 !important;
+  font-size: 11px !important;
+  margin-top: 4px !important;
+}
+
+/* Clear & Toggle buttons in homework input */
+.login-card .hw-clear-button,
+.register-card .hw-clear-button {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+.login-card .hw-clear-button:hover,
+.register-card .hw-clear-button:hover {
+  color: #ffffff !important;
+}
+.login-card .hw-toggle-button,
+.register-card .hw-toggle-button {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+.login-card .hw-toggle-button:hover,
+.register-card .hw-toggle-button:hover {
+  color: #ffffff !important;
+}
+
+/* Homework button override */
+.login-card .homework-button,
+.register-card .homework-button {
+  background-color: #ff5500 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  padding: 12px 32px !important;
+  width: 100% !important;
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.2) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.login-card .homework-button:hover:not(.opacity-50),
+.register-card .homework-button:hover:not(.opacity-50) {
+  background-color: #ff6a1a !important;
+  box-shadow: 0 6px 20px rgba(255, 85, 0, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.login-card .homework-button:active:not(.opacity-50),
+.register-card .homework-button:active:not(.opacity-50) {
+  transform: translateY(0) !important;
+}
+
+/* Responsive adjustment */
+@media (max-width: 576px) {
+  .login-card,
+  .register-card {
+    padding: 24px !important;
+  }
+  .login-title,
+  .register-title {
+    font-size: 24px !important;
+  }
+}

@@ -3,14 +3,6 @@ import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 
-export interface ProductVariantRequest {
-  variantCode: string;
-  variantName: string;
-  color: string;
-  price: number;
-  stockQty: number;
-}
-
 export interface ProductMasterRequest {
   productId: number;
   ProductCode: string;
@@ -19,9 +11,9 @@ export interface ProductMasterRequest {
   price: number;
   stockQty: number;
   categoryId?: number;
-  categoryName?: string;
+  categoryIds?: number[];
   isActive: boolean;
-  variants?: ProductVariantRequest[];
+  imageUrl?: string;
 }
 
 export interface ProductMasterRequestCreate {
@@ -31,7 +23,8 @@ export interface ProductMasterRequestCreate {
   price: number;
   stockQty: number;
   categoryId?: number;
-  variants?: ProductVariantRequest[];
+  categoryIds?: number[];
+  imageUrl?: string;
 }
 
 export interface ProductMasterSearchRequest {
@@ -42,24 +35,19 @@ export interface ProductMasterSearchRequest {
   pageSize: number;
 }
 
-export interface ProductVariantViewModel {
-  productVariantId: number;
-  variantCode: string;
-  variantName: string;
-  color: string;
-  price: number;
-  stockQty: number;
-  isActive: boolean;
-}
-
 export interface ProductMasterViewModel {
   productId: number;
   productCode: string;
   name: string;
   description?: string;
   categoryId?: number;
+  categoryName?: string;
+  categoryIds?: number[];
+  categoryNames?: string[];
   isActive: boolean;
-  variants: ProductVariantViewModel[];
+  price: number;
+  stockQty: number;
+  imageUrl?: string;
 }
 
 export interface ProductManageViewModel {
@@ -133,24 +121,6 @@ export class ProductMasterApiService {
       .pipe(
         catchError((error) => {
           console.error('Error deleting product:', error);
-          return throwError(() => error);
-        }),
-      );
-  }
-
-  DeleteProductVariant(
-    productId: number,
-    productVariantId: number,
-  ): Observable<ProductManageViewModel> {
-    return this.http
-      .post<ProductManageViewModel>(
-        `${this.url}/delete-variant`,
-        { productId, productVariantId },
-        { withCredentials: true },
-      )
-      .pipe(
-        catchError((error) => {
-          console.error('Error deleting product variant:', error);
           return throwError(() => error);
         }),
       );

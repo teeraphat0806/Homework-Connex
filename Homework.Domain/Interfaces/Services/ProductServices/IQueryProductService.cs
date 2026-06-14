@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +11,9 @@ namespace Homework.Domain.Interfaces.Services.ProductServices
     public interface IQueryProductService
     {
         Task<List<ProductViewModel>> GetProductList(
-        GetProductListRequestModel request,CustomError error);
+        GetProductListRequestModel param,CustomError error);
 
         Task<ProductViewModel?> GetProductInfo(
-            GetProductInfoRequestModel request,CustomError error);
+            GetProductInfoRequestModel param,CustomError error);
     }
 }

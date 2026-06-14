@@ -1,17 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 .main-navbar {
   height: 64px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: #121212;
+  border-bottom: 1px solid #1a1a1a;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 24px;
+  padding: 0 0 0 24px;
 
   position: sticky;
   top: 0;
   z-index: 1000;
+  font-family: 'Orbitron', sans-serif;
 }
 
 .navbar-logo {
@@ -21,34 +23,39 @@
 }
 
 .logo-text {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  color: #2563eb;
-  letter-spacing: 0.5px;
+  color: #ff5500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
 }
 
 .navbar-actions {
   flex: 1;
+  height: 100%;
   display: flex;
   justify-content: flex-end;
 }
 
 .desktop-menu {
   width: 100%;
+  height: 100%;
 }
 
 .desktop-nav-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-
+  justify-content: flex-end;
+  height: 100%;
   gap: 24px;
 }
 
 .desktop-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  height: 100%;
+  gap: 0;
 
   overflow-x: auto;
   scrollbar-width: none;
@@ -61,12 +68,18 @@
 .desktop-menu-item {
   text-decoration: none;
 
-  color: #4b5563;
-  font-size: 14px;
-  font-weight: 500;
+  color: #9f9f9f;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
 
-  padding: 10px 16px;
-  border-radius: 8px;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 24px;
+  border-radius: 0;
 
   white-space: nowrap;
 
@@ -74,26 +87,27 @@
 }
 
 .desktop-menu-item:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: #1c1c1c;
+  color: #ffffff;
 }
 
 .active-link {
-  background: #2563eb;
+  background: #ff5500 !important;
   color: #ffffff !important;
 }
 
 .desktop-logout {
   flex-shrink: 0;
+  margin-right: 24px;
 }
 
 @media (max-width: 992px) {
   .main-navbar {
-    padding: 0 16px;
+    padding: 0 0 0 16px;
   }
 
   .logo-text {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .desktop-nav-container {
@@ -101,8 +115,8 @@
   }
 
   .desktop-menu-item {
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 0 16px;
+    font-size: 12px;
   }
 }
 
@@ -119,18 +133,32 @@
     margin-bottom: 12px;
   }
 
+  .navbar-actions {
+    width: 100%;
+    height: auto;
+  }
+
   .desktop-nav-container {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
+    height: auto;
   }
 
   .desktop-links {
     width: 100%;
     overflow-x: auto;
+    height: 48px;
+    justify-content: center;
+  }
+
+  .desktop-menu-item {
+    height: 100%;
   }
 
   .desktop-logout {
     width: 100%;
+    margin-right: 0;
+    margin-top: 12px;
   }
 }

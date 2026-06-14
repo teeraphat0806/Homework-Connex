@@ -22,9 +22,11 @@ namespace Homework.Service.ImplementServices.OrderServices
             _userContextService = userContextService;
             _error = error;
         }
-
         public async Task<OrderManageViewModel> CreateOrder(CreateOrderRequestModel request, CustomError error)
         {
+            Homework.Domain.ValidateModels.OrderValidateModels.CreateOrderValidateModel.Validate(request, error);
+            error.ThrowIfError();
+
             // 1. Generate OrderNo
             var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             var random = new Random().Next(1000, 9999);
@@ -42,32 +44,24 @@ namespace Homework.Service.ImplementServices.OrderServices
             decimal totalAmount = 0;
             var orderItems = new List<OrderItems>();
 
-            if (request.OrderItems == null || !request.OrderItems.Any())
-            {
-                error.AddError("Order", "ออเดอร์ต้องมีอย่างน้อย 1 ตัว");
-            }
-            error.ThrowIfError();
-
             foreach (var item in request.OrderItems)
             {
                 var product = await _context.Products
-                    .Include(p => p.ProductVariants)
                     .FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
 
                 if (product == null)
                 {
-                    error.AddError("Product", "ไม่พบสินค้า");
+                    error.AddError("Product", $"ไม่พบสินค้ารหัส {item.ProductId}");
                     error.ThrowIfError();
                 }
 
-                var variant = product.ProductVariants.OrderBy(v => v.ProductVariantId).FirstOrDefault();
-                if (variant == null || variant.StockQty < item.Qty)
+                if (product.StockQty < item.Qty)
                 {
-                    error.AddError("Product", "สินค้าหมดคลัง");
+                    error.AddError("Product", $"สินค้า '{product.Name}' หมดคลัง หรือมีจำนวนไม่พอ");
                     error.ThrowIfError();
                 }
 
-                var unitPrice = variant.Price;
+                var unitPrice = product.Price;
                 var discount = item.Discount;
                 var netAmount = (unitPrice * item.Qty) - discount;
 
@@ -75,7 +69,7 @@ namespace Homework.Service.ImplementServices.OrderServices
 
                 orderItems.Add(new OrderItems
                 {
-                    ProductVariantId = variant.ProductVariantId,
+                    ProductId = product.ProductId,
                     Qty = item.Qty,
                     UnitPrice = unitPrice,
                     Discount = discount,
@@ -84,8 +78,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                     OrderItemStatusCode = "PENDING"
                 });
 
-                // Deduct stock from the first/default variant
-                variant.StockQty -= item.Qty;
+                // Deduct stock from product directly
+                product.StockQty -= item.Qty;
             }
 
             var vatAmount = Math.Round(totalAmount * 0.07m, 2);
@@ -147,7 +141,7 @@ namespace Homework.Service.ImplementServices.OrderServices
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.ProductVariant)
+                    .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.OrderId == request.OrderId);
 
             if (order == null)
@@ -155,12 +149,12 @@ namespace Homework.Service.ImplementServices.OrderServices
                 error.AddError("Order", "ไม่พบออเดอร์");
             }
             error.ThrowIfError();
-            // Return stock back to product variants
+            // Return stock back to products
             foreach (var item in order.OrderItems)
             {
-                if (item.ProductVariant != null)
+                if (item.Product != null)
                 {
-                    item.ProductVariant.StockQty += item.Qty;
+                    item.Product.StockQty += item.Qty;
                 }
             }
 

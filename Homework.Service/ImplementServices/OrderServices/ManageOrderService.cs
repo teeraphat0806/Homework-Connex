@@ -22,9 +22,9 @@ namespace Homework.Service.ImplementServices.OrderServices
             _userContextService = userContextService;
             _error = error;
         }
-        public async Task<OrderManageViewModel> CreateOrder(CreateOrderRequestModel request, CustomError error)
+        public async Task<OrderManageViewModel> CreateOrder(CreateOrderRequestModel param, CustomError error)
         {
-            Homework.Domain.ValidateModels.OrderValidateModels.CreateOrderValidateModel.Validate(request, error);
+            Homework.Domain.ValidateModels.OrderValidateModels.CreateOrderValidateModel.Validate(param, error);
             error.ThrowIfError();
 
             // 1. Generate OrderNo
@@ -44,7 +44,7 @@ namespace Homework.Service.ImplementServices.OrderServices
             decimal totalAmount = 0;
             var orderItems = new List<OrderItems>();
 
-            foreach (var item in request.OrderItems)
+            foreach (var item in param.OrderItems)
             {
                 var product = await _context.Products
                     .FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
@@ -108,9 +108,9 @@ namespace Homework.Service.ImplementServices.OrderServices
             };
         }
 
-        public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel request, CustomError error)
+        public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel param, CustomError error)
         {
-            var order = await _context.Orders.FindAsync(request.OrderId);
+            var order = await _context.Orders.FindAsync(param.OrderId);
             if (order == null)
             {
                 error.AddError("Order", "ไม่พบออเดอร์");
@@ -123,7 +123,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 userId = parsedUserId;
             }
 
-            order.Status = request.Status;
+            order.Status = param.Status;
             order.ModifiedByUserId = userId;
             order.ModifiedTime = DateTime.UtcNow;
 
@@ -137,12 +137,12 @@ namespace Homework.Service.ImplementServices.OrderServices
             };
         }
 
-        public async Task<OrderManageViewModel> DeleteOrder(DeleteOrderRequestModel request, CustomError error)
+        public async Task<OrderManageViewModel> DeleteOrder(DeleteOrderRequestModel param, CustomError error)
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.OrderId == request.OrderId);
+                .FirstOrDefaultAsync(o => o.OrderId == param.OrderId);
 
             if (order == null)
             {
@@ -166,7 +166,7 @@ namespace Homework.Service.ImplementServices.OrderServices
             {
                 IsSuccess = true,
                 Message = "ลบออเดอร์เรียบร้อยแล้ว",
-                OrderId = request.OrderId
+                OrderId = param.OrderId
             };
         }
     }

@@ -199,7 +199,13 @@
 .register-card .homework-button:active:not(.opacity-50) {
   transform: translateY(0) !important;
 }
-
+.header .title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
+}
 /* Responsive adjustment */
 @media (max-width: 576px) {
   .login-card,

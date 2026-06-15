@@ -1,10 +1,9 @@
 <div class="product-master-page">
   <div class="page-header">
-    <div>
-      <h2>Product Master</h2>
+    <div class="header">
+      <h2 class="title">Product Master</h2>
       <p>จัดการข้อมูลสินค้า</p>
     </div>
-
     <homework-button
       label="เพิ่มสินค้า"
       theme="Primary"
@@ -15,11 +14,9 @@
     </homework-button>
   </div>
 
-  <div
-    class="filter-panel"
-    style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center"
-  >
-    <div style="flex: 1; max-width: 300px">
+  <div class="filter-panel">
+    <div class="filter-item">
+      <span>ค้นหาชื่อสินค้า</span>
       <dx-text-box
         placeholder="ค้นหาชื่อสินค้า..."
         mode="search"
@@ -30,7 +27,9 @@
       >
       </dx-text-box>
     </div>
-    <div style="flex: 1; max-width: 300px">
+
+    <div class="filter-item">
+      <span>ประเภทสินค้า</span>
       <dx-tag-box
         [items]="categoryDropdownItems"
         valueExpr="key"
@@ -43,76 +42,90 @@
       >
       </dx-tag-box>
     </div>
+    <div class="filter-item">
+      <span>สถานะ</span>
+      <dx-tag-box
+        [items]="statusDropdownItems"
+        valueExpr="key"
+        displayExpr="value"
+        placeholder="เลือกสถานะ..."
+        [(value)]="request.statuses"
+        [showSelectionControls]="true"
+        applyValueMode="useButtons"
+        (valueChange)="loadProducts()"
+      >
+      </dx-tag-box>
+    </div>
   </div>
-
-  <homework-datagrid [dataSource]="products" [config]="gridConfig">
-    <ng-template gridTemplate="productDescriptionDetail" let-row>
-      <div class="product-detail-expanded">
-        @if (row.data.imageUrl) {
-          <div class="product-detail-img-container">
-            <img [src]="row.data.imageUrl" alt="Product Image" />
-          </div>
-        } @else {
-          <div class="product-detail-img-placeholder">
-            <span>No Image</span>
-          </div>
-        }
-        <div class="product-detail-info">
-          <h5>
-            รายละเอียดเพิ่มเติมของ: {{ row.data.name }}
-            <span class="product-detail-code">({{ row.data.productCode }})</span>
-          </h5>
-          <p class="product-detail-desc">
-            <strong>คำอธิบาย:</strong> {{ row.data.description || 'ไม่มีคำอธิบาย' }}
-          </p>
-          <div class="product-detail-stats">
-            <span
-              ><strong>ราคา:</strong>
-              <strong class="price-val">{{ row.data.price | number }}</strong> บาท</span
-            >
-            @if (row.data.stockQty) {
+  <div class="page-column">
+    <homework-datagrid [dataSource]="products" [config]="gridConfig">
+      <ng-template gridTemplate="productDescriptionDetail" let-row>
+        <div class="product-detail-expanded">
+          @if (row.data.imageUrl) {
+            <div class="product-detail-img-container">
+              <img [src]="row.data.imageUrl" alt="Product Image" />
+            </div>
+          } @else {
+            <div class="product-detail-img-placeholder">
+              <span>No Image</span>
+            </div>
+          }
+          <div class="product-detail-info">
+            <h5>
+              รายละเอียดเพิ่มเติมของ: {{ row.data.name }}
+              <span class="product-detail-code">({{ row.data.productCode }})</span>
+            </h5>
+            <p class="product-detail-desc">
+              <strong>คำอธิบาย:</strong> {{ row.data.description || 'ไม่มีคำอธิบาย' }}
+            </p>
+            <div class="product-detail-stats">
               <span
-                ><strong>คงเหลือ:</strong>
-                <strong class="stock-val">{{ row.data.stockQty | number }}</strong> ชิ้น</span
+                ><strong>ราคา:</strong>
+                <strong class="price-val">{{ row.data.price | number }}</strong> บาท</span
               >
-            } @else {
-              <span><strong>คงเหลือ:</strong> <strong class="stock-out">สินค้าหมด</strong></span>
-            }
+              @if (row.data.stockQty) {
+                <span
+                  ><strong>คงเหลือ:</strong>
+                  <strong class="stock-val">{{ row.data.stockQty | number }}</strong> ชิ้น</span
+                >
+              } @else {
+                <span><strong>คงเหลือ:</strong> <strong class="stock-out">สินค้าหมด</strong></span>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    </ng-template>
-    <ng-template gridTemplate="priceTemplate" let-item>
-      <strong>{{ item.data.price | number }}</strong> บาท
-    </ng-template>
+      </ng-template>
+      <ng-template gridTemplate="priceTemplate" let-item>
+        <strong>{{ item.data.price | number }}</strong> บาท
+      </ng-template>
 
-    <ng-template gridTemplate="categoriesTemplate" let-item>
-      <span>{{
-        item.data.categoryNames && item.data.categoryNames.length > 0
-          ? item.data.categoryNames.join(', ')
-          : item.data.categoryName || '-'
-      }}</span>
-    </ng-template>
-    <ng-template gridTemplate="stockQtyTemplate" let-item>
-      @if (item.data.stockQty != 0) {
-        <span>{{ item.data.stockQty | number }}</span> ชิ้น
-      } @else {
-        <span style="color: red">สินค้าหมด</span>
-      }
-    </ng-template>
-    <ng-template gridTemplate="statusTemplate" let-item>
-      <span
-        class="status-badge"
-        [ngClass]="{
-          'status-active': item.data.isActive,
-          'status-inactive': !item.data.isActive,
-        }"
-      >
-        {{ item.data.isActive ? 'Active' : 'Inactive' }}
-      </span>
-    </ng-template>
-  </homework-datagrid>
-
+      <ng-template gridTemplate="categoriesTemplate" let-item>
+        <span>{{
+          item.data.categoryNames && item.data.categoryNames.length > 0
+            ? item.data.categoryNames.join(', ')
+            : item.data.categoryName || '-'
+        }}</span>
+      </ng-template>
+      <ng-template gridTemplate="stockQtyTemplate" let-item>
+        @if (item.data.stockQty != 0) {
+          <span>{{ item.data.stockQty | number }}</span> ชิ้น
+        } @else {
+          <span style="color: red">สินค้าหมด</span>
+        }
+      </ng-template>
+      <ng-template gridTemplate="statusTemplate" let-item>
+        <span
+          class="status-badge"
+          [ngClass]="{
+            'status-active': item.data.isActive,
+            'status-inactive': !item.data.isActive,
+          }"
+        >
+          {{ item.data.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </ng-template>
+    </homework-datagrid>
+  </div>
   <homework-formpopup
     [(visible)]="isProductPopupVisible"
     [title]="popupTitle"
@@ -213,7 +226,9 @@
   >
     <ng-container modal-body>
       @if (productToDelete) {
-        <p>คุณต้องการลบสินค้า <strong>{{ productToDelete.name }}</strong> ใช่หรือไม่?</p>
+        <p>
+          คุณต้องการลบสินค้า <strong>{{ productToDelete.name }}</strong> ใช่หรือไม่?
+        </p>
       } @else {
         <p>คุณต้องการลบสินค้านี้ใช่หรือไม่?</p>
       }

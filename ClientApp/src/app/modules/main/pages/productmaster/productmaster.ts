@@ -28,6 +28,7 @@ import {
   CategoryViewModel,
 } from '../../services/categoriesmaster.service';
 import { DxTextBoxModule } from 'devextreme-angular';
+import { ProductStatus } from '../../../../core/enum';
 export interface ProductMasterRow {
   productId: number;
   productCode: string;
@@ -64,6 +65,10 @@ export class ProductMaster implements OnInit {
   products!: DataSource;
   categoryList: CategoryViewModel[] = [];
   categoryDropdownItems: { key: string; value: string }[] = [];
+  statusDropdownItems = [
+    { key: 'true', value: ProductStatus.Active },
+    { key: 'false', value: ProductStatus.Inactive },
+  ];
   isDeletePopupVisible = false;
   productToDelete: ProductMasterViewModel | null = null;
   deleteModalConfig: ConfirmationModalConfig = {
@@ -75,6 +80,7 @@ export class ProductMaster implements OnInit {
   request = {
     keyword: '',
     categoryIds: [],
+    statuses: [] as string[],
     pageNumber: 1,
     pageSize: 10,
   };
@@ -108,6 +114,11 @@ export class ProductMaster implements OnInit {
             if (this.request.keyword) params.keyword = this.request.keyword;
             if (categoryIdsAsNumbers.length > 0) {
               params.categoryIds = categoryIdsAsNumbers;
+            }
+
+            const selectedStatuses = this.request.statuses || [];
+            if (selectedStatuses.length === 1) {
+              params.isActive = selectedStatuses[0] === 'true';
             }
 
             console.log('DevExtreme load options:', loadOptions);

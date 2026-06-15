@@ -23,6 +23,14 @@
   color: #6b7280;
 }
 
+.page-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  padding-right: 16px;
+}
+
 .product-form {
   display: flex;
   flex-direction: column;
@@ -147,4 +155,28 @@
   color: #ffffff;
   padding: 2px 8px;
   border-radius: 4px;
+}
+.filter-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin-bottom: 20px;
+  padding: 16px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.filter-item {
+  flex: 1;
+  max-width: 320px;
+}
+
+.filter-item dx-text-box,
+.filter-item dx-tag-box {
+  width: 100%;
 }

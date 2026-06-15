@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using Web.Homework.ExceptionHandler;
 using Web.Homework.ExceptionMiddleware;
+using Web.Homework.ModelBinders;
 using Homework.Domain.Error;
 
 namespace Homework.Web
@@ -28,7 +29,6 @@ namespace Homework.Web
             // Auto Register DI
             RegisterDIForCustomerService(builder);
 
-            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IRawSqlService, RawSqlService>();
@@ -93,15 +93,18 @@ namespace Homework.Web
                     }
                 };
             });
-            builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.ContractResolver =
-            new CamelCasePropertyNamesContractResolver();
+            builder.Services.AddControllers(options =>
+            {
+                options.ModelBinderProviders.Insert(0, new CustomDataSourceLoadOptionsBinderProvider());
+            })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver =
+                    new CamelCasePropertyNamesContractResolver();
 
-        options.SerializerSettings.NullValueHandling =
-            NullValueHandling.Ignore;
-    });
+                options.SerializerSettings.NullValueHandling =
+                    NullValueHandling.Ignore;
+            });
             var app = builder.Build();
             app.UseMiddleware<ExceptionMiddleware>();
             if (app.Environment.IsDevelopment())

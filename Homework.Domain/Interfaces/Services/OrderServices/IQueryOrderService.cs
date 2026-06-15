@@ -7,7 +7,7 @@ namespace Homework.Domain.Interfaces.Services.OrderServices
 {
     public interface IQueryOrderService
     {
-        Task<List<OrderListViewModel>> GetOrderList(GetOrderListRequestModel request,CustomError error);
+        Task<object> GetOrderList(GetOrderListRequestModel request,CustomError error);
         Task<OrderInfoViewModel?> GetOrderInfo(GetOrderInfoRequestModel request,CustomError error);
     }
 }

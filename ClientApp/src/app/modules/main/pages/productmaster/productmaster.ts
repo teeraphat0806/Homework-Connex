@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import DataSource from 'devextreme/data/data_source';
+import CustomStore from 'devextreme/data/custom_store';
+import { lastValueFrom } from 'rxjs';
 import {
   HomeworkDatagridComponent,
   GridTemplateDirective,
@@ -8,7 +11,10 @@ import { DxTagBoxModule } from 'devextreme-angular';
 import { HomeworkButton } from '../../../../shared/components/homework-button/homework-button.component';
 import { HomeworkInputComponent } from '../../../../shared/components/homework-input/homework-input.component';
 import { HomeworkFormpopup } from '../../../../shared/components/homework-formpopup/homework-formpopup.component';
-import { HomeworkConfirmationModalComponent, ConfirmationModalConfig } from '../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component';
+import {
+  HomeworkConfirmationModalComponent,
+  ConfirmationModalConfig,
+} from '../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component';
 import { DynamicGridConfig } from '../../../../shared/models/homework-datagrid.model';
 import {
   ProductMasterApiService,
@@ -53,7 +59,9 @@ export interface ProductMasterRow {
   styleUrl: './productmaster.css',
 })
 export class ProductMaster implements OnInit {
-  products: ProductMasterViewModel[] = [];
+  @ViewChild(HomeworkDatagridComponent, { static: false })
+  gridWrapper!: HomeworkDatagridComponent<any>;
+  products!: DataSource;
   categoryList: CategoryViewModel[] = [];
   categoryDropdownItems: { key: string; value: string }[] = [];
   isDeletePopupVisible = false;
@@ -77,26 +85,66 @@ export class ProductMaster implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.initializeDataSource();
     this.getCategoryList();
   }
 
-  loadProducts(): void {
-    const categoryIdsAsNumbers = this.request.categoryIds.map((id) => +id);
-    const searchRequest: ProductMasterSearchRequest = {
-      keyword: this.request.keyword,
-      categoryIds: categoryIdsAsNumbers,
-      pageNumber: this.request.pageNumber,
-      pageSize: this.request.pageSize,
-    };
-    this.productService.GetProductList(searchRequest).subscribe({
-      next: (res) => {
-        this.products = res;
-      },
-      error: (err: any) => {
-        console.error('Failed to load products', err);
-      },
+  initializeDataSource(): void {
+    this.products = new DataSource({
+      store: new CustomStore({
+        key: 'productId',
+        load: (loadOptions) => {
+          try {
+            const categoryIdsAsNumbers = this.request.categoryIds.map((id) => +id);
+            const params: any = {};
+
+            if (loadOptions.skip !== undefined) params.skip = loadOptions.skip;
+            if (loadOptions.take !== undefined) params.take = loadOptions.take;
+            if (loadOptions.requireTotalCount !== undefined)
+              params.requireTotalCount = loadOptions.requireTotalCount;
+            if (loadOptions.sort) params.sort = JSON.stringify(loadOptions.sort);
+            if (loadOptions.filter) params.filter = JSON.stringify(loadOptions.filter);
+
+            if (this.request.keyword) params.keyword = this.request.keyword;
+            if (categoryIdsAsNumbers.length > 0) {
+              params.categoryIds = categoryIdsAsNumbers;
+            }
+
+            console.log('DevExtreme load options:', loadOptions);
+            console.log('Sending parameters:', params);
+
+            const promise = lastValueFrom(this.productService.GetProductList(params))
+              .then((response: any) => {
+                console.log('API response:', response);
+                const isArray = Array.isArray(response);
+                const result = {
+                  data: isArray ? response : response?.data || [],
+                  totalCount: isArray ? response.length : response?.totalCount || 0,
+                };
+                console.log('Load resolved to:', result);
+                return result;
+              })
+              .catch((err) => {
+                console.error('Promise error in load:', err);
+                throw err;
+              });
+            console.log('Returning promise:', promise);
+            return promise;
+          } catch (err) {
+            console.error('Synchronous error in load:', err);
+            throw err;
+          }
+        },
+      }),
     });
+  }
+
+  loadProducts(): void {
+    if (this.gridWrapper?.dataGrid?.instance) {
+      this.gridWrapper.dataGrid.instance.refresh();
+    } else if (this.products) {
+      this.products.reload();
+    }
   }
 
   selectedProduct: (ProductMasterViewModel & { categoryIdsText?: string[] }) | null = null;
@@ -354,5 +402,4 @@ export class ProductMaster implements OnInit {
       this.selectedProduct.categoryId = undefined;
     }
   }
-  
 }

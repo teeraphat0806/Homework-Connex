@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevExtreme.AspNet.Data;
 
 namespace Homework.Domain.RequestModels.ProductRequestModels
 {
@@ -20,5 +21,6 @@ namespace Homework.Domain.RequestModels.ProductRequestModels
 
         public int PageSize { get; set; } = 20;
 
+        public DataSourceLoadOptionsBase? LoadOptions { get; set; }
     }
 }

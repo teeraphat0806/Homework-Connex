@@ -10,7 +10,7 @@ namespace Homework.Domain.Interfaces.Services.ProductServices
 {
     public interface IQueryProductService
     {
-        Task<List<ProductViewModel>> GetProductList(
+        Task<object> GetProductList(
         GetProductListRequestModel param,CustomError error);
 
         Task<ProductViewModel?> GetProductInfo(

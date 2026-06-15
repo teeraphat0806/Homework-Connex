@@ -1,8 +1,14 @@
-<dx-data-grid
+<dx-data-grid #dataGrid
   [dataSource]="gridDataSource"
   [keyExpr]="config.keyExpr"
   [showBorders]="config.showBorders ?? true"
 >
+  <dxo-remote-operations
+    [paging]="isRemote"
+    [sorting]="isRemote"
+    [filtering]="isRemote"
+  >
+  </dxo-remote-operations>
   @for (column of config.columns; track column.caption) {
     <dxi-column
       [dataField]="column.dataField"

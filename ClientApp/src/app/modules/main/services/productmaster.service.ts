@@ -64,10 +64,10 @@ export class ProductMasterApiService {
 
   constructor(private http: HttpClient) {}
 
-  GetProductList(params: ProductMasterSearchRequest): Observable<ProductMasterViewModel[]> {
+  GetProductList(params: any): Observable<any> {
     return this.http
-      .get<ProductMasterViewModel[]>(`${this.url}/list`, {
-        params: params as any,
+      .get<any>(`${this.url}/list`, {
+        params: params,
         withCredentials: true,
       })
       .pipe(

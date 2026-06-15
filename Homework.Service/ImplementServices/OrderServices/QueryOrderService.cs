@@ -20,29 +20,27 @@ namespace Homework.Service.ImplementServices.OrderServices
             _error = error;
         }
 
-        public async Task<List<OrderListViewModel>> GetOrderList(GetOrderListRequestModel request,CustomError error)
+        public async Task<object> GetOrderList(GetOrderListRequestModel param,CustomError error)
         {
             var query = _context.Orders.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            if (!string.IsNullOrWhiteSpace(param.Keyword))
             {
-                query = query.Where(x => x.OrderNo.Contains(request.Keyword) || x.Status.Contains(request.Keyword));
+                query = query.Where(x => x.OrderNo.Contains(param.Keyword) || x.Status.Contains(param.Keyword));
             }
 
-            return await query
-                .OrderByDescending(x => x.OrderId)
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .Select(x => new OrderListViewModel
-                {
-                    OrderId = x.OrderId,
-                    OrderNo = x.OrderNo,
-                    OrderDate = x.OrderDate,
-                    TotalAmount = x.TotalAmount,
-                    VatAmount = x.VatAmount,
-                    Status = x.Status
-                })
-                .ToListAsync();
+            var OrderQuery = query.Select(x => new OrderListViewModel
+            {
+                OrderId = x.OrderId,
+                OrderNo = x.OrderNo,
+                OrderDate = x.OrderDate,
+                TotalAmount = x.TotalAmount,
+                VatAmount = x.VatAmount,
+                Status = x.Status
+            });
+            var loadOptions = param.LoadOptions ?? new DevExtreme.AspNet.Data.DataSourceLoadOptionsBase();
+            var result = await DevExtreme.AspNet.Data.DataSourceLoader.LoadAsync(OrderQuery, loadOptions);
+            return result;
         }
 
         public async Task<OrderInfoViewModel?> GetOrderInfo(GetOrderInfoRequestModel request, CustomError error)

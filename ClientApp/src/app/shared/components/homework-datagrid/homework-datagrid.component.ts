@@ -8,10 +8,11 @@ import {
   TemplateRef,
   AfterContentInit,
   Directive,
+  ViewChild,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { DxDataGridModule, DxTemplateModule } from 'devextreme-angular';
+import { DxDataGridModule, DxTemplateModule, DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { HomeworkButton } from '../homework-button/homework-button.component';
 import { ButtonTheme } from '../../models/pages-design.model';
@@ -55,9 +56,11 @@ export interface DynamicGridPageEvent {
   styleUrl: './homework-datagrid.component.css',
 })
 export class HomeworkDatagridComponent<T> implements OnChanges, AfterContentInit {
+  @ViewChild('dataGrid', { static: false }) public dataGrid!: DxDataGridComponent;
   public gridDataSource!: CustomStore;
+  public isRemote = false;
 
-  @Input() dataSource: T[] = [];
+  @Input() dataSource: T[] | DataSource | CustomStore | any = [];
   @Input() config!: DynamicGridConfig<T>;
   @Input() data!: DataSource;
   @ContentChildren(GridTemplateDirective)
@@ -97,11 +100,30 @@ export class HomeworkDatagridComponent<T> implements OnChanges, AfterContentInit
     }
   }
 
-  private createDataSource(data: T[]): void {
-    this.gridDataSource = new CustomStore({
-      key: this.config?.keyExpr,
-      load: () => data,
-    });
+  private createDataSource(data: any): void {
+    console.log('createDataSource called with:', data);
+    if (data) {
+      console.log('data constructor:', data.constructor ? data.constructor.name : 'none');
+      console.log('typeof data.load:', typeof data.load);
+      console.log('data instanceof DataSource:', data instanceof DataSource);
+      console.log('data instanceof CustomStore:', data instanceof CustomStore);
+    }
+    
+    if (data && (data instanceof CustomStore || data instanceof DataSource || typeof data.load === 'function')) {
+      console.log('Setting gridDataSource directly to data');
+      this.gridDataSource = data;
+      this.isRemote = true;
+    } else {
+      console.log('Creating new CustomStore for local data');
+      this.gridDataSource = new CustomStore({
+        key: this.config?.keyExpr,
+        load: () => {
+          console.log('Local CustomStore load called, returning:', data);
+          return data || [];
+        },
+      });
+      this.isRemote = false;
+    }
   }
 
   public getColumnAlignment(column: DynamicGridColumn): 'left' | 'center' | 'right' {

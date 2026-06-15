@@ -22,13 +22,12 @@ namespace Homework.Service.ImplementServices.ProductServices
             _error = error;
         }
         #region Select All product With Pagination
-        public async Task<List<ProductViewModel>> GetProductList(GetProductListRequestModel param, CustomError error)
+        public async Task<object> GetProductList(GetProductListRequestModel param, CustomError error)
         {
             var queryDb = _context.Products.AsQueryable();
             #region 1. Check Keyword Searching
             if (!string.IsNullOrWhiteSpace(param.Keyword))
             {
-                
                 queryDb = queryDb.Where(x => x.ProductCode.Contains(param.Keyword) || x.Name.Contains(param.Keyword));
             }
             #endregion
@@ -49,28 +48,25 @@ namespace Homework.Service.ImplementServices.ProductServices
             }
             #endregion
             #region find product with pagination
-            var productDbList = await queryDb
-                .OrderByDescending(x => x.ProductId)
-                .Skip((param.PageNumber - 1) * param.PageSize)
-                .Take(param.PageSize)
-                .Select(x => new ProductViewModel
-                {
-                    ProductId = x.ProductId,
-                    ProductCode = x.ProductCode,
-                    Name = x.Name,
-                    Description = x.Description,
-                    CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
-                    CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
-                    CategoryIds = x.ProductCategoryMapping.Select(m => m.CategoryId).ToList(),
-                    CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
-                    IsActive = x.IsActive,
-                    Price = x.Price,
-                    StockQty = x.StockQty,
-                    ImageUrl = x.ImageUrl
-                })
-                .ToListAsync();
+            var productQuery = queryDb.Select(x => new ProductViewModel
+            {
+                ProductId = x.ProductId,
+                ProductCode = x.ProductCode,
+                Name = x.Name,
+                Description = x.Description,
+                CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
+                CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
+                CategoryIds = x.ProductCategoryMapping.Select(m => m.CategoryId).ToList(),
+                CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
+                IsActive = x.IsActive,
+                Price = x.Price,
+                StockQty = x.StockQty,
+                ImageUrl = x.ImageUrl
+            });
 
-            return productDbList;
+            var loadOptions = param.LoadOptions ?? new DevExtreme.AspNet.Data.DataSourceLoadOptionsBase();
+            var result = await DevExtreme.AspNet.Data.DataSourceLoader.LoadAsync(productQuery, loadOptions);
+            return result;
         }
             #endregion
         #endregion

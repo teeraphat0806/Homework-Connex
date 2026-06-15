@@ -5,9 +5,11 @@ namespace Homework.Domain.RequestModels.OrderRequestModels
 {
     public class GetOrderListRequestModel
     {
-        public int PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
         public string? Keyword { get; set; }
+        public string? Status { get; set; } 
+        public List<long>? CategoryIds { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DataSourceLoadOptionsBase? LoadOptions { get; set; }
     }
 

@@ -76,6 +76,15 @@
               <span class="product-detail-code">({{ row.data.productCode }})</span>
             </h5>
             <p class="product-detail-desc">
+              <strong>หมวดหมู่:</strong>
+              {{
+                row.data.categoryNames && row.data.categoryNames.length > 0
+                  ? row.data.categoryNames.join(', ')
+                  : row.data.categoryName || '-'
+              }}
+            </p>
+
+            <p class="product-detail-desc">
               <strong>คำอธิบาย:</strong> {{ row.data.description || 'ไม่มีคำอธิบาย' }}
             </p>
             <div class="product-detail-stats">

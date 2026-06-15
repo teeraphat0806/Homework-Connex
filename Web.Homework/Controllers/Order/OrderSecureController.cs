@@ -7,7 +7,7 @@ using Homework.Domain.Interfaces.Services.OrderServices;
 using Homework.Domain.RequestModels.OrderRequestModels;
 using Microsoft.AspNetCore.Mvc;
 namespace Web.Homework.Controllers.Order{
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/order")]
     public class OrderController : ControllerBase
@@ -25,8 +25,6 @@ namespace Web.Homework.Controllers.Order{
         [HttpGet("list")]
         public async Task<IActionResult> GetOrderList([FromQuery] GetOrderListRequestModel request)
         {
-            request.LoadOptions = new DevExtreme.AspNet.Data.DataSourceLoadOptionsBase();
-            DevExtreme.AspNet.Data.Helpers.DataSourceLoadOptionsParser.Parse(request.LoadOptions,key => Request.Query[key].FirstOrDefault());
             var error = new CustomError();
             var result = await _queryOrderService.GetOrderList(request, error);
             return Ok(result);

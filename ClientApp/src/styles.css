@@ -42,7 +42,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px !important;
-  box-shadow: 
+  box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.8),
     0 0 25px rgba(255, 85, 0, 0.05) !important;
   backdrop-filter: blur(12px);
@@ -55,7 +55,7 @@
 .login-card:hover,
 .register-card:hover {
   border-color: rgba(255, 85, 0, 0.3) !important;
-  box-shadow: 
+  box-shadow:
     0 20px 45px rgba(0, 0, 0, 0.9),
     0 0 35px rgba(255, 85, 0, 0.08) !important;
 }
@@ -199,6 +199,32 @@
 .register-card .homework-button:active:not(.opacity-50) {
   transform: translateY(0) !important;
 }
+
+.master-page {
+  padding: 24px;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
 .header .title {
   font-size: 20px;
   font-weight: 700;

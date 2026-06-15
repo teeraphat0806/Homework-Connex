@@ -1,7 +1,7 @@
-<div class="order-list-page">
+<div class="master-page">
   <div class="page-header">
-    <div>
-      <h2>Order List</h2>
+    <div class="header">
+      <h2 class="title">Order List</h2>
       <p>รายการคำสั่งซื้อทั้งหมด</p>
     </div>
 
@@ -15,11 +15,83 @@
     </homework-button>
   </div>
 
+  <div class="filter-panel">
+    <div class="filter-row">
+      <div class="filter-item search-box">
+        <span>ค้นหา</span>
+        <dx-text-box
+          placeholder="ค้นหารหัสคำสั่งซื้อ..."
+          mode="search"
+          [(value)]="request.keyword"
+          [showClearButton]="true"
+          valueChangeEvent="keyup"
+          (valueChange)="loadOrders()"
+        >
+        </dx-text-box>
+      </div>
+      <div class="filter-item date-box">
+        <span>ประเภทสินค้า</span>
+        <dx-tag-box
+          [items]="categoryDropdownItems"
+          valueExpr="key"
+          displayExpr="value"
+          placeholder="เลือกประเภทสินค้า..."
+          [(value)]="request.categoryIds"
+          [showSelectionControls]="true"
+          applyValueMode="useButtons"
+          (valueChange)="loadOrders()"
+        >
+        </dx-tag-box>
+      </div>
+      <div class="filter-item date-box">
+        <span>วันที่เริ่มต้น</span>
+        <dx-date-box
+          type="date"
+          placeholder="วว/ดด/ปปปป"
+          [(value)]="request.startDate"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+          (valueChange)="loadOrders()"
+        >
+        </dx-date-box>
+      </div>
+      <div class="filter-item date-box">
+        <span>วันที่สิ้นสุด</span>
+        <dx-date-box
+          type="date"
+          placeholder="วว/ดด/ปปปป"
+          [(value)]="request.endDate"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+          (valueChange)="loadOrders()"
+        >
+        </dx-date-box>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-item status-box">
+        <span>สถานะคำสั่งซื้อ</span>
+        <dx-radio-group
+          class="status-radio-group"
+          [items]="statusOptions"
+          valueExpr="value"
+          displayExpr="label"
+          [(value)]="request.status"
+          layout="horizontal"
+          (valueChange)="loadOrders()"
+        >
+        </dx-radio-group>
+      </div>
+    </div>
+  </div>
   <homework-datagrid [dataSource]="orders" [config]="gridConfig">
     <ng-template gridTemplate="amountTemplate" let-item>
       <strong>{{ item.data.totalAmount | number }}</strong> บาท
     </ng-template>
-
+    <ng-template gridTemplate="orderDetailTemplate" let-item>
+      <homework-datagrid [dataSource]="item.data.orderItems" [config]="gridConfigOrderItem">
+      </homework-datagrid>
+    </ng-template>
     <ng-template gridTemplate="statusTemplate" let-item>
       <span
         class="status-badge"

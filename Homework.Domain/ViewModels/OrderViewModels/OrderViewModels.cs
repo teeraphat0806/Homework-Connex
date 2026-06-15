@@ -18,6 +18,7 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public decimal TotalAmount { get; set; }
         public decimal VatAmount { get; set; }
         public string Status { get; set; } = null!;
+        public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
     }
 
     public class OrderInfoViewModel

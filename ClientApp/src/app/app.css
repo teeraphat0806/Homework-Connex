@@ -1,36 +1,60 @@
 .dx-datagrid {
-    font-family: "Poppins", sans-serif;
-    font-size: 14px;
-  }
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
 
-  .dx-datagrid-headers td {
-    text-align: left !important;
-  }
+.dx-datagrid-headers td {
+  text-align: left !important;
+}
 
-  .dx-datagrid-headers .dx-datagrid-table .dx-row>td {
-    border: none !important;
-  }
+.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  border: none !important;
+}
 
-  .dx-datagrid-headers {
-    font-weight: 600;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 5px 5px;
-    border-bottom: none !important;
-  }
+.dx-datagrid-headers {
+  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 5px 5px;
+  border-bottom: none !important;
+}
 
-  .dx-datagrid-rowsview .dx-data-row>td.dup-active {
-    background-color: #ffd8d8 !important;
-  }
+.dx-datagrid-rowsview .dx-data-row > td.dup-active {
+  background-color: #ffd8d8 !important;
+}
 
-  .dx-datagrid-rowsview .dx-data-row:hover>td.dup-active {
-    background-color: #ffd8d8 !important;
-  }
+.dx-datagrid-rowsview .dx-data-row:hover > td.dup-active {
+  background-color: #ffd8d8 !important;
+}
 
-  .dx-datagrid-rowsview .dx-data-row>td {
-    padding: 15px 10px !important;
-    background-color: #ffffff !important;
-    vertical-align: middle !important;
-    border-bottom: 1px solid rgba(214, 214, 214, 0.6) !important;
-    transition: background-color 0.18s ease;
-  }
+.dx-datagrid-rowsview .dx-data-row > td {
+  padding: 15px 10px !important;
+  background-color: #ffffff !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid rgba(214, 214, 214, 0.6) !important;
+  transition: background-color 0.18s ease;
+}
+.filter-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin-bottom: 20px;
+  padding: 16px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.filter-item {
+  flex: 1;
+  max-width: 320px;
+}
+
+.filter-item dx-text-box,
+.filter-item dx-tag-box {
+  width: 100%;
+}

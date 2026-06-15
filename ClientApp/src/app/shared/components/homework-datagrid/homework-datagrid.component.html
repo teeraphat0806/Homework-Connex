@@ -1,14 +1,12 @@
-<dx-data-grid #dataGrid
+<dx-data-grid
+  #dataGrid
   [dataSource]="gridDataSource"
   [keyExpr]="config.keyExpr"
   [showBorders]="config.showBorders ?? true"
+  noDataText="ไม่มีข้อมูล"
 >
-  <dxo-remote-operations
-    [paging]="isRemote"
-    [sorting]="isRemote"
-    [filtering]="isRemote"
-  >
-  </dxo-remote-operations>
+  <dxo-remote-operations [paging]="isRemote" [sorting]="isRemote" [filtering]="isRemote">
+    </dxo-remote-operations>
   @for (column of config.columns; track column.caption) {
     <dxi-column
       [dataField]="column.dataField"
@@ -22,7 +20,6 @@
     >
     </dxi-column>
   }
-
   <div *dxTemplate="let item of 'customColumnTemplate'">
     <ng-container *ngTemplateOutlet="getCustomTemplateByItem(item); context: { $implicit: item }">
     </ng-container>
@@ -51,9 +48,13 @@
   @if (config.masterDetail?.enabled) {
     <dxo-master-detail [enabled]="true" template="detailTemplate"></dxo-master-detail>
   }
-
   <div *dxTemplate="let row of 'detailTemplate'">
-    <ng-container *ngTemplateOutlet="getCustomTemplate(config.masterDetail?.templateName); context: { $implicit: row }">
+    <ng-container
+      *ngTemplateOutlet="
+        getCustomTemplate(config.masterDetail?.templateName);
+        context: { $implicit: row }
+      "
+    >
     </ng-container>
   </div>
 

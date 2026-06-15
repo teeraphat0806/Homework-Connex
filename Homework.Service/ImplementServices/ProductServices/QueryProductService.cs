@@ -21,18 +21,18 @@ namespace Homework.Service.ImplementServices.ProductServices
             _context = context;
             _error = error;
         }
-
+        #region Select All product With Pagination
         public async Task<List<ProductViewModel>> GetProductList(GetProductListRequestModel param, CustomError error)
         {
             var queryDb = _context.Products.AsQueryable();
-
+            #region 1. Check Keyword Searching
             if (!string.IsNullOrWhiteSpace(param.Keyword))
             {
-                queryDb = queryDb.Where(x =>
-                    EF.Functions.ILike(x.ProductCode, $"%{param.Keyword}%") ||
-                    EF.Functions.ILike(x.Name, $"%{param.Keyword}%"));
+                
+                queryDb = queryDb.Where(x => x.ProductCode.Contains(param.Keyword) || x.Name.Contains(param.Keyword));
             }
-
+            #endregion
+            #region 2. Check List of Categories Searching
             if (param.CategoryIds != null && param.CategoryIds.Any())
             {
                 queryDb = queryDb.Where(x => x.ProductCategoryMapping.Any(m => param.CategoryIds.Contains(m.CategoryId)));
@@ -41,12 +41,14 @@ namespace Homework.Service.ImplementServices.ProductServices
             {
                 queryDb = queryDb.Where(x => x.ProductCategoryMapping.Any(m => m.CategoryId == param.CategoryId.Value));
             }
-
+            #endregion
+            #region 3. Check iSproduct Active
             if (param.IsActive.HasValue)
             {
                 queryDb = queryDb.Where(x => x.IsActive == param.IsActive.Value);
             }
-
+            #endregion
+            #region find product with pagination
             var productDbList = await queryDb
                 .OrderByDescending(x => x.ProductId)
                 .Skip((param.PageNumber - 1) * param.PageSize)
@@ -70,7 +72,9 @@ namespace Homework.Service.ImplementServices.ProductServices
 
             return productDbList;
         }
-
+            #endregion
+        #endregion
+        #region GetProductInfo By productId
         public async Task<ProductViewModel?> GetProductInfo(GetProductInfoRequestModel param, CustomError error)
         {
             var productDb = await _context.Products
@@ -94,5 +98,6 @@ namespace Homework.Service.ImplementServices.ProductServices
 
             return productDb;
         }
+        #endregion
     }
 }

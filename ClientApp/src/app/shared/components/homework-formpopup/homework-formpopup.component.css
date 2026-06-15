@@ -1,28 +1,25 @@
+:host ::ng-deep .dx-popup-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
 .form-popup-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
-
   padding: 16px;
-  min-height: 180px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .form-popup-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-
   padding: 16px;
   border-top: 1px solid #e5e7eb;
-  margin-top: 16px;
-}
-.form-popup-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  padding: 16px;
-
-  max-height: 60vh;
-  overflow-y: auto;
+  flex-shrink: 0;
 }

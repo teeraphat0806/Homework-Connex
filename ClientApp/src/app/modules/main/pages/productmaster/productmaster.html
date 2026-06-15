@@ -93,7 +93,13 @@
           : item.data.categoryName || '-'
       }}</span>
     </ng-template>
-
+    <ng-template gridTemplate="stockQtyTemplate" let-item>
+      @if (item.data.stockQty != 0) {
+        <span>{{ item.data.stockQty | number }}</span> ชิ้น
+      } @else {
+        <span style="color: red">สินค้าหมด</span>
+      }
+    </ng-template>
     <ng-template gridTemplate="statusTemplate" let-item>
       <span
         class="status-badge"
@@ -171,7 +177,7 @@
 
         <app-homework-input
           type="Text"
-          label="Stock Qty (จำนวนในคลัง)"
+          [label]="'Stock Qty (จำนวนในคลัง: ' + selectedProduct.stockQty + ')'"
           placeholder="กรอกจำนวนสินค้า"
           [fieldValue]="selectedProduct.stockQty.toString()"
           (fieldValueChange)="selectedProduct.stockQty = +$event"
@@ -200,4 +206,30 @@
       </div>
     }
   </homework-formpopup>
+  <homework-confirmation-modal
+    [(visible)]="isDeletePopupVisible"
+    [config]="deleteModalConfig"
+    (cancel)="closeDeletePopup()"
+  >
+    <ng-container modal-body>
+      @if (productToDelete) {
+        <p>คุณต้องการลบสินค้า <strong>{{ productToDelete.name }}</strong> ใช่หรือไม่?</p>
+      } @else {
+        <p>คุณต้องการลบสินค้านี้ใช่หรือไม่?</p>
+      }
+    </ng-container>
+
+    <ng-container modal-footer>
+      <homework-button
+        label="ยกเลิก"
+        theme="Secondary"
+        (onClick)="closeDeletePopup()"
+      ></homework-button>
+      <homework-button
+        label="ยืนยันการลบ"
+        theme="Danger"
+        (onClick)="confirmDeleteProduct()"
+      ></homework-button>
+    </ng-container>
+  </homework-confirmation-modal>
 </div>

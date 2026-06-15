@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import {
   HomeworkDatagridComponent,
   GridTemplateDirective,
@@ -9,6 +8,7 @@ import { DxTagBoxModule } from 'devextreme-angular';
 import { HomeworkButton } from '../../../../shared/components/homework-button/homework-button.component';
 import { HomeworkInputComponent } from '../../../../shared/components/homework-input/homework-input.component';
 import { HomeworkFormpopup } from '../../../../shared/components/homework-formpopup/homework-formpopup.component';
+import { HomeworkConfirmationModalComponent, ConfirmationModalConfig } from '../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component';
 import { DynamicGridConfig } from '../../../../shared/models/homework-datagrid.model';
 import {
   ProductMasterApiService,
@@ -47,6 +47,7 @@ export interface ProductMasterRow {
     HomeworkInputComponent,
     HomeworkFormpopup,
     DxTagBoxModule,
+    HomeworkConfirmationModalComponent,
   ],
   templateUrl: './productmaster.html',
   styleUrl: './productmaster.css',
@@ -55,6 +56,13 @@ export class ProductMaster implements OnInit {
   products: ProductMasterViewModel[] = [];
   categoryList: CategoryViewModel[] = [];
   categoryDropdownItems: { key: string; value: string }[] = [];
+  isDeletePopupVisible = false;
+  productToDelete: ProductMasterViewModel | null = null;
+  deleteModalConfig: ConfirmationModalConfig = {
+    title: 'ยืนยันการลบ',
+    width: 400,
+    height: 200,
+  };
 
   request = {
     keyword: '',
@@ -132,6 +140,7 @@ export class ProductMaster implements OnInit {
         caption: 'Stock Qty',
         dataType: 'number',
         columnType: 'number',
+        cellTemplate: 'stockQtyTemplate',
       },
       {
         dataField: 'categoryNames',
@@ -305,20 +314,32 @@ export class ProductMaster implements OnInit {
   }
 
   deleteProduct(product: ProductMasterViewModel): void {
-    if (confirm(`คุณต้องการลบสินค้า "${product.name}" ใช่หรือไม่?`)) {
-      this.productService.DeleteProduct(product.productId).subscribe({
-        next: (res) => {
-          if (res.isSuccess) {
-            this.loadProducts();
-          } else {
-            console.error('Failed to delete product:', res.message);
-          }
-        },
-        error: (err: any) => {
-          console.error('Error deleting product:', err);
-        },
-      });
+    this.productToDelete = product;
+    this.isDeletePopupVisible = true;
+  }
+
+  confirmDeleteProduct(): void {
+    if (!this.productToDelete) {
+      return;
     }
+    this.productService.DeleteProduct(this.productToDelete.productId).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.loadProducts();
+          this.closeDeletePopup();
+        } else {
+          console.error('Failed to delete product:', res.message);
+        }
+      },
+      error: (err: any) => {
+        console.error('Error deleting product:', err);
+      },
+    });
+  }
+
+  closeDeletePopup(): void {
+    this.isDeletePopupVisible = false;
+    this.productToDelete = null;
   }
 
   onCategorySelectionChange(selectedKeys: string[]): void {
@@ -333,4 +354,5 @@ export class ProductMaster implements OnInit {
       this.selectedProduct.categoryId = undefined;
     }
   }
+  
 }

@@ -39,6 +39,7 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public long OrderItemId { get; set; }
         public long ProductId { get; set; }
         public string ProductName { get; set; } = null!;
+        public string ProductCode { get; set; } = null!;
         public int Qty { get; set; }
         public decimal Price { get; set; }
         public string OrderItemStatus { get; set; } = null!;

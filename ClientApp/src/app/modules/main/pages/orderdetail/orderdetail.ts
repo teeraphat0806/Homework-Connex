@@ -17,19 +17,29 @@ import {
   HomeworkDropdownItem,
 } from '../../../../shared/components/homework-dropdown/homework-dropdown.component';
 import { OrderRoute } from '../../../../shared/routers/order.const';
+import {
+  OrderMasterApiService,
+  OrderItemViewModel,
+  OrderInfoViewModel,
+  OrderUpdateViewModel,
+} from '../../services/ordermaster.service';
+import { ProductMasterApiService, ProductMasterViewModel } from '../../services/productmaster.service';
+
 export interface OrderItem {
   orderItemId: number;
+  productId?: number;
   productCode: string;
   productName: string;
   qty: number;
-  unitPrice: number;
+  price: number;
   total: number;
+  orderItemStatus?: string;
+  isNew?: boolean;
 }
 
 export interface OrderDetailInterface {
   orderId: number;
   orderNo: string;
-  customerName: string;
   orderDate: Date | string;
   status: string;
   items: OrderItem[];
@@ -59,12 +69,7 @@ export class OrderDetail implements OnInit, OnDestroy {
 
   public isItemPopupVisible = false;
   public selectedItem: OrderItem | null = null;
-  public statusItems: HomeworkDropdownItem[] = [
-    { id: 'Draft', text: 'Draft', icon: 'edit' },
-    { id: 'Submit', text: 'Submit', icon: 'send' },
-    { id: 'Approved', text: 'Approved', icon: 'check' },
-    { id: 'Rejected', text: 'Rejected', icon: 'close' },
-  ];
+
   public itemGridConfig: DynamicGridConfig<OrderItem> = {
     keyExpr: 'orderItemId',
     pageSize: 10,
@@ -88,7 +93,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         columnType: 'number',
       },
       {
-        dataField: 'unitPrice',
+        dataField: 'price',
         caption: 'Unit Price',
         dataType: 'number',
         columnType: 'number',
@@ -128,18 +133,23 @@ export class OrderDetail implements OnInit, OnDestroy {
     ],
   };
 
+  public productsList: ProductMasterViewModel[] = [];
+
   constructor(
     private route: ActivatedRoute,
+    private orderService: OrderMasterApiService,
+    private productService: ProductMasterApiService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
+    this.loadProducts();
     this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'] === 'edit' ? 'edit' : 'create';
       this.orderId = params['orderId'] ? Number(params['orderId']) : null;
 
       if (this.mode === 'edit' && this.orderId) {
-        this.loadMockOrder(this.orderId);
+        this.loadOrderDetail(this.orderId);
       } else {
         this.orderDetail = this.createEmptyOrder();
       }
@@ -148,43 +158,45 @@ export class OrderDetail implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
+  private loadProducts(): void {
+    this.productService.GetProductList({ pageNumber: 1, pageSize: 1000 }).subscribe({
+      next: (response) => {
+        this.productsList = Array.isArray(response) ? response : response?.data || [];
+      },
+      error: (err) => {
+        console.error('Failed to load products:', err);
+      }
+    });
+  }
+
   private createEmptyOrder(): OrderDetailInterface {
     return {
       orderId: 0,
       orderNo: 'NEW',
-      customerName: '',
       orderDate: new Date().toISOString().slice(0, 10),
       status: 'Draft',
       items: [],
     };
   }
-
-  private loadMockOrder(orderId: number): void {
-    this.orderDetail = {
-      orderId,
-      orderNo: `ORD-20260611-${String(orderId).padStart(3, '0')}`,
-      customerName: 'John Smith',
-      orderDate: '2026-06-11',
-      status: 'Draft',
-      items: [
-        {
-          orderItemId: 1,
-          productCode: 'P-KEYBOARD-001',
-          productName: 'Mechanical Keyboard',
-          qty: 2,
-          unitPrice: 2500,
-          total: 5000,
-        },
-        {
-          orderItemId: 2,
-          productCode: 'P-MOUSE-001',
-          productName: 'Wireless Mouse',
-          qty: 1,
-          unitPrice: 890,
-          total: 890,
-        },
-      ],
-    };
+  private loadOrderDetail(orderId: number): void {
+    this.orderService.GetOrderInfo(orderId).subscribe((response) => {
+      this.orderDetail = {
+        orderId: response.orderId,
+        orderNo: response.orderNo,
+        orderDate: response.orderDate,
+        status: response.status,
+        items: (response.orderItems || []).map((item) => ({
+          orderItemId: item.orderItemId,
+          productId: item.productId,
+          productCode: item.productCode || '',
+          productName: item.productName,
+          qty: item.qty,
+          price: item.price,
+          total: item.qty * item.price,
+          orderItemStatus: item.orderItemStatus,
+        })),
+      };
+    });
   }
 
   public onStatusChange(item: HomeworkDropdownItem): void {
@@ -199,22 +211,17 @@ export class OrderDetail implements OnInit, OnDestroy {
     return this.orderDetail.items.reduce((sum, item) => sum + item.total, 0);
   }
 
-  public get vatAmount(): number {
-    return this.subtotal * 0.07;
-  }
-
-  public get grandTotal(): number {
-    return this.subtotal + this.vatAmount;
-  }
-
   public openAddItemPopup(): void {
     this.selectedItem = {
       orderItemId: this.getNextItemId(),
+      productId: undefined,
       productCode: '',
       productName: '',
       qty: 1,
-      unitPrice: 0,
+      price: 0,
       total: 0,
+      orderItemStatus: 'Pending',
+      isNew: true,
     };
 
     this.isItemPopupVisible = true;
@@ -236,12 +243,42 @@ export class OrderDetail implements OnInit, OnDestroy {
     this.selectedItem = null;
   }
 
+  public onProductCodeChange(code: string): void {
+    if (!this.selectedItem) {
+      return;
+    }
+    this.selectedItem.productCode = code;
+
+    const matchedProduct = this.productsList.find(
+      (p) => p.productCode.toLowerCase() === code.trim().toLowerCase()
+    );
+
+    if (matchedProduct) {
+      this.selectedItem.productId = matchedProduct.productId;
+      this.selectedItem.productName = matchedProduct.name;
+      this.selectedItem.price = matchedProduct.price;
+    }
+  }
+
   public saveItem(): void {
     if (!this.selectedItem) {
       return;
     }
 
-    this.selectedItem.total = Number(this.selectedItem.qty) * Number(this.selectedItem.unitPrice);
+    const matchedProduct = this.productsList.find(
+      (p) => p.productCode.toLowerCase() === this.selectedItem!.productCode.trim().toLowerCase()
+    );
+
+    if (matchedProduct) {
+      this.selectedItem.productId = matchedProduct.productId;
+      if (!this.selectedItem.productName) {
+        this.selectedItem.productName = matchedProduct.name;
+      }
+    } else {
+      console.warn('Product code not found in products list');
+    }
+
+    this.selectedItem.total = Number(this.selectedItem.qty) * Number(this.selectedItem.price);
 
     const exists = this.orderDetail.items.some(
       (x) => x.orderItemId === this.selectedItem!.orderItemId,
@@ -258,13 +295,39 @@ export class OrderDetail implements OnInit, OnDestroy {
     this.closeItemPopup();
   }
 
+  private saveOrder(): void {
+    const orderUpdate: OrderUpdateViewModel = {
+      orderId: this.orderDetail.orderId,
+      orderDate: this.orderDetail.orderDate,
+      status: this.orderDetail.status,
+      orderItems: this.orderDetail.items.map((item) => ({
+        orderItemId: item.isNew ? null : item.orderItemId,
+        productId: item.productId || 0,
+        qty: item.qty,
+        price: item.price,
+        orderItemStatus: item.orderItemStatus || 'Pending',
+      })) as any[],
+    };
+
+    this.orderService.SaveOrder(orderUpdate).subscribe({
+      next: (response) => {
+        console.log('Order saved successfully:', response);
+        this.goBack();
+      },
+      error: (err) => {
+        console.error('Failed to save order:', err);
+      }
+    });
+  }
+
   public saveDraft(): void {
-    console.log('Save Draft', this.orderDetail);
+    this.orderDetail.status = 'Draft';
+    this.saveOrder();
   }
 
   public submitOrder(): void {
     this.orderDetail.status = 'Submit';
-    console.log('Submit Order', this.orderDetail);
+    this.saveOrder();
   }
 
   public goBack(): void {

@@ -69,6 +69,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                     OrderItemId = item.OrderItemId,
                     ProductId = item.ProductId ?? 0,
                     ProductName = item.Product != null ? item.Product.Name : string.Empty,
+                    ProductCode = item.Product != null ? item.Product.ProductCode : string.Empty,
                     Qty = item.Qty,
                     Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus
@@ -112,7 +113,7 @@ namespace Homework.Service.ImplementServices.OrderServices
             var productIds = order.OrderItems.Select(oi => oi.ProductId).ToList();
             var products = await _context.Products
                 .Where(p => productIds.Contains(p.ProductId))
-                .ToDictionaryAsync(p => p.ProductId, p => p.Name);
+                .ToDictionaryAsync(p => p.ProductId, p => new { p.Name, p.ProductCode });
 
             return new OrderInfoViewModel
             {
@@ -127,7 +128,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                 {
                     OrderItemId = item.OrderItemId,
                     ProductId = item.ProductId,
-                    ProductName = products.ContainsKey(item.ProductId) ? products[item.ProductId] : string.Empty,
+                    ProductName = products.ContainsKey(item.ProductId) ? products[item.ProductId].Name : string.Empty,
+                    ProductCode = products.ContainsKey(item.ProductId) ? products[item.ProductId].ProductCode : string.Empty,
                     Qty = item.Qty,
                     Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus

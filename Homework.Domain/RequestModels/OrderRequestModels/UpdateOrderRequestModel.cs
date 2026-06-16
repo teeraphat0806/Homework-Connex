@@ -9,6 +9,11 @@ namespace Homework.Domain.RequestModels.OrderRequestModels
     public class UpdateOrderRequestModel
     {
         public long OrderId { get; set; }
-        public string Status { get; set; } = null!;
+
+        public DateTime? OrderDate { get; set; }
+
+        public string? Status { get; set; }
+
+        public List<UpdateOrderItemRequestModel> OrderItems { get; set; } = new();
     }
 }

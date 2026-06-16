@@ -18,8 +18,6 @@
   </div>
 
   <div class="section-card">
-    <div class="section-title">Order Information</div>
-
     <div class="order-form-grid">
       <app-homework-input
         type="Text"
@@ -35,28 +33,11 @@
 
         <dx-date-box
           type="date"
-          displayFormat="dd/MM/yyyy"
+          displayFormat="dd/MMM/yyyy"
           valueChangeEvent="change"
           [(value)]="orderDetail.orderDate"
         >
         </dx-date-box>
-      </div>
-
-      <div class="form-field">
-        <label>Status</label>
-
-        <homework-dropdown
-          [items]="statusItems"
-          [selectedItemKey]="orderDetail.status"
-          [text]="orderDetail.status || 'Select Status'"
-          [useSelectMode]="true"
-          stylingMode="outlined"
-          type="normal"
-          keyExpr="id"
-          displayExpr="text"
-          (onItemClick)="onStatusChange($event)"
-        >
-        </homework-dropdown>
       </div>
     </div>
   </div>
@@ -76,7 +57,7 @@
 
     <homework-datagrid [dataSource]="orderDetail.items" [config]="itemGridConfig">
       <ng-template gridTemplate="priceTemplate" let-item>
-        <strong>{{ item.data.unitPrice | number }}</strong>
+        <strong>{{ item.data.price | number }}</strong>
         บาท
       </ng-template>
 
@@ -89,18 +70,13 @@
 
   <div class="summary-card">
     <div class="summary-row">
-      <span>Subtotal</span>
-      <strong>{{ subtotal | number }} บาท</strong>
-    </div>
-
-    <div class="summary-row">
-      <span>VAT 7%</span>
-      <strong>{{ vatAmount | number }} บาท</strong>
+      <span>จำนวนทั้งหมด</span>
+      <strong>{{ orderDetail.items.length + 1 }} ชิ้น</strong>
     </div>
 
     <div class="summary-row total">
-      <span>Grand Total</span>
-      <strong>{{ grandTotal | number }} บาท</strong>
+      <span>Subtotal</span>
+      <strong>{{ subtotal | number }} บาท</strong>
     </div>
   </div>
 
@@ -128,7 +104,7 @@
           label="Product Code"
           placeholder="กรอกรหัสสินค้า"
           [fieldValue]="selectedItem.productCode"
-          (fieldValueChange)="selectedItem.productCode = $event"
+          (fieldValueChange)="onProductCodeChange($event)"
         >
         </app-homework-input>
 
@@ -154,8 +130,8 @@
           type="Text"
           label="Unit Price"
           placeholder="กรอกราคา"
-          [fieldValue]="selectedItem.unitPrice"
-          (fieldValueChange)="selectedItem.unitPrice = +$event"
+          [fieldValue]="selectedItem.price"
+          (fieldValueChange)="selectedItem.price = +$event"
         >
         </app-homework-input>
       </div>

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Homework.Domain.Error;
+using Homework.Domain.Enum;
 namespace Homework.Service.ImplementServices.OrderServices
 {
     public class ManageOrderService : IManageOrderService
@@ -29,8 +30,7 @@ namespace Homework.Service.ImplementServices.OrderServices
 
             // 1. Generate OrderNo
             var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            var random = new Random().Next(1000, 9999);
-            var orderNo = $"ORD-{timestamp}-{random}";
+            string orderNo = GenerateOrderNo(timestamp);
 
             // Get current userId
             long? userId = null;
@@ -104,9 +104,19 @@ namespace Homework.Service.ImplementServices.OrderServices
             };
         }
 
+        private static string GenerateOrderNo(string timestamp)
+        {
+            var random = new Random().Next(1000, 9999);
+            var orderNo = $"ORD-{timestamp}-{random}";
+            return orderNo;
+        }
+
         public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel param, CustomError error)
         {
-            var order = await _context.Orders.FindAsync(param.OrderId);
+            ValidateUpdateOrder(param, error);
+            error.ThrowIfError();
+
+            var order = await _context.Orders.Include(x => x.OrderItems).FirstOrDefaultAsync(x => x.OrderId == param.OrderId);
             if (order == null)
             {
                 error.AddError("Order", "ไม่พบออเดอร์");
@@ -119,7 +129,41 @@ namespace Homework.Service.ImplementServices.OrderServices
                 userId = parsedUserId;
             }
 
-            order.Status = param.Status;
+            order.OrderDate = param.OrderDate ?? order.OrderDate;
+            order.Status = param.Status ?? order.Status;
+
+            var requestItemIds = param.OrderItems.Where(x=>x.OrderItemId.HasValue).Select(x => x.OrderItemId!.Value).ToList();
+            var deleteItems = order.OrderItems.Where(x=>!requestItemIds.Contains(x.OrderItemId)).ToList();
+
+            _context.OrderItems.RemoveRange(deleteItems);
+
+            foreach(var Item in param.OrderItems)
+            {
+                if (Item.OrderItemId.HasValue)
+                {
+                    var existingItem = order.OrderItems.FirstOrDefault(x => x.OrderItemId == Item.OrderItemId.Value);
+                    if (existingItem != null)
+                    {
+                        existingItem.ProductId = Item.ProductId;
+                        existingItem.Qty = Item.Qty;
+                        existingItem.Price = Item.Price;
+                        existingItem.OrderItemStatus = Item.OrderItemStatus;
+                    }
+                }
+                else
+                {
+                    order.OrderItems.Add(new OrderItems
+                    {
+                        ProductId = Item.ProductId,
+                        Qty = Item.Qty,
+                        Price = Item.Price,
+                        OrderItemStatus = Item.OrderItemStatus
+                    });
+                }
+            }
+
+            order.TotalAmount = order.OrderItems.Where(x => !_context.Entry(x).State.Equals(EntityState.Deleted)).Sum(x => x.Qty * x.Price);
+
             order.ModifiedByUserId = userId;
             order.ModifiedTime = DateTime.UtcNow;
 
@@ -131,6 +175,26 @@ namespace Homework.Service.ImplementServices.OrderServices
                 Message = "อัปเดตออเดอร์เรียบร้อยแล้ว",
                 OrderId = order.OrderId
             };
+        }
+
+        private static void ValidateUpdateOrder(UpdateOrderRequestModel param, CustomError error)
+        {
+            if (param.OrderId == null)
+            {
+                error.AddError("OrderId", "OrderId is required");
+            }
+            if (param.OrderDate == null)
+            {
+                error.AddError("OrderDate", "วันที่ออเดอร์เป็นข้อมูลที่จำเป็น");
+            }
+            if (param.OrderDate != null && param.OrderDate > DateTime.UtcNow)
+            {
+                error.AddError("OrderDate", "วันที่ออเดอร์ต้องไม่เป็นอนาคต");
+            }
+            if (!string.IsNullOrWhiteSpace(param.Status) && !EnumOrderStatus.All.Contains(param.Status))
+            {
+                error.AddError("Status", $"สถานะออเดอร์ไม่ถูกต้อง ต้องเป็นหนึ่งใน: {string.Join(", ", EnumOrderStatus.All)}");
+            }
         }
 
         public async Task<OrderManageViewModel> DeleteOrder(DeleteOrderRequestModel param, CustomError error)

@@ -189,7 +189,7 @@ export class OrderList implements OnInit {
         dataField: 'orderDate',
         caption: 'Order Date',
         dataType: 'date',
-        format: 'dd/MM/yyyy',
+        format: 'dd/MMM/yyyy',
         columnType: 'date',
       },
       {
@@ -216,7 +216,7 @@ export class OrderList implements OnInit {
         dataField: 'modifiedTime',
         caption: 'Modified Time',
         dataType: 'date',
-        format: 'dd/MM/yyyy HH:mm:ss',
+        format: 'dd/MMM/yyyy HH:mm:ss',
         columnType: 'date',
       },
       {

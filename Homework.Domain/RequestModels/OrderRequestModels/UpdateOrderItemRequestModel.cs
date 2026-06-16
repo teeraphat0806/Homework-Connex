@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Homework.Domain.RequestModels.OrderRequestModels
 {
-    public class CreateOrderItemRequestModel
+    public class UpdateOrderItemRequestModel
     {
+        public long? OrderItemId { get; set; }
+
         public long ProductId { get; set; }
 
         public int Qty { get; set; }

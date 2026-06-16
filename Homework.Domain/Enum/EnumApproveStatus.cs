@@ -11,6 +11,15 @@ namespace Homework.Domain.Enum
         public const string Approved = "Approved";
         public const string Rejected = "Rejected";
         public const string ConfirmOrder = "Confirm Order";
+        public static readonly string[] All =
+        {
+            Draft,
+            Submit,
+            Pending,
+            Approved,
+            Rejected,
+            ConfirmOrder
+        };
     }
 
   

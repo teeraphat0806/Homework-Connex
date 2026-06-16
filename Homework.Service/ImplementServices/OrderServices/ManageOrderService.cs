@@ -62,8 +62,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 }
 
                 var unitPrice = product.Price;
-                var discount = item.Discount;
-                var netAmount = (unitPrice * item.Qty) - discount;
+                var netAmount = (unitPrice * item.Qty);
 
                 totalAmount += netAmount;
 
@@ -71,9 +70,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 {
                     ProductId = product.ProductId,
                     Qty = item.Qty,
-                    UnitPrice = unitPrice,
-                    Discount = discount,
-                    NetAmount = netAmount,
+                    Price = unitPrice,
                     OrderItemStatus = "Pending",
                     OrderItemStatusCode = "PENDING"
                 });
@@ -89,7 +86,6 @@ namespace Homework.Service.ImplementServices.OrderServices
                 OrderNo = orderNo,
                 OrderDate = DateTime.UtcNow,
                 TotalAmount = totalAmount,
-                VatAmount = vatAmount,
                 Status = "Pending",
                 CreatedByUserId = userId,
                 CreatedTime = DateTime.UtcNow,

@@ -157,17 +157,12 @@ export class OrderList implements OnInit {
         columnType: 'number',
       },
       {
-        dataField: 'unitPrice',
+        dataField: 'price',
         caption: 'Price',
         dataType: 'number',
         columnType: 'number',
       },
-      {
-        dataField: 'netAmount',
-        caption: 'Total Amount',
-        dataType: 'number',
-        columnType: 'number',
-      },
+
       {
         dataField: 'orderItemStatus',
         caption: 'Status',
@@ -210,6 +205,19 @@ export class OrderList implements OnInit {
         dataType: 'string',
         columnType: 'status',
         cellTemplate: 'statusTemplate',
+      },
+      {
+        dataField: 'modifiedByUserName',
+        caption: 'Modified By',
+        dataType: 'string',
+        columnType: 'text',
+      },
+      {
+        dataField: 'modifiedTime',
+        caption: 'Modified Time',
+        dataType: 'date',
+        format: 'dd/MM/yyyy HH:mm:ss',
+        columnType: 'date',
       },
       {
         caption: 'Actions',

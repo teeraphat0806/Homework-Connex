@@ -16,8 +16,9 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public string OrderNo { get; set; } = null!;
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal VatAmount { get; set; }
         public string Status { get; set; } = null!;
+        public string ModifiedByUserName { get; set; } = null!;
+        public DateTime ModifiedTime { get; set; }
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
     }
 
@@ -27,8 +28,9 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public string OrderNo { get; set; } = null!;
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal VatAmount { get; set; }
         public string Status { get; set; } = null!;
+        public string ModifiedByUserName { get; set; } = null!;
+        public DateTime ModifiedTime { get; set; }
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
     }
 
@@ -38,9 +40,7 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public long ProductId { get; set; }
         public string ProductName { get; set; } = null!;
         public int Qty { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal Discount { get; set; }
-        public decimal NetAmount { get; set; }
+        public decimal Price { get; set; }
         public string OrderItemStatus { get; set; } = null!;
     }
 }

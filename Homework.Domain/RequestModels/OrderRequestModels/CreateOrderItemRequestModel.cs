@@ -10,6 +10,5 @@ namespace Homework.Domain.RequestModels.OrderRequestModels
     {
         public long ProductId { get; set; }
         public int Qty { get; set; }
-        public decimal Discount { get; set; }
     }
 }

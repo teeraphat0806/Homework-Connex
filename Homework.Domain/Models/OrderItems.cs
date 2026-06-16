@@ -13,11 +13,7 @@ public partial class OrderItems
 
     public int Qty { get; set; }
 
-    public decimal UnitPrice { get; set; }
-
-    public decimal Discount { get; set; }
-
-    public decimal NetAmount { get; set; }
+    public decimal Price { get; set; }
 
     public string OrderItemStatus { get; set; }
 

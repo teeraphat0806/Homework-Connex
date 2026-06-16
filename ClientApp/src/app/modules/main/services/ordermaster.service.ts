@@ -22,8 +22,7 @@ export interface OrderItemViewModel {
   productId: number;
   productName: string;
   qty: number;
-  unitPrice: number;
-  netAmount: number;
+  price: number;
   orderItemStatus: string;
 }
 @Injectable({

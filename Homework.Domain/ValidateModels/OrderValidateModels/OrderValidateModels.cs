@@ -26,10 +26,7 @@ namespace Homework.Domain.ValidateModels.OrderValidateModels
                 {
                     error.AddError($"OrderItems[{i}].Qty", $"จำนวนสินค้ารายการที่ {i + 1} ต้องมากกว่า 0");
                 }
-                if (item.Discount < 0)
-                {
-                    error.AddError($"OrderItems[{i}].Discount", $"ส่วนลดรายการที่ {i + 1} ต้องไม่น้อยกว่า 0");
-                }
+                
             }
         }
     }

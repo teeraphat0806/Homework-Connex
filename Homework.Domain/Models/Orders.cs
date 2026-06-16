@@ -15,8 +15,6 @@ public partial class Orders
 
     public decimal TotalAmount { get; set; }
 
-    public decimal VatAmount { get; set; }
-
     public string Status { get; set; }
 
     public long? CreatedByUserId { get; set; }

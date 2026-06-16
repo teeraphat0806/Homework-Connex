@@ -61,17 +61,16 @@ namespace Homework.Service.ImplementServices.OrderServices
                 OrderNo = x.OrderNo,
                 OrderDate = x.OrderDate,
                 TotalAmount = x.TotalAmount,
-                VatAmount = x.VatAmount,
                 Status = x.Status,
+                ModifiedByUserName = x.ModifiedByUserId.HasValue ? _context.Users.Where(u => u.UserId == x.ModifiedByUserId.Value).Select(u => u.Username).FirstOrDefault() : string.Empty,
+                ModifiedTime = x.ModifiedTime,
                 OrderItems = x.OrderItems.Select(item => new OrderItemViewModel
                 {
                     OrderItemId = item.OrderItemId,
                     ProductId = item.ProductId ?? 0,
                     ProductName = item.Product != null ? item.Product.Name : string.Empty,
                     Qty = item.Qty,
-                    UnitPrice = item.UnitPrice,
-                    Discount = item.Discount,
-                    NetAmount = item.NetAmount,
+                    Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus
                 }).ToList()
             });
@@ -91,16 +90,15 @@ namespace Homework.Service.ImplementServices.OrderServices
                     x.OrderNo,
                     x.OrderDate,
                     x.TotalAmount,
-                    x.VatAmount,
                     x.Status,
+                    ModifiedByUserName = x.ModifiedByUserId.HasValue ? _context.Users.Where(u => u.UserId == x.ModifiedByUserId.Value).Select(u => u.Username).FirstOrDefault() : string.Empty,
+                    ModifiedTime = x.ModifiedTime,
                     OrderItems = x.OrderItems.Select(item => new
                     {
                         item.OrderItemId,
                         ProductId = item.ProductId ?? 0,
                         item.Qty,
-                        item.UnitPrice,
-                        item.Discount,
-                        item.NetAmount,
+                        item.Price,
                         item.OrderItemStatus
                     }).ToList()
                 })
@@ -122,17 +120,16 @@ namespace Homework.Service.ImplementServices.OrderServices
                 OrderNo = order.OrderNo,
                 OrderDate = order.OrderDate,
                 TotalAmount = order.TotalAmount,
-                VatAmount = order.VatAmount,
                 Status = order.Status,
+                ModifiedByUserName = order.ModifiedByUserName,
+                ModifiedTime = order.ModifiedTime,
                 OrderItems = order.OrderItems.Select(item => new OrderItemViewModel
                 {
                     OrderItemId = item.OrderItemId,
                     ProductId = item.ProductId,
                     ProductName = products.ContainsKey(item.ProductId) ? products[item.ProductId] : string.Empty,
                     Qty = item.Qty,
-                    UnitPrice = item.UnitPrice,
-                    Discount = item.Discount,
-                    NetAmount = item.NetAmount,
+                    Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus
                 }).ToList()
             };

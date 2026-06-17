@@ -1,0 +1,44 @@
+/* Custom button design for radio items */
+::ng-deep .status-radio-group .dx-radiogroup-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 10px !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton-icon {
+  display: none !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton .dx-radiobutton-text {
+  padding-left: 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton:hover {
+  border-color: #ff5500 !important;
+  background: rgba(255, 85, 0, 0.04) !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton.dx-radiobutton-checked {
+  background: #ff5500 !important;
+  border-color: #ff5500 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(255, 85, 0, 0.15) !important;
+}
+
+::ng-deep .status-radio-group .dx-radiobutton.dx-radiobutton-checked .dx-radiobutton-text {
+  color: #ffffff !important;
+}

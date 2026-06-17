@@ -9,25 +9,7 @@ namespace Homework.Domain.ValidateModels.OrderValidateModels
     {
         public static void Validate(CreateOrderRequestModel param, CustomError error)
         {
-            if (param.OrderItems == null || !param.OrderItems.Any())
-            {
-                error.AddError("Order", "ออเดอร์ต้องมีอย่างน้อย 1 รายการ");
-                return;
-            }
-
-            for (int i = 0; i < param.OrderItems.Count; i++)
-            {
-                var item = param.OrderItems[i];
-                if (item.ProductId <= 0)
-                {
-                    error.AddError($"OrderItems[{i}].ProductId", $"รหัสสินค้ารายการที่ {i + 1} ไม่ถูกต้อง");
-                }
-                if (item.Qty <= 0)
-                {
-                    error.AddError($"OrderItems[{i}].Qty", $"จำนวนสินค้ารายการที่ {i + 1} ต้องมากกว่า 0");
-                }
-                
-            }
+            
         }
     }
 

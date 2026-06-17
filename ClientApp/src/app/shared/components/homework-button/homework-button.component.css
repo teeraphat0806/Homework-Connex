@@ -75,3 +75,95 @@
   padding: 14px 56px;
   font-size: 20px;
 }
+
+/* Icon Only Buttons (Square Layout) */
+.homework-button.homework-button-icon-only {
+  gap: 0;
+  border-radius: 6px;
+  aspect-ratio: 1 / 1;
+}
+
+.homework-button-icon-only.homework-button-xs {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+.homework-button-icon-only.homework-button-sm {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.homework-button-icon-only.homework-button-md {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.homework-button-icon-only.homework-button-lg {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+
+/* Outlined Styling Mode */
+.homework-button-outlined {
+  background-color: #ffffff;
+}
+
+.homework-button-outlined.homework-button-primary {
+  border-color: #2e8ef8;
+  color: #2e8ef8;
+  background-color: #ffffff;
+}
+.homework-button-outlined.homework-button-primary:hover {
+  background-color: rgba(46, 142, 248, 0.05);
+  border-color: #1f7be0;
+}
+
+.homework-button-outlined.homework-button-secondary {
+  border-color: #cbd5e1;
+  color: #475569;
+  background-color: #ffffff;
+}
+.homework-button-outlined.homework-button-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.homework-button-outlined.homework-button-danger {
+  border-color: #fca5a5;
+  color: #ef4444;
+  background-color: #ffffff;
+}
+.homework-button-outlined.homework-button-danger:hover {
+  background-color: #fef2f2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+/* Text Styling Mode */
+.homework-button-text {
+  background-color: transparent;
+  border-color: transparent;
+}
+.homework-button-text.homework-button-primary {
+  color: #2e8ef8;
+}
+.homework-button-text.homework-button-primary:hover {
+  background-color: rgba(46, 142, 248, 0.05);
+}
+.homework-button-text.homework-button-secondary {
+  color: #4b5563;
+}
+.homework-button-text.homework-button-secondary:hover {
+  background-color: #f1f5f9;
+}
+.homework-button-text.homework-button-danger {
+  color: #ef4444;
+}
+.homework-button-text.homework-button-danger:hover {
+  background-color: #fef2f2;
+}

@@ -4,14 +4,6 @@
       <h2 class="title">Product Master</h2>
       <p>จัดการข้อมูลสินค้า</p>
     </div>
-    <homework-button
-      label="เพิ่มสินค้า"
-      theme="Primary"
-      iconCode="add"
-      [iconSize]="18"
-      (onClick)="openCreatePopup()"
-    >
-    </homework-button>
   </div>
 
   <div class="filter-panel">
@@ -58,6 +50,15 @@
     </div>
   </div>
   <div class="page-column">
+    <homework-button
+      label="เพิ่มสินค้า"
+      theme="Primary"
+      iconCode="add_box"
+      stylingMode="text"
+      [iconSize]="18"
+      (onClick)="openCreatePopup()"
+    >
+    </homework-button>
     <homework-datagrid [dataSource]="products" [config]="gridConfig">
       <ng-template gridTemplate="productDescriptionDetail" let-row>
         <div class="product-detail-expanded">
@@ -216,14 +217,17 @@
         </app-homework-input>
 
         @if (popupMode === 'edit') {
-          <app-homework-input
-            type="Text"
-            label="Status"
-            placeholder="กรอกสถานะ (Active / Inactive)"
-            [fieldValue]="selectedProduct.isActive ? 'Active' : 'Inactive'"
-            (fieldValueChange)="selectedProduct.isActive = $event.toLowerCase() === 'active'"
+          <label style="font-weight: 500; color: #374151">Status</label>
+          <homework-radio-group
+            class="status-radio-group"
+            [items]="statusDropdownItems"
+            valueExpr="value"
+            displayExpr="label"
+            [(value)]="selectedProduct.isActive"
+            layout="horizontal"
+            (valueChange)="selectedProduct.isActive = $event.toLowerCase() === 'active'"
           >
-          </app-homework-input>
+          </homework-radio-group>
         }
       </div>
     }

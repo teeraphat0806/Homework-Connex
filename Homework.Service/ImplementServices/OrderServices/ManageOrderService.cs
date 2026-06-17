@@ -25,90 +25,31 @@ namespace Homework.Service.ImplementServices.OrderServices
         }
         public async Task<OrderManageViewModel> CreateOrder(CreateOrderRequestModel param, CustomError error)
         {
-            Homework.Domain.ValidateModels.OrderValidateModels.CreateOrderValidateModel.Validate(param, error);
-            error.ThrowIfError();
+            
 
             // 1. Generate OrderNo
-            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            string orderNo = GenerateOrderNo(timestamp);
+            var todayStr = DateTime.UtcNow.ToString("yyyyMMdd");
+            string orderNo = await GenerateOrderNo(todayStr);
 
             // Get current userId
             long? userId = null;
             var userIdText = _userContextService.GetUserIdFromToken();
-            if (long.TryParse(userIdText, out long parsedUserId))
-            {
-                userId = parsedUserId;
-            }
-
-            // 2. Validate products and calculate amounts
-            decimal totalAmount = 0;
-            var orderItems = new List<OrderItems>();
-
-            foreach (var item in param.OrderItems)
-            {
-                var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
-
-                if (product == null)
-                {
-                    error.AddError("Product", $"ไม่พบสินค้ารหัส {item.ProductId}");
-                    error.ThrowIfError();
-                }
-
-                if (product.StockQty < item.Qty)
-                {
-                    error.AddError("Product", $"สินค้า '{product.Name}' หมดคลัง หรือมีจำนวนไม่พอ");
-                    error.ThrowIfError();
-                }
-
-                var unitPrice = product.Price;
-                var netAmount = (unitPrice * item.Qty);
-
-                totalAmount += netAmount;
-
-                orderItems.Add(new OrderItems
-                {
-                    ProductId = product.ProductId,
-                    Qty = item.Qty,
-                    Price = unitPrice,
-                    OrderItemStatus = "Pending",
-                    OrderItemStatusCode = "PENDING"
-                });
-
-                // Deduct stock from product directly
-                product.StockQty -= item.Qty;
-            }
-
-            var vatAmount = Math.Round(totalAmount * 0.07m, 2);
-
-            var order = new Orders
-            {
-                OrderNo = orderNo,
-                OrderDate = DateTime.UtcNow,
-                TotalAmount = totalAmount,
-                Status = "Pending",
-                CreatedByUserId = userId,
-                CreatedTime = DateTime.UtcNow,
-                ModifiedTime = DateTime.UtcNow,
-                OrderItems = orderItems
-            };
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+           
 
             return new OrderManageViewModel
             {
                 IsSuccess = true,
                 Message = "Order created successfully",
-                OrderId = order.OrderId
             };
         }
 
-        private static string GenerateOrderNo(string timestamp)
+        private async Task<string> GenerateOrderNo(string todayStr)
         {
-            var random = new Random().Next(1000, 9999);
-            var orderNo = $"ORD-{timestamp}-{random}";
-            return orderNo;
+            var count = await _context.Orders
+                .Where(o => o.OrderNo.StartsWith($"ORD-{todayStr}-"))
+                .CountAsync();
+            var nextSeq = count + 1;
+            return $"ORD-{todayStr}-{nextSeq:D4}";
         }
 
         public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel param, CustomError error)
@@ -173,7 +114,6 @@ namespace Homework.Service.ImplementServices.OrderServices
             {
                 IsSuccess = true,
                 Message = "อัปเดตออเดอร์เรียบร้อยแล้ว",
-                OrderId = order.OrderId
             };
         }
 
@@ -209,14 +149,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 error.AddError("Order", "ไม่พบออเดอร์");
             }
             error.ThrowIfError();
-            // Return stock back to products
-            foreach (var item in order.OrderItems)
-            {
-                if (item.Product != null)
-                {
-                    item.Product.StockQty += item.Qty;
-                }
-            }
+            
 
             _context.OrderItems.RemoveRange(order.OrderItems);
             _context.Orders.Remove(order);
@@ -226,7 +159,6 @@ namespace Homework.Service.ImplementServices.OrderServices
             {
                 IsSuccess = true,
                 Message = "ลบออเดอร์เรียบร้อยแล้ว",
-                OrderId = param.OrderId
             };
         }
     }

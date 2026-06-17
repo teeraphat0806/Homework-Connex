@@ -34,4 +34,6 @@ public partial class Products
     public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
 
     public virtual ICollection<ProductCategoryMapping> ProductCategoryMapping { get; set; } = new List<ProductCategoryMapping>();
+
+    public virtual ICollection<ProductStockTransactions> ProductStockTransactions { get; set; } = new List<ProductStockTransactions>();
 }

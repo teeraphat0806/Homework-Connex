@@ -7,7 +7,7 @@ import {
   HomeworkDatagridComponent,
   GridTemplateDirective,
 } from '../../../../shared/components/homework-datagrid/homework-datagrid.component';
-import { DxTagBoxModule } from 'devextreme-angular';
+import { DxTagBoxModule, DxRadioGroupModule } from 'devextreme-angular';
 import { HomeworkButton } from '../../../../shared/components/homework-button/homework-button.component';
 import { HomeworkInputComponent } from '../../../../shared/components/homework-input/homework-input.component';
 import { HomeworkFormpopup } from '../../../../shared/components/homework-formpopup/homework-formpopup.component';
@@ -29,6 +29,7 @@ import {
 } from '../../services/categoriesmaster.service';
 import { DxTextBoxModule } from 'devextreme-angular';
 import { ProductStatus } from '../../../../core/enum';
+import { HomeworkRadioGroupComponent } from '../../../../shared/components/homework-radio-group/homework-radio-group.component';
 export interface ProductMasterRow {
   productId: number;
   productCode: string;
@@ -55,6 +56,8 @@ export interface ProductMasterRow {
     HomeworkFormpopup,
     DxTagBoxModule,
     HomeworkConfirmationModalComponent,
+    DxRadioGroupModule,
+    HomeworkRadioGroupComponent,
   ],
   templateUrl: './productmaster.html',
   styleUrl: './productmaster.css',
@@ -66,8 +69,8 @@ export class ProductMaster implements OnInit {
   categoryList: CategoryViewModel[] = [];
   categoryDropdownItems: { key: string; value: string }[] = [];
   statusDropdownItems = [
-    { key: 'true', value: ProductStatus.Active },
-    { key: 'false', value: ProductStatus.Inactive },
+    { key: 'true', label: 'Active', value: ProductStatus.Active },
+    { key: 'false', label: 'Inactive', value: ProductStatus.Inactive },
   ];
   isDeletePopupVisible = false;
   productToDelete: ProductMasterViewModel | null = null;
@@ -229,6 +232,7 @@ export class ProductMaster implements OnInit {
         theme: 'Secondary',
         size: 'sm',
         iconCode: 'edit',
+        stylingMode: 'outlined',
         showDefaultLabel: false,
         onClick: (row) => this.openEditPopup(row),
       },
@@ -237,6 +241,7 @@ export class ProductMaster implements OnInit {
         theme: 'Danger',
         size: 'sm',
         iconCode: 'delete',
+        stylingMode: 'outlined',
         showDefaultLabel: false,
         onClick: (row) => this.deleteProduct(row),
       },

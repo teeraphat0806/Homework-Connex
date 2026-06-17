@@ -21,6 +21,7 @@ import {
   CategoriesMasterApiService,
   CategoryViewModel,
 } from '../../services/categoriesmaster.service';
+import { HomeworkRadioGroupComponent } from '../../../../shared/components/homework-radio-group/homework-radio-group.component';
 export interface OrderListRow {
   orderId: number;
   orderNo: string;
@@ -45,6 +46,7 @@ export interface OrderListRow {
     HomeworkConfirmationModalComponent,
     DxRadioGroupModule,
     DxDateBoxModule,
+    HomeworkRadioGroupComponent,
   ],
   templateUrl: './orderlist.html',
   styleUrl: './orderlist.css',

@@ -42,4 +42,6 @@ public partial class Orders
     public virtual Users ModifiedByUser { get; set; }
 
     public virtual ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
+
+    public virtual ICollection<ProductStockTransactions> ProductStockTransactions { get; set; } = new List<ProductStockTransactions>();
 }

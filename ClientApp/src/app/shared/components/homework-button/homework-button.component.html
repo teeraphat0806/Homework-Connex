@@ -1,6 +1,7 @@
 <div
   class="homework-button"
-  [class]="themeClass + ' ' + sizeClass + (disabled ? ' opacity-50 cursor-not-allowed' : '')"
+  [class]="themeClass + ' ' + sizeClass + ' homework-button-' + stylingMode + (disabled ? ' opacity-50 cursor-not-allowed' : '')"
+  [class.homework-button-icon-only]="!label"
   [style.background-color]="buttonColor || null"
   [style.color]="textColor ? textColor : defaultTextColor"
   (click)="onClickButton()"
@@ -11,7 +12,9 @@
     </span>
   }
 
-  <span class="homework-button-label">
-    {{ label }}
-  </span>
+  @if (label) {
+    <span class="homework-button-label">
+      {{ label }}
+    </span>
+  }
 </div>

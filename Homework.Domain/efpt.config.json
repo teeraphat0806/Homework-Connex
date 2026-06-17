@@ -63,6 +63,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "public.ProductStockTransactions",
+         "ObjectType": 0
+      },
+      {
          "Name": "public.RefCategories",
          "ObjectType": 0
       },

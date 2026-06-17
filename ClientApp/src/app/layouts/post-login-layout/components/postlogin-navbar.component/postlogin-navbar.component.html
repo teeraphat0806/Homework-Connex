@@ -6,29 +6,23 @@
   <div class="navbar-actions">
     <div class="desktop-menu">
       <div class="desktop-nav-container">
-        
         <div class="desktop-links">
           @for (item of navItems; track item.pageUrl) {
-            <a 
-              [routerLink]="'/main/' + item.pageUrl" 
+            <a
+              [routerLink]="'/main/' + item.pageUrl"
               routerLinkActive="active-link"
               [routerLinkActiveOptions]="{ exact: true }"
-              class="desktop-menu-item">
-              {{ item.navbarName }} 
+              class="desktop-menu-item"
+            >
+              {{ item.navbarName }}
             </a>
           }
         </div>
 
         <div class="desktop-logout">
-          <homework-button
-            icon="logout"
-            label="ออกจากระบบ"
-            theme="Danger"
-            stylingMode="outlined"
-            (onClick)="onLogOut()">
+          <homework-button icon="logout" label="ออกจากระบบ" theme="Danger" (onClick)="onLogOut()">
           </homework-button>
         </div>
-
       </div>
     </div>
   </div>

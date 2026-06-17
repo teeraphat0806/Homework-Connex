@@ -34,4 +34,6 @@ public partial class OrderItems
     public virtual Orders Order { get; set; }
 
     public virtual Products Product { get; set; }
+
+    public virtual ICollection<ProductStockTransactions> ProductStockTransactions { get; set; } = new List<ProductStockTransactions>();
 }

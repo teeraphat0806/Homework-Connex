@@ -34,6 +34,8 @@ public partial class postgresContext : DbContext
 
     public virtual DbSet<ProductCategoryMapping> ProductCategoryMapping { get; set; }
 
+    public virtual DbSet<ProductStockTransactions> ProductStockTransactions { get; set; }
+
     public virtual DbSet<Products> Products { get; set; }
 
     public virtual DbSet<RefCategories> RefCategories { get; set; }
@@ -245,6 +247,35 @@ public partial class postgresContext : DbContext
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ProductCategory_Product");
+        });
+
+        modelBuilder.Entity<ProductStockTransactions>(entity =>
+        {
+            entity.HasKey(e => e.ProductStockTransactionId).HasName("ProductStockTransactions_pkey");
+
+            entity.Property(e => e.ProductStockTransactionId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.CreatedTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Remark).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'PENDING'::character varying");
+            entity.Property(e => e.TransactionType)
+                .IsRequired()
+                .HasMaxLength(30);
+
+            entity.HasOne(d => d.Order).WithMany(p => p.ProductStockTransactions)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_ProductStockTransactions_Orders");
+
+            entity.HasOne(d => d.OrderItem).WithMany(p => p.ProductStockTransactions)
+                .HasForeignKey(d => d.OrderItemId)
+                .HasConstraintName("FK_ProductStockTransactions_OrderItems");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductStockTransactions)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProductStockTransactions_Products");
         });
 
         modelBuilder.Entity<Products>(entity =>

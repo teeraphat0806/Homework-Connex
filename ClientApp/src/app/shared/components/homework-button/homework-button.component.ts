@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { ButtonTheme } from '../../models/pages-design.model';
 
 @Component({
@@ -8,7 +8,7 @@ import { ButtonTheme } from '../../models/pages-design.model';
   templateUrl: './homework-button.component.html',
   styleUrl: './homework-button.component.css',
 })
-export class HomeworkButton implements OnInit {
+export class HomeworkButton implements OnInit, OnChanges {
   @Input() label: string = '';
   @Input() theme: ButtonTheme = 'Primary';
   @Input() showDefaultLabel: boolean = true;
@@ -35,6 +35,15 @@ export class HomeworkButton implements OnInit {
     }
 
     this.initThemeColor();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['theme'] || changes['stylingMode'] || changes['label'] || changes['showDefaultLabel']) {
+      if (!this.label && this.showDefaultLabel) {
+        this.setDefaultLabel();
+      }
+      this.initThemeColor();
+    }
   }
 
   private setDefaultLabel(): void {
@@ -72,17 +81,19 @@ export class HomeworkButton implements OnInit {
   }
 
   public initThemeColor(): void {
+    const isOutlinedOrText = this.stylingMode === 'outlined' || this.stylingMode === 'text';
+
     switch (this.theme) {
       case 'Primary':
-        this.defaultTextColor = '#FFFFFF';
+        this.defaultTextColor = isOutlinedOrText ? '#2e8ef8' : '#FFFFFF';
         break;
 
       case 'Secondary':
-        this.defaultTextColor = '#2E8EF8';
+        this.defaultTextColor = isOutlinedOrText ? '#475569' : '#2E8EF8';
         break;
 
       case 'Danger':
-        this.defaultTextColor = '#FFFFFF';
+        this.defaultTextColor = isOutlinedOrText ? '#ef4444' : '#FFFFFF';
         break;
 
       default:

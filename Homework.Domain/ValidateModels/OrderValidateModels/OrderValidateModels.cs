@@ -21,10 +21,7 @@ namespace Homework.Domain.ValidateModels.OrderValidateModels
             {
                 error.AddError("OrderId", "รหัสออเดอร์ไม่ถูกต้อง");
             }
-            if (string.IsNullOrWhiteSpace(param.Status))
-            {
-                error.AddError("Status", "กรุณาระบุสถานะของออเดอร์");
-            }
+           
         }
     }
 }

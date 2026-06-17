@@ -1,11 +1,12 @@
 using Homework.Domain.Error;
 using Homework.Domain.Interfaces.Services.AuthenticationServices;
+using Homework.Domain.Interfaces.Services.OrderServices;
 using Homework.Domain.Interfaces.Services.PermissionServices;
+using Homework.Domain.RequestModels.OrderRequestModels;
 using Homework.Service.ImplementServices.Authentications.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Homework.Domain.Interfaces.Services.OrderServices;
-using Homework.Domain.RequestModels.OrderRequestModels;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Web.Homework.Controllers.Order{
     //[Authorize]
     [ApiController]
@@ -61,16 +62,39 @@ namespace Web.Homework.Controllers.Order{
             var result = await _manageOrderService.DeleteOrder(request, error);
             return Ok(result);
         }
-        [HttpPost("order/{id}")]
-        public async Task<IActionResult> DeleteOrder(long id)
+        [HttpPost("approve")]
+        public async Task<IActionResult> ApproveOrder([FromBody] ApproveOrderRequestModel request)
         {
             var error = new CustomError();
-            var request = new DeleteOrderRequestModel
-            {
-                OrderId = id
-            };
-
-            var result = await _manageOrderService.DeleteOrder(request, error);
+            var result = await _manageOrderService.ApproveOrder(request, error);
+            return Ok(result);
+        }
+        [HttpPost("reject")]
+        public async Task<IActionResult> RejectOrder([FromBody] RejectOrderRequestModel request)
+        {
+            var error = new CustomError();
+            var result = await _manageOrderService.RejectOrder(request, error);
+            return Ok(result);
+        }
+        [HttpPost("cancel")]
+        public async Task<IActionResult> CancelOrder([FromBody] CancelOrderRequestModel request)
+        {
+            var error = new CustomError();
+            var result = await _manageOrderService.CancelOrder(request, error);
+            return Ok(result);
+        }
+        [HttpPost("return")]
+        public async Task<IActionResult> ReturnOrder([FromBody] ReturnOrderRequestModel request)
+        {
+            var error = new CustomError();
+            var result = await _manageOrderService.ReturnOrder(request, error);
+            return Ok(result);
+        }
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitOrder([FromBody] SubmitOrderRequestModel request)
+        {
+            var error = new CustomError();
+            var result = await _manageOrderService.SubmitOrder(request, error);
             return Ok(result);
         }
     }

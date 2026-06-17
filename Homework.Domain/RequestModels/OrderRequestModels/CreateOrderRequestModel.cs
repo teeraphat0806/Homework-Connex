@@ -9,9 +9,6 @@ namespace Homework.Domain.RequestModels.OrderRequestModels
     public class CreateOrderRequestModel
     {
         public DateTime? OrderDate { get; set; }
-
-        public string? Status { get; set; }
-
         public List<CreateOrderItemRequestModel> OrderItems { get; set; } = new();
     }
 }

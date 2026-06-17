@@ -7,6 +7,7 @@ namespace Homework.Domain.ViewModels.OrderViewModels
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = null!;
+        
     }
 
     public class OrderListViewModel

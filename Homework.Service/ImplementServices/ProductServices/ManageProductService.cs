@@ -1,15 +1,19 @@
+using Homework.Domain.Enum;
+using Homework.Domain.Error;
 using Homework.Domain.Interfaces.Services.ProductServices;
 using Homework.Domain.Interfaces.Services.UserServices;
 using Homework.Domain.Models;
+using Homework.Domain.RequestModels.OrderRequestModels;
 using Homework.Domain.RequestModels.ProductRequestModels;
+using Homework.Domain.ValidateModels.ProductValidateModels;
+using Homework.Domain.ViewModels.OrderViewModels;
 using Homework.Domain.ViewModels.ProductViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Homework.Domain.Error;
-using Homework.Domain.ValidateModels.ProductValidateModels;
 
 namespace Homework.Service.ImplementServices.ProductServices
 {
@@ -35,7 +39,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             error.ThrowIfError();
             #endregion
 
-            var now = DateTime.UtcNow;
+            var timeStamp = DateTime.UtcNow;
 
             #region 2. Get User ID
             long? userId = null;
@@ -97,8 +101,8 @@ namespace Homework.Service.ImplementServices.ProductServices
                     ImageUrl = param.ImageUrl,
                     IsActive = true,
                     CreatedByUserId = userId,
-                    CreatedTime = now,
-                    ModifiedTime = now
+                    CreatedTime = timeStamp,
+                    ModifiedTime = timeStamp
                 };
 
                 _context.Products.Add(productDb);
@@ -131,7 +135,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     IsActive = productDb.IsActive,
                     CreatedByUserId = userId,
                     Action = "CREATE",
-                    LogTime = now
+                    LogTime = timeStamp
                 };
                 _context.LogProducts.Add(logProductDb);
                 await _context.SaveChangesAsync();
@@ -164,7 +168,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             error.ThrowIfError();
             #endregion
 
-            var now = DateTime.UtcNow;
+            var timeStamp = DateTime.UtcNow;
 
             #region 2. Get User ID
             long? userId = null;
@@ -239,7 +243,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                 productDb.ImageUrl = param.ImageUrl;
                 productDb.IsActive = param.IsActive;
                 productDb.ModifiedByUserId = userId;
-                productDb.ModifiedTime = now;
+                productDb.ModifiedTime = timeStamp;
                 #endregion
 
                 #region 7. Update Category Mapping
@@ -269,7 +273,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     IsActive = productDb.IsActive,
                     CreatedByUserId = userId,
                     Action = "UPDATE",
-                    LogTime = now
+                    LogTime = timeStamp
                 };
                 _context.LogProducts.Add(logProductDb);
                 await _context.SaveChangesAsync();
@@ -297,7 +301,7 @@ namespace Homework.Service.ImplementServices.ProductServices
 
         public async Task<ProductManageViewModel> DeleteProduct(DeleteProductRequestModel param, CustomError error)
         {
-            var now = DateTime.UtcNow;
+            var timeStamp = DateTime.UtcNow;
 
             #region 1. Get User ID
             long? userId = null;
@@ -336,7 +340,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     // Soft-delete: mark product as inactive
                     productDb.IsActive = false;
                     productDb.ModifiedByUserId = userId;
-                    productDb.ModifiedTime = now;
+                    productDb.ModifiedTime = timeStamp;
                     actionName = "SOFT_DELETE";
                     message = "ปิดใช้งานสินค้าเรียบร้อยแล้ว";
                 }
@@ -365,7 +369,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     IsActive = productDb.IsActive,
                     CreatedByUserId = userId,
                     Action = actionName,
-                    LogTime = now
+                    LogTime = timeStamp
                 };
                 _context.LogProducts.Add(logProductDb);
                 await _context.SaveChangesAsync();
@@ -388,5 +392,7 @@ namespace Homework.Service.ImplementServices.ProductServices
         }
 
         #endregion
+
+        
     }
 }

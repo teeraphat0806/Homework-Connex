@@ -38,7 +38,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
         public async Task<LoginViewModel> LoginUser(LoginRequestModel param, CustomError error)
         {
-
+            var timeStamp = DateTime.UtcNow;
             if (string.IsNullOrWhiteSpace(param.UserName) || string.IsNullOrWhiteSpace(param.Password))
             {
                 error.AddErrorKeyAndToast("Login", "กรุณากรอก Username และ Password");
@@ -69,14 +69,10 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
 
             // get current role code of user
-            var currentRoleCode =
-    await _userContextService.GetCurrentRoleCodeAsync(
-        user.UserId,
-        error
-    );
+            var currentRoleCode =await _userContextService.GetCurrentRoleCodeAsync(user.UserId,error);
 
             // update last checking time
-            user.LastChecking = DateTime.UtcNow;
+            user.LastChecking = timeStamp;
 
             // generate access token and refresh token
             string accessToken = GenerateAccessToken(user, currentRoleCode, error);
@@ -88,10 +84,8 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                 UserId = user.UserId,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                CreatedTime = DateTime.UtcNow,
-                ExpiredTime = DateTime.UtcNow.AddDays(
-    Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays)
-),
+                CreatedTime = timeStamp,
+                ExpiredTime = timeStamp.AddDays(Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays)),
                 RevokedTime = null
             };
 
@@ -129,11 +123,9 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtConfig:Issuer"],
-audience: _configuration["JwtConfig:Audience"],
+                audience: _configuration["JwtConfig:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-    Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes)
-),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtConfig.AccessTokenExpireMinutes)),
                 signingCredentials: credentials
             );
 
@@ -172,9 +164,7 @@ audience: _configuration["JwtConfig:Audience"],
         }
 
         // register user
-        public async Task<RegisterViewModel> RegisterUser(
-    RegisterRequestModel param,
-    CustomError error)
+        public async Task<RegisterViewModel> RegisterUser(RegisterRequestModel param,CustomError error)
         {
             await ValidateUser(param, error);
 
@@ -183,8 +173,7 @@ audience: _configuration["JwtConfig:Audience"],
 
             try
             {
-                var hashedPassword =
-                    BCrypt.Net.BCrypt.HashPassword(param.Password);
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(param.Password);
 
                 var newUser = new Users
                 {
@@ -283,7 +272,7 @@ audience: _configuration["JwtConfig:Audience"],
             var request = _httpContextAccessor.HttpContext?.Request;
             string? oldAccessToken = request?.Cookies["accessToken"];
             string? oldRefreshToken = request?.Cookies["refreshToken"];
-
+            var timeStamp = DateTime.UtcNow;
             if (string.IsNullOrWhiteSpace(oldAccessToken) || string.IsNullOrWhiteSpace(oldRefreshToken))
             {
                 error.AddError("Token", "ไม่มี access token หรือ refresh token");
@@ -298,15 +287,14 @@ audience: _configuration["JwtConfig:Audience"],
                 error.AddError("Token", "ไม่พบ access token หรือ refresh token ในระบบ");
                 error.ThrowIfError();
             }
-            if (refreshtokenDb.RevokedTime != null || refreshtokenDb.ExpiredTime < DateTime.UtcNow)
+            if (refreshtokenDb.RevokedTime != null || refreshtokenDb.ExpiredTime < timeStamp)
             {
                 error.AddError("Token", "access token หรือ refresh token ไม่ถูกต้อง");
                 error.ThrowIfError();
             }
 
             var user = refreshtokenDb.User;
-            var currentRoleCode =
-       _userContextService.GetCurrentRoleFromToken();
+            var currentRoleCode = _userContextService.GetCurrentRoleFromToken();
 
             if (string.IsNullOrWhiteSpace(currentRoleCode))
             {
@@ -324,9 +312,8 @@ audience: _configuration["JwtConfig:Audience"],
             // Update new access token and refresh token to database
             refreshtokenDb.AccessToken = newAccessToken;
             refreshtokenDb.RefreshToken = newRefreshToken;
-            refreshtokenDb.CreatedTime = DateTime.UtcNow;
-            refreshtokenDb.ExpiredTime = DateTime.UtcNow.AddDays(
-            Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays));
+            refreshtokenDb.CreatedTime = timeStamp;
+            refreshtokenDb.ExpiredTime = timeStamp.AddDays(Convert.ToDouble(_jwtConfig.RefreshTokenExpireDays));
 
             // Revoke old access token and refresh token
             await _context.SaveChangesAsync();
@@ -382,8 +369,7 @@ audience: _configuration["JwtConfig:Audience"],
 
         public async Task RevokeSessionByUser(string accessToken,string refreshToken, CustomError error)
         {
-            var userRefreshToken = await _context.UserRefreshTokens
-                .FirstOrDefaultAsync(x => x.AccessToken == accessToken && x.RefreshToken == refreshToken);
+            var userRefreshToken = await _context.UserRefreshTokens.FirstOrDefaultAsync(x => x.AccessToken == accessToken && x.RefreshToken == refreshToken);
             if (userRefreshToken != null)
             {
                 userRefreshToken.RevokedTime = DateTime.UtcNow;
@@ -393,12 +379,11 @@ audience: _configuration["JwtConfig:Audience"],
 
         public async Task RevokeAllSessionsByUserId(long userId, CustomError error)
         {
-            var userRefreshTokens = await _context.UserRefreshTokens
-                .Where(x => x.UserId == userId && x.RevokedTime == null && x.ExpiredTime > DateTime.UtcNow)
-                .ToListAsync();
+            var timeStamp = DateTime.UtcNow;
+            var userRefreshTokens = await _context.UserRefreshTokens.Where(x => x.UserId == userId && x.RevokedTime == null && x.ExpiredTime > timeStamp).ToListAsync();
             foreach (var token in userRefreshTokens)
             {
-                token.RevokedTime = DateTime.UtcNow;
+                token.RevokedTime = timeStamp;
             }
             await _context.SaveChangesAsync();
         }
@@ -407,6 +392,7 @@ audience: _configuration["JwtConfig:Audience"],
             var request = _httpContextAccessor.HttpContext?.Request;
             var response = _httpContextAccessor.HttpContext?.Response;
             string? accessToken = request?.Cookies["accessToken"];
+            var timeStamp = DateTime.UtcNow;
             if (string.IsNullOrWhiteSpace(accessToken))
             {
                 error.AddError("Token", "ไม่มี access token");
@@ -421,11 +407,11 @@ audience: _configuration["JwtConfig:Audience"],
             }
             var userId = refreshtokenDb.UserId;
             var userRefreshTokens = await _context.UserRefreshTokens
-                .Where(x => x.UserId == userId && x.RevokedTime == null && x.ExpiredTime > DateTime.UtcNow)
+                .Where(x => x.UserId == userId && x.RevokedTime == null && x.ExpiredTime > timeStamp)
                 .ToListAsync();
             foreach (var token in userRefreshTokens)
             {
-                token.RevokedTime = DateTime.UtcNow;
+                token.RevokedTime = timeStamp;
             }
             await _context.SaveChangesAsync();
             response?.Cookies.Delete("accessToken");
@@ -485,11 +471,12 @@ audience: _configuration["JwtConfig:Audience"],
 
         private async Task AssignDefaultMemberRoleAsync(long userId, string username)
         {
+            var timeStamp = DateTime.UtcNow;
             var userRole = new UserRoles
             {
                 UserId = userId,
                 RoleCode = EnumRoleCodes.MEMBER,
-                CreatedTime = DateTime.UtcNow
+                CreatedTime = timeStamp
             };
 
             _context.UserRoles.Add(userRole);
@@ -500,7 +487,7 @@ audience: _configuration["JwtConfig:Audience"],
                 UserRoleId = userRole.UserRoleId,
                 UserId = userId,
                 RoleCode = EnumRoleCodes.MEMBER,
-                CreatedTime = DateTime.UtcNow
+                CreatedTime = timeStamp
             };
 
             _context.UserRoleLogs.Add(log);

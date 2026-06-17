@@ -3,32 +3,46 @@ namespace Homework.Domain.Enum
 
     /// สถานะสำหรับใบเบิกหลัก (Orders.Status)
 
-    public class EnumOrderStatus
+    public static class EnumOrderStatus
     {
         public const string Draft = "Draft";
-        public const string Submit = "Submit";
         public const string Pending = "Pending"; 
         public const string Approved = "Approved";
         public const string Rejected = "Rejected";
-        public const string ConfirmOrder = "Confirm Order";
+        public const string Cancelled = "Cancelled";
+        public const string PartialReturned = "PartialReturned";
+        public const string Returned = "Returned";
         public static readonly string[] All =
         {
             Draft,
-            Submit,
             Pending,
             Approved,
             Rejected,
-            ConfirmOrder
+            Cancelled,
+            PartialReturned,
+            Returned
         };
     }
 
   
     /// สถานะสำหรับรายการสินค้าแต่ละแถว (OrderItemStatusCode)
 
-    public class EnumOrderItemStatus
+    public static class EnumOrderItemStatus
     {
-        public const string Pending = "PENDING";
-        public const string Approved = "APPROVED";
-        public const string Rejected = "REJECTED";
+        public const string Pending = "Pending";
+        public const string Approved = "Approved";
+        public const string Rejected = "Rejected";
+        public const string Cancelled = "Cancelled";
+        public const string PartialReturned = "PartialReturned";
+        public const string Returned = "Returned";
+        public static readonly string[] All =
+        {
+            Pending,
+            Approved,
+            Rejected,
+            Cancelled,
+            PartialReturned,
+            Returned
+        };
     }
 }

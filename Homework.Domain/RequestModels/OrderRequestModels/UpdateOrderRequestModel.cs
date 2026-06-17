@@ -12,8 +12,6 @@ namespace Homework.Domain.RequestModels.OrderRequestModels
 
         public DateTime? OrderDate { get; set; }
 
-        public string? Status { get; set; }
-
         public List<UpdateOrderItemRequestModel> OrderItems { get; set; } = new();
     }
 }

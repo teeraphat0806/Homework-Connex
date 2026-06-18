@@ -9,7 +9,7 @@
         <div class="desktop-links">
           @for (item of navItems; track item.pageUrl) {
             <a
-              [routerLink]="'/main/' + item.pageUrl"
+              [routerLink]="'/main/' + (item.pageUrl.startsWith('/') ? item.pageUrl.substring(1) : item.pageUrl)"
               routerLinkActive="active-link"
               [routerLinkActiveOptions]="{ exact: true }"
               class="desktop-menu-item"

@@ -476,7 +476,7 @@ export class OrderDetailAdmin {
   }
 
   public goBack(): void {
-    this.router.navigate([`/${OrderRoute.fullOrderListPath}`]);
+    this.router.navigate([`/${OrderRoute.fullOrderAdminListPath}`]);
   }
 
   public returnItem(row: OrderItem): void {

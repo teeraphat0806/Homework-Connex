@@ -1,7 +1,7 @@
 export class OrderRoute {
     static prefix = 'main';
-    static orderList = 'orders';
-    static orderDetails = 'order-details';
+    static orderList = 'orders/member';
+    static orderDetails = 'orders/member/detail';
     static orderAdminList = 'orders/admin';
     static orderAdminDetails = 'orders/admin/detail';
     static fullOrderListPath = `${OrderRoute.prefix}/${OrderRoute.orderList}`;

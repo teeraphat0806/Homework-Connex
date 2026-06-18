@@ -98,9 +98,27 @@ export const mockRefPages = [
     isActive: true,
   },
   {
-    pageCode: 'ORDER',
-    pageDesc: 'Order Management Page',
-    pageUrl: 'orders',
+    pageCode: 'ORDER_MEMBER',
+    pageDesc: 'Order Member',
+    pageUrl: '/orders/member',
+    isActive: true,
+  },
+  {
+    pageCode: 'ORDER_DETAIL_MEMBER',
+    pageDesc: 'Order Detail Member',
+    pageUrl: '/orders/member/detail',
+    isActive: true,
+  },
+  {
+    pageCode: 'ORDER_ADMIN',
+    pageDesc: 'Order Admin',
+    pageUrl: '/orders/admin',
+    isActive: true,
+  },
+  {
+    pageCode: 'ORDER_DETAIL_ADMIN',
+    pageDesc: 'Order Detail Admin',
+    pageUrl: '/orders/admin/detail',
     isActive: true,
   },
   {
@@ -133,11 +151,18 @@ export const mockRefNavbar = [
     navbarIcon: 'inventory_2',
   },
   {
-    navbarCode: 'NAV_ORDER',
-    navbarName: 'Orders',
-    pageCode: 'ORDER',
+    navbarCode: 'NAV_ORDER_MEMBER',
+    navbarName: 'ใบเบิกของ',
+    pageCode: 'ORDER_MEMBER',
     seq: 3,
-    navbarIcon: 'receipt_long',
+    navbarIcon: 'receipt',
+  },
+  {
+    navbarCode: 'NAV_ORDER_ADMIN',
+    navbarName: 'Order Admin',
+    pageCode: 'ORDER_ADMIN',
+    seq: 50,
+    navbarIcon: 'receipt',
   },
   {
     navbarCode: 'NAV_USER',
@@ -154,9 +179,10 @@ export const mockRefPermissions = [
   { permissionId: 3, permissionCode: 'PRODUCT_CREATE', permissionName: 'Create Product' },
   { permissionId: 4, permissionCode: 'PRODUCT_EDIT', permissionName: 'Edit Product' },
   { permissionId: 5, permissionCode: 'PRODUCT_DELETE', permissionName: 'Delete Product' },
-  { permissionId: 6, permissionCode: 'ORDER_VIEW', permissionName: 'View Order' },
-  { permissionId: 7, permissionCode: 'ORDER_CREATE', permissionName: 'Create Order' },
-  { permissionId: 8, permissionCode: 'ORDER_APPROVE', permissionName: 'Approve Order' },
+  { permissionId: 6, permissionCode: 'ORDER_MEMBER_VIEW', permissionName: 'View Order Member' },
+  { permissionId: 7, permissionCode: 'ORDER_DETAIL_MEMBER_VIEW', permissionName: 'View Order Detail Member' },
+  { permissionId: 8, permissionCode: 'ORDER_ADMIN_VIEW', permissionName: 'View Order Admin' },
+  { permissionId: 11, permissionCode: 'ORDER_DETAIL_ADMIN_VIEW', permissionName: 'View Order Detail Admin' },
   { permissionId: 9, permissionCode: 'USER_VIEW', permissionName: 'View User' },
   { permissionId: 10, permissionCode: 'ROLE_MANAGE', permissionName: 'Manage Role' },
 ];
@@ -167,20 +193,17 @@ export const mockRolePermissions = [
   { roleCode: 'ADMIN', permissionCode: 'PRODUCT_CREATE' },
   { roleCode: 'ADMIN', permissionCode: 'PRODUCT_EDIT' },
   { roleCode: 'ADMIN', permissionCode: 'PRODUCT_DELETE' },
-  { roleCode: 'ADMIN', permissionCode: 'ORDER_VIEW' },
-  { roleCode: 'ADMIN', permissionCode: 'ORDER_CREATE' },
-  { roleCode: 'ADMIN', permissionCode: 'ORDER_APPROVE' },
+  { roleCode: 'ADMIN', permissionCode: 'ORDER_ADMIN_VIEW' },
+  { roleCode: 'ADMIN', permissionCode: 'ORDER_DETAIL_ADMIN_VIEW' },
   { roleCode: 'ADMIN', permissionCode: 'USER_VIEW' },
   { roleCode: 'ADMIN', permissionCode: 'ROLE_MANAGE' },
 
   { roleCode: 'APPROVER', permissionCode: 'DASHBOARD_VIEW' },
-  { roleCode: 'APPROVER', permissionCode: 'ORDER_VIEW' },
-  { roleCode: 'APPROVER', permissionCode: 'ORDER_APPROVE' },
 
   { roleCode: 'USER', permissionCode: 'DASHBOARD_VIEW' },
   { roleCode: 'USER', permissionCode: 'PRODUCT_VIEW' },
-  { roleCode: 'USER', permissionCode: 'ORDER_VIEW' },
-  { roleCode: 'USER', permissionCode: 'ORDER_CREATE' },
+  { roleCode: 'USER', permissionCode: 'ORDER_MEMBER_VIEW' },
+  { roleCode: 'USER', permissionCode: 'ORDER_DETAIL_MEMBER_VIEW' },
 ];
 
 export const mockPermissionPages = [
@@ -189,9 +212,10 @@ export const mockPermissionPages = [
   { permissionCode: 'PRODUCT_CREATE', pageCode: 'PRODUCT' },
   { permissionCode: 'PRODUCT_EDIT', pageCode: 'PRODUCT' },
   { permissionCode: 'PRODUCT_DELETE', pageCode: 'PRODUCT' },
-  { permissionCode: 'ORDER_VIEW', pageCode: 'ORDER' },
-  { permissionCode: 'ORDER_CREATE', pageCode: 'ORDER' },
-  { permissionCode: 'ORDER_APPROVE', pageCode: 'ORDER' },
+  { permissionCode: 'ORDER_MEMBER_VIEW', pageCode: 'ORDER_MEMBER' },
+  { permissionCode: 'ORDER_DETAIL_MEMBER_VIEW', pageCode: 'ORDER_DETAIL_MEMBER' },
+  { permissionCode: 'ORDER_ADMIN_VIEW', pageCode: 'ORDER_ADMIN' },
+  { permissionCode: 'ORDER_DETAIL_ADMIN_VIEW', pageCode: 'ORDER_DETAIL_ADMIN' },
   { permissionCode: 'USER_VIEW', pageCode: 'USER' },
   { permissionCode: 'ROLE_MANAGE', pageCode: 'ROLE' },
 ];
@@ -211,11 +235,6 @@ export const mockFunctionPageMapping = [
     functionCode: 'PRODUCT_EDIT',
     pageCode: 'PRODUCT',
     permissionCode: 'PRODUCT_EDIT',
-  },
-  {
-    functionCode: 'ORDER_APPROVE',
-    pageCode: 'ORDER',
-    permissionCode: 'ORDER_APPROVE',
   },
 ];
 

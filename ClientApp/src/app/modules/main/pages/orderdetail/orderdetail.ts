@@ -69,11 +69,11 @@ export interface OrderDetailInterface {
 })
 export class OrderDetail implements OnInit, OnDestroy {
   public loadingService = inject(LoadingService);
-  public mode: 'create' | 'edit' = 'create';
+  public mode: 'create' | 'edit' | 'return' = 'create';
   public orderId: number | null = null;
 
   public orderDetail: OrderDetailInterface = this.createEmptyOrder();
-
+  public totalAmount = 0;
   public isItemPopupVisible = false;
   public selectedItem: OrderItem | null = null;
 
@@ -114,6 +114,12 @@ export class OrderDetail implements OnInit, OnDestroy {
         cellTemplate: 'totalTemplate',
       },
       {
+        dataField: 'orderItemStatus',
+        caption: 'Status',
+        dataType: 'string',
+        columnType: 'text',
+      },
+      {
         caption: 'Actions',
         columnType: 'action',
         cellTemplate: 'actionTemplate',
@@ -127,6 +133,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         size: 'sm',
         iconCode: 'edit',
         showDefaultLabel: false,
+        visible: () => this.mode !== 'return',
         onClick: (row) => this.editItem(row),
       },
       {
@@ -135,7 +142,20 @@ export class OrderDetail implements OnInit, OnDestroy {
         size: 'sm',
         iconCode: 'delete',
         showDefaultLabel: false,
+        visible: () => this.mode !== 'return',
         onClick: (row) => this.deleteItem(row),
+      },
+      {
+        label: '',
+        theme: 'Primary',
+        iconCode: 'undo',
+        showDefaultLabel: false,
+        visible: (row: OrderItem) =>
+          row.orderItemStatus === 'Approved' ||
+          row.orderItemStatus === 'PartialReturned' ||
+          row.orderItemStatus === 'Returned',
+        disabled: (row: OrderItem) => row.orderItemStatus === 'Returned',
+        onClick: (row) => this.returnItem(row),
       },
     ],
   };
@@ -153,10 +173,17 @@ export class OrderDetail implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadProducts();
     this.route.queryParams.subscribe((params) => {
-      this.mode = params['mode'] === 'edit' ? 'edit' : 'create';
+      const queryMode = params['mode'];
+      if (queryMode === 'edit') {
+        this.mode = 'edit';
+      } else if (queryMode === 'return') {
+        this.mode = 'return';
+      } else {
+        this.mode = 'create';
+      }
       this.orderId = params['orderId'] ? Number(params['orderId']) : null;
 
-      if (this.mode === 'edit' && this.orderId) {
+      if ((this.mode === 'edit' || this.mode === 'return') && this.orderId) {
         this.loadOrderDetail(this.orderId);
       } else {
         this.orderDetail = this.createEmptyOrder();
@@ -184,6 +211,27 @@ export class OrderDetail implements OnInit, OnDestroy {
   public updateProductsList(): void {
     if (!this.allProductsList) return;
 
+    // Merge duplicates in orderDetail.items
+    const mergedMap = new Map<number, OrderItem>();
+    for (const item of this.orderDetail.items) {
+      if (!item.productId) continue;
+      const existing = mergedMap.get(item.productId);
+      if (existing) {
+        if (!item.isNew && existing.isNew) {
+          existing.orderItemId = item.orderItemId;
+          existing.isNew = false;
+          existing.orderItemStatus = item.orderItemStatus;
+        }
+        existing.qty += Number(item.qty);
+        existing.total = existing.qty * existing.price;
+      } else {
+        mergedMap.set(item.productId, { ...item });
+      }
+    }
+    this.orderDetail.items = Array.from(mergedMap.values());
+
+    this.totalAmount = this.orderDetail.items.reduce((sum, item) => sum + item.qty, 0);
+
     this.productsList = this.allProductsList
       .map((p) => {
         const allocated = this.orderDetail.items
@@ -200,9 +248,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         };
       })
       .filter(
-        (p) =>
-          p.stockQty > 0 ||
-          (this.selectedItem && p.productId === this.selectedItem.productId),
+        (p) => p.stockQty > 0 || (this.selectedItem && p.productId === this.selectedItem.productId),
       );
   }
 
@@ -258,7 +304,13 @@ export class OrderDetail implements OnInit, OnDestroy {
   }
 
   public get pageTitle(): string {
-    return this.mode === 'create' ? 'Create Order' : 'Edit Order';
+    if (this.mode === 'create') {
+      return 'Create Order';
+    } else if (this.mode === 'return') {
+      return 'Return Order';
+    } else {
+      return 'Edit Order';
+    }
   }
 
   public get subtotal(): number {
@@ -284,7 +336,7 @@ export class OrderDetail implements OnInit, OnDestroy {
       qty: 1,
       price: 0,
       total: 0,
-      orderItemStatus: 'Pending',
+      orderItemStatus: 'Draft',
       isNew: true,
     };
     this.updateProductsList();
@@ -303,6 +355,8 @@ export class OrderDetail implements OnInit, OnDestroy {
     );
     this.updateProductsList();
   }
+
+  public returnItem(item: OrderItem): void {}
 
   public closeItemPopup(): void {
     this.isItemPopupVisible = false;
@@ -364,7 +418,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         item.orderItemId === this.selectedItem!.orderItemId ? { ...this.selectedItem! } : item,
       );
     } else {
-      this.orderDetail.items = [...this.orderDetail.items, { ...this.selectedItem }];
+      this.orderDetail.items = [...this.orderDetail.items, { ...this.selectedItem! }];
     }
 
     this.closeItemPopup();
@@ -379,7 +433,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         productId: item.productId || 0,
         qty: item.qty,
         price: item.price,
-        orderItemStatus: item.orderItemStatus || 'Pending',
+        orderItemStatus: item.orderItemStatus || 'Draft',
       })) as any[],
     };
 
@@ -397,6 +451,19 @@ export class OrderDetail implements OnInit, OnDestroy {
         console.error('Failed to save order:', err);
       },
     });
+
+    if (this.orderDetail.status == 'Submit') {
+      this.orderService.SubmitOrder(this.orderDetail.orderId).subscribe({
+        next: (response) => {
+          console.log('Order submitted successfully:', response);
+        },
+        error: (err) => {
+          console.error('Failed to submit order:', err);
+        },
+      });
+    }
+
+    this.goBack();
   }
 
   public saveDraft(): void {
@@ -410,7 +477,7 @@ export class OrderDetail implements OnInit, OnDestroy {
   }
 
   public goBack(): void {
-    this.router.navigate([`/${OrderRoute.fullOrderDetailsPath}`]);
+    this.router.navigate([`/${OrderRoute.fullOrderListPath}`]);
   }
 
   private getNextItemId(): number {

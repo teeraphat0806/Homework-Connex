@@ -124,23 +124,29 @@
           </div>
         } @else if (item.data.status === 'Pending') {
           <span class="waiting-confirm-text"> Waiting Confirm </span>
-        } @else {
+        } @else if (item.data.status === 'Rejected' || item.data.status === 'Cancelled') {
           <span
             class="status-badge"
             [ngClass]="{
-              'status-approved': item.data.status === 'Approved',
               'status-rejected': item.data.status === 'Rejected',
               'status-cancelled': item.data.status === 'Cancelled',
             }"
           >
             {{ item.data.status }}
           </span>
+        } @else if (item.data.status === 'Approved') {
+          <homework-button
+            label="คืนสินค้า"
+            iconCode="done"
+            theme="Primary"
+            (onClick)="goToReturnOrder(item.data.orderId)"
+          >
+          </homework-button>
         }
       </ng-template>
     </homework-datagrid>
   </div>
   <homework-confirmation-modal
-    #confirmationModal
     [(visible)]="isModalDeleteVisible"
     [config]="deleteModalConfig"
     (cancel)="closeDeleteModal()"
@@ -157,7 +163,6 @@
     </ng-container>
   </homework-confirmation-modal>
   <homework-confirmation-modal
-    #confirmationModal
     [(visible)]="isModalSubmitVisible"
     [config]="submitModalConfig"
     (cancel)="closeSubmitModal()"

@@ -311,6 +311,15 @@ export class OrderList implements OnInit {
     });
   }
 
+  goToReturnOrder(orderId: number): void {
+    this.router.navigate([`/${OrderRoute.fullOrderDetailsPath}`], {
+      queryParams: {
+        mode: 'return',
+        orderId: orderId,
+      },
+    });
+  }
+
   deleteItem(row: OrderListRow): void {
     this.orderDelete = row;
     this.isModalDeleteVisible = true;
@@ -334,16 +343,16 @@ export class OrderList implements OnInit {
     if (!this.orderSubmit) {
       return;
     }
-    this.orderService.SubmitOrder(this.orderSubmit.orderId).subscribe({
+    const orderId = this.orderSubmit.orderId;
+    this.closeSubmitModal();
+    this.orderService.SubmitOrder(orderId).subscribe({
       next: (res) => {
-        Swal.fire('สำเร็จ!', 'ส่งออเดอร์เรียบร้อยแล้ว', 'success');
         this.loadOrders();
-        this.closeSubmitModal();
+        Swal.fire('สำเร็จ!', 'ส่งออเดอร์เรียบร้อยแล้ว', 'success');
       },
       error: (err) => {
         console.error('Failed to submit order:', err);
         Swal.fire('เกิดข้อผิดพลาด!', err?.error?.message || 'ไม่สามารถส่งออเดอร์ได้', 'error');
-        this.closeSubmitModal();
       },
     });
   }
@@ -352,16 +361,16 @@ export class OrderList implements OnInit {
     if (!this.orderDelete) {
       return;
     }
-    this.orderService.DeleteOrder(this.orderDelete.orderId).subscribe({
+    const orderId = this.orderDelete.orderId;
+    this.closeDeleteModal();
+    this.orderService.DeleteOrder(orderId).subscribe({
       next: (res) => {
-        Swal.fire('สำเร็จ!', 'ลบออเดอร์เรียบร้อยแล้ว', 'success');
         this.loadOrders();
-        this.closeDeleteModal();
+        Swal.fire('สำเร็จ!', 'ลบออเดอร์เรียบร้อยแล้ว', 'success');
       },
       error: (err) => {
         console.error('Failed to delete order:', err);
         Swal.fire('เกิดข้อผิดพลาด!', err?.error?.message || 'ไม่สามารถลบออเดอร์ได้', 'error');
-        this.closeDeleteModal();
       },
     });
   }

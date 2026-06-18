@@ -13,7 +13,7 @@
       </p>
     </div>
 
-    <homework-button label="Back" theme="Secondary" iconCode="arrow_back" (onClick)="goBack()">
+    <homework-button label="ย้อนกลับ" theme="Secondary" iconCode="arrow_back" (onClick)="goBack()">
     </homework-button>
   </div>
 
@@ -38,6 +38,7 @@
             displayFormat="dd/MMM/yyyy"
             valueChangeEvent="change"
             [(value)]="orderDetail.orderDate"
+            [disabled]="mode === 'return'"
           >
           </dx-date-box>
         </div>
@@ -48,14 +49,17 @@
   <div class="section-card">
     <div class="section-header">
       <div class="section-title">Order Items</div>
-
-      <homework-button
-        label="Add Item"
-        theme="Primary"
-        iconCode="add"
-        (onClick)="openAddItemPopup()"
-      >
-      </homework-button>
+      @if (this.mode === 'edit' || this.mode === 'create') {
+        <homework-button
+          label="เพิ่มรายการสินค้า"
+          theme="Primary"
+          stylingMode="text"
+          iconCode="add_box"
+          [iconSize]="18"
+          (onClick)="openAddItemPopup()"
+        >
+        </homework-button>
+      }
     </div>
 
     <homework-datagrid [dataSource]="orderDetail.items" [config]="itemGridConfig">
@@ -74,23 +78,33 @@
   <div class="summary-card">
     <div class="summary-row">
       <span>จำนวนทั้งหมด</span>
-      <strong>{{ orderDetail.items.length + 1 }} ชิ้น</strong>
+      <strong>{{ this.totalAmount }} ชิ้น</strong>
     </div>
 
     <div class="summary-row total">
-      <span>Subtotal</span>
+      <span>ยอดรวมทั้งหมด</span>
       <strong>{{ subtotal | number }} บาท</strong>
     </div>
   </div>
 
-  <div class="footer-actions">
-    <homework-button label="Save Draft" theme="Secondary" iconCode="save" (onClick)="saveDraft()">
-    </homework-button>
+  @if (this.mode == 'create' || this.mode == 'edit') {
+    <div class="footer-actions">
+      <homework-button label="Save Draft" theme="Secondary" iconCode="save" (onClick)="saveDraft()">
+      </homework-button>
 
-    <homework-button label="Submit" theme="Primary" iconCode="send" (onClick)="submitOrder()">
-    </homework-button>
-  </div>
-
+      <homework-button label="Submit" theme="Primary" iconCode="send" (onClick)="submitOrder()">
+      </homework-button>
+    </div>
+  }
+  @if (this.mode == 'return') {
+    <div class="footer-actions">
+      <homework-button
+        label="Submit Return"
+        theme="Primary"
+        iconCode="keyboard_return "
+      ></homework-button>
+    </div>
+  }
   <homework-formpopup
     [(visible)]="isItemPopupVisible"
     title="Order Item"

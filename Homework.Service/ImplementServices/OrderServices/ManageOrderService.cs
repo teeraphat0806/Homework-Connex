@@ -299,7 +299,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                         existingItem.ProductId = product.ProductId;
                         existingItem.Qty = item.Qty;
                         existingItem.Price = product.Price;
-                        existingItem.OrderItemStatus = EnumOrderItemStatus.Pending;
+                        existingItem.OrderItemStatus = order.Status == EnumOrderStatus.Draft ? EnumOrderItemStatus.Draft : EnumOrderItemStatus.Pending;
 
                         var logOrderItem = new LogOrderItems
                         {
@@ -323,7 +323,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                             ProductId = product.ProductId,
                             Qty = item.Qty,
                             Price = product.Price,
-                            OrderItemStatus = EnumOrderItemStatus.Pending
+                            OrderItemStatus = order.Status == EnumOrderStatus.Draft ? EnumOrderItemStatus.Draft : EnumOrderItemStatus.Pending
                         };
                         var logOrderItem = new LogOrderItems
                         {

@@ -44,5 +44,6 @@ namespace Homework.Domain.ViewModels.OrderViewModels
         public decimal Price { get; set; }
         public string OrderItemStatus { get; set; } = null!;
         public int ReturnedQty { get; set; }
+        public string? RejectedReason { get; set; }
     }
 }

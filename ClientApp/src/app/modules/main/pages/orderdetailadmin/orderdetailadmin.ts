@@ -1,6 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 import {
   HomeworkDatagridComponent,
@@ -37,12 +38,14 @@ export interface OrderItem {
   productCode: string;
   productName: string;
   qty: number;
+  originalQty?: number;
   price: number;
   total: number;
   orderItemStatus?: string;
   isNew?: boolean;
   returnedQty?: number;
   pendingReturnQty?: number;
+  rejectedReason?: string;
 }
 
 export interface OrderDetailInterface {
@@ -83,6 +86,11 @@ export class OrderDetailAdmin {
   public tempReturnQty = 0;
   public isSubmitConfirmPopupVisible = false;
 
+  public itemStatusOptions = [
+    { value: 'Approved', label: 'Approved' },
+    { value: 'Rejected', label: 'Rejected' },
+  ];
+
   public itemGridConfig: DynamicGridConfig<OrderItem> = {
     keyExpr: 'orderItemId',
     pageSize: 10,
@@ -113,13 +121,6 @@ export class OrderDetailAdmin {
         visible: this.mode === 'return',
       },
       {
-        dataField: 'pendingReturnQty',
-        caption: 'กำลังจะคืน',
-        dataType: 'number',
-        columnType: 'number',
-        visible: this.mode === 'return',
-      },
-      {
         dataField: 'price',
         caption: 'Unit Price',
         dataType: 'number',
@@ -136,6 +137,12 @@ export class OrderDetailAdmin {
       {
         dataField: 'orderItemStatus',
         caption: 'Status',
+        dataType: 'string',
+        columnType: 'text',
+      },
+      {
+        dataField: 'rejectedReason',
+        caption: 'เหตุผลปฏิเสธ',
         dataType: 'string',
         columnType: 'text',
       },
@@ -289,9 +296,11 @@ export class OrderDetailAdmin {
           productCode: item.productCode || '',
           productName: item.productName,
           qty: item.qty,
+          originalQty: item.qty,
           price: item.price,
           total: item.qty * item.price,
-          orderItemStatus: item.orderItemStatus,
+          orderItemStatus: item.orderItemStatus || 'Pending',
+          rejectedReason: item.rejectedReason || '',
           returnedQty: item.returnedQty || 0,
           pendingReturnQty: 0,
         })),
@@ -387,23 +396,28 @@ export class OrderDetailAdmin {
       return;
     }
 
-    const matchedProduct = this.allProductsList.find(
-      (p) =>
-        p.productId === this.selectedItem!.productId ||
-        (p.productCode &&
-          this.selectedItem!.productCode &&
-          p.productCode.toLowerCase() === this.selectedItem!.productCode.trim().toLowerCase()),
-    );
-
-    if (matchedProduct) {
-      this.selectedItem.productId = matchedProduct.productId;
-      this.selectedItem.productCode = matchedProduct.productCode;
-      this.selectedItem.productName = matchedProduct.name;
-      if (!this.selectedItem.price) {
-        this.selectedItem.price = matchedProduct.price;
+    if (this.selectedItem.orderItemStatus === 'Approved') {
+      const original = this.selectedItem.originalQty ?? this.selectedItem.qty;
+      if (this.selectedItem.qty > original) {
+        Swal.fire(
+          'เกิดข้อผิดพลาด',
+          `จำนวนสินค้าห้ามปรับเพิ่มขึ้น (จำนวนขอเบิกเดิม: ${original} ชิ้น)`,
+          'error',
+        );
+        return;
+      }
+      if (this.selectedItem.qty < 1) {
+        Swal.fire('เกิดข้อผิดพลาด', 'จำนวนสินค้าต้องอย่างน้อย 1 ชิ้น', 'error');
+        return;
+      }
+    } else if (this.selectedItem.orderItemStatus === 'Rejected') {
+      if (!this.selectedItem.rejectedReason || !this.selectedItem.rejectedReason.trim()) {
+        Swal.fire('เกิดข้อผิดพลาด', 'กรุณาระบุเหตุผลในการปฏิเสธสินค้า', 'error');
+        return;
       }
     } else {
-      console.warn('Product not found in products list');
+      Swal.fire('เกิดข้อผิดพลาด', 'กรุณาเลือกสถานะการตัดสินใจ (Approved / Rejected)', 'error');
+      return;
     }
 
     this.selectedItem.total = Number(this.selectedItem.qty) * Number(this.selectedItem.price);
@@ -477,6 +491,84 @@ export class OrderDetailAdmin {
 
   public goBack(): void {
     this.router.navigate([`/${OrderRoute.fullOrderAdminListPath}`]);
+  }
+
+  public approveOrderWithDecisions(): void {
+    if (!this.orderDetail.items || this.orderDetail.items.length === 0) {
+      Swal.fire('เกิดข้อผิดพลาด', 'ไม่พบรายการสินค้า', 'error');
+      return;
+    }
+
+    const undecidedItems = this.orderDetail.items.filter(
+      (item) =>
+        !item.orderItemStatus ||
+        (item.orderItemStatus !== 'Approved' && item.orderItemStatus !== 'Rejected'),
+    );
+    if (undecidedItems.length > 0) {
+      Swal.fire(
+        'แจ้งเตือน',
+        'กรุณาทำการตัดสินใจ (อนุมัติ/ปฏิเสธ) สำหรับทุกรายการสินค้าก่อน',
+        'warning',
+      );
+      return;
+    }
+
+    const payload = {
+      orderId: this.orderId,
+      items: this.orderDetail.items.map((item) => ({
+        orderItemId: item.orderItemId,
+        status: item.orderItemStatus,
+        qty: item.qty,
+        rejectedReason: item.orderItemStatus === 'Rejected' ? item.rejectedReason : null,
+      })),
+    };
+
+    this.loadingService.show();
+    this.orderService.ApproveOrder(payload).subscribe({
+      next: (response) => {
+        this.loadingService.hide();
+        Swal.fire('สำเร็จ', 'บันทึกผลการพิจารณาออเดอร์เรียบร้อยแล้ว', 'success').then(() => {
+          this.goBack();
+        });
+      },
+      error: (err) => {
+        this.loadingService.hide();
+        console.error('Failed to approve order:', err);
+        Swal.fire('เกิดข้อผิดพลาด', err?.error?.Message || 'ไม่สามารถอนุมัติออเดอร์ได้', 'error');
+      },
+    });
+  }
+
+  public rejectEntireOrder(): void {
+    Swal.fire({
+      title: 'ยืนยันการปฏิเสธ',
+      text: 'คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธออเดอร์นี้ทั้งหมด?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'ตกลง',
+      cancelButtonText: 'ยกเลิก',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loadingService.show();
+        this.orderService.RejectOrder(this.orderId!).subscribe({
+          next: (response) => {
+            this.loadingService.hide();
+            Swal.fire('สำเร็จ', 'ปฏิเสธออเดอร์เรียบร้อยแล้ว', 'success').then(() => {
+              this.goBack();
+            });
+          },
+          error: (err) => {
+            this.loadingService.hide();
+            console.error('Failed to reject order:', err);
+            Swal.fire(
+              'เกิดข้อผิดพลาด',
+              err?.error?.Message || 'ไม่สามารถปฏิเสธออเดอร์ได้',
+              'error',
+            );
+          },
+        });
+      }
+    });
   }
 
   public returnItem(row: OrderItem): void {

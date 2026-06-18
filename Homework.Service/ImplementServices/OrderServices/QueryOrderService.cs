@@ -73,7 +73,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                     Qty = item.Qty,
                     Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus,
-                    ReturnedQty = item.ReturnedQty
+                    ReturnedQty = item.ReturnedQty,
+                    RejectedReason = item.RejectedReason
                 }).ToList()
             });
 
@@ -102,7 +103,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                         item.Qty,
                         item.Price,
                         item.OrderItemStatus,
-                        item.ReturnedQty
+                        item.ReturnedQty,
+                        item.RejectedReason
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
@@ -135,7 +137,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                     Qty = item.Qty,
                     Price = item.Price,
                     OrderItemStatus = item.OrderItemStatus,
-                    ReturnedQty = item.ReturnedQty
+                    ReturnedQty = item.ReturnedQty,
+                    RejectedReason = item.RejectedReason
                 }).ToList()
             };
         }

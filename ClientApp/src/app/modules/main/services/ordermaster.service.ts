@@ -26,6 +26,7 @@ export interface OrderItemViewModel {
   price: number;
   orderItemStatus: string;
   returnedQty?: number;
+  rejectedReason?: string;
 }
 
 export interface OrderInfoViewModel {
@@ -138,20 +139,15 @@ export class OrderMasterApiService {
         }),
       );
   }
-  ApproveOrder(orderId: number): Observable<any> {
+  ApproveOrder(param: any): Observable<any> {
+    const body = typeof param === 'number' ? { orderId: param } : param;
     return this.http
       .post<any>(
         `${this.url}/approve`,
-        { orderId },
+        body,
         {
           withCredentials: true,
         },
-      )
-      .pipe(
-        catchError((error) => {
-          console.error('Error approving order:', error);
-          return throwError(() => error);
-        }),
       );
   }
   RejectOrder(orderId: number): Observable<any> {

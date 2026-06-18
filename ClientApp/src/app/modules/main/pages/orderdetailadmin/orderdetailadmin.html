@@ -49,17 +49,6 @@
   <div class="section-card">
     <div class="section-header">
       <div class="section-title">Order Items</div>
-      @if (this.mode === 'edit' || this.mode === 'create') {
-        <homework-button
-          label="เพิ่มรายการสินค้า"
-          theme="Primary"
-          stylingMode="text"
-          iconCode="add_box"
-          [iconSize]="18"
-          (onClick)="openAddItemPopup()"
-        >
-        </homework-button>
-      }
     </div>
 
     <homework-datagrid [dataSource]="orderDetail.items" [config]="itemGridConfig">
@@ -75,7 +64,7 @@
 
       <ng-template gridTemplate="myCustomActionTemplate" let-item>
         <div class="action-buttons">
-          @if (mode !== 'return') {
+          @if (mode !== 'return' && orderDetail.status === 'Pending') {
             <homework-button
               label=""
               theme="Secondary"
@@ -84,26 +73,14 @@
               [showDefaultLabel]="false"
               (onClick)="editItem(item.data)"
             ></homework-button>
-            <homework-button
-              label=""
-              theme="Danger"
-              size="sm"
-              iconCode="delete"
-              [showDefaultLabel]="false"
-              (onClick)="deleteItem(item.data)"
-            ></homework-button>
-          } @else {
+          } @else if (mode === 'return') {
             @if (
               item.data.orderItemStatus === 'Approved' ||
               item.data.orderItemStatus === 'PartialReturned'
             ) {
-              <homework-button
-                label=""
-                theme="Primary"
-                iconCode="undo"
-                [showDefaultLabel]="false"
-                (onClick)="returnItem(item.data)"
-              ></homework-button>
+              <p class="returned-status">
+                ขาด {{ item.data.qty - (item.data.returnedQty || 0) }} ชิ้น
+              </p>
             }
             @if (item.data.orderItemStatus === 'Returned') {
               <p class="returned-status">คืนครบแล้ว</p>
@@ -126,63 +103,82 @@
       </div>
     </div>
   }
-  @if (this.mode == 'create' || this.mode == 'edit') {
-    <div class="footer-actions">
-      <homework-button label="Save Draft" theme="Secondary" iconCode="save" (onClick)="saveDraft()">
-      </homework-button>
-
-      <homework-button label="Submit" theme="Primary" iconCode="send" (onClick)="submitOrder()">
-      </homework-button>
-    </div>
-  }
-  @if (this.mode == 'return') {
+  @if (orderDetail.status === 'Pending') {
     <div class="footer-actions">
       <homework-button
-        label="Submit Return"
+        label="ปฏิเสธออเดอร์ทั้งหมด"
+        theme="Danger"
+        iconCode="cancel"
+        (onClick)="rejectEntireOrder()"
+      >
+      </homework-button>
+
+      <homework-button
+        label="บันทึกผลการพิจารณา"
         theme="Primary"
-        iconCode="keyboard_return"
-        (onClick)="submitReturn()"
-      ></homework-button>
+        iconCode="check_circle"
+        (onClick)="approveOrderWithDecisions()"
+      >
+      </homework-button>
     </div>
   }
+
   <homework-formpopup
     [(visible)]="isItemPopupVisible"
-    title="Order Item"
+    title="พิจารณารายการสินค้า"
     [width]="450"
-    [height]="350"
+    [height]="380"
     [showOpenButton]="false"
     (save)="saveItem()"
     (cancel)="closeItemPopup()"
   >
     @if (selectedItem) {
       <div class="item-form">
-        <label>เลือกสินค้า</label>
-        <dx-select-box
-          [items]="productsList"
-          [displayExpr]="'name'"
-          [valueExpr]="'productId'"
-          [searchEnabled]="true"
-          [placeholder]="'เลือกสินค้า'"
-          [(value)]="selectedItem.productId"
-          (onValueChanged)="onProductChanged($event.value)"
-        ></dx-select-box>
-        @if (selectedItem.productId) {
-          <p>
-            สินค้าคงเหลือ :
-            {{ maxStock }}
-          </p>
-        }
-
         <app-homework-input
-          type="Number"
-          label="Qty"
-          placeholder="กรอกจำนวน"
-          [fieldValue]="selectedItem.qty"
-          (fieldValueChange)="selectedItem.qty = +$event"
-          [min]="1"
-          [max]="maxStock"
+          type="Text"
+          label="ชื่อสินค้า"
+          [fieldValue]="selectedItem.productName"
+          [isDisabled]="true"
         >
         </app-homework-input>
+
+        <div class="form-field" style="margin-top: 10px; margin-bottom: 10px">
+          <label style="font-weight: 500; display: block; margin-bottom: 5px">ผลการพิจารณา</label>
+          <dx-select-box
+            [items]="itemStatusOptions"
+            displayExpr="label"
+            valueExpr="value"
+            placeholder="เลือกผลการพิจารณา"
+            [(value)]="selectedItem.orderItemStatus"
+          ></dx-select-box>
+        </div>
+
+        @if (selectedItem.orderItemStatus === 'Approved') {
+          <p style="margin-top: 10px; margin-bottom: 5px; font-weight: 500">
+            จำนวนที่ขอเบิกเดิม (สูงสุด): {{ selectedItem.originalQty }}
+          </p>
+          <app-homework-input
+            type="Number"
+            label="จำนวนอนุมัติ"
+            placeholder="กรอกจำนวนที่จะอนุมัติ"
+            [fieldValue]="selectedItem.qty"
+            (fieldValueChange)="selectedItem.qty = +$event"
+            [min]="1"
+            [max]="selectedItem.originalQty"
+          >
+          </app-homework-input>
+        }
+
+        @if (selectedItem.orderItemStatus === 'Rejected') {
+          <app-homework-input
+            type="TextArea"
+            label="เหตุผลการปฏิเสธ"
+            placeholder="กรุณากรอกเหตุผลการปฏิเสธสินค้า"
+            [fieldValue]="selectedItem.rejectedReason"
+            (fieldValueChange)="selectedItem.rejectedReason = $event"
+          >
+          </app-homework-input>
+        }
       </div>
     }
   </homework-formpopup>

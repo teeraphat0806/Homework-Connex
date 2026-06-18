@@ -1,1 +1,244 @@
-<p>orderdetailadmin works!</p>
+<div class="master-page">
+  <div class="page-header">
+    <div class="header">
+      <h2 class="title">{{ pageTitle }}</h2>
+      <p>
+        Mode:
+        <strong>{{ mode }}</strong>
+
+        @if (orderId) {
+          | Order ID:
+          <strong>{{ orderId }}</strong>
+        }
+      </p>
+    </div>
+
+    <homework-button label="ย้อนกลับ" theme="Secondary" iconCode="arrow_back" (onClick)="goBack()">
+    </homework-button>
+  </div>
+
+  <div class="section-card">
+    @if (!loadingService.isLoading()) {
+      <div class="order-form-grid">
+        <app-homework-input
+          type="Text"
+          label="Order No"
+          placeholder="Order No"
+          [fieldValue]="orderDetail.orderNo"
+          (fieldValueChange)="orderDetail.orderNo = $event"
+          [isDisabled]="true"
+        >
+        </app-homework-input>
+
+        <div class="form-field">
+          <label>Order Date</label>
+
+          <dx-date-box
+            type="date"
+            displayFormat="dd/MMM/yyyy"
+            valueChangeEvent="change"
+            [(value)]="orderDetail.orderDate"
+            [disabled]="mode === 'return'"
+          >
+          </dx-date-box>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">Order Items</div>
+      @if (this.mode === 'edit' || this.mode === 'create') {
+        <homework-button
+          label="เพิ่มรายการสินค้า"
+          theme="Primary"
+          stylingMode="text"
+          iconCode="add_box"
+          [iconSize]="18"
+          (onClick)="openAddItemPopup()"
+        >
+        </homework-button>
+      }
+    </div>
+
+    <homework-datagrid [dataSource]="orderDetail.items" [config]="itemGridConfig">
+      <ng-template gridTemplate="priceTemplate" let-item>
+        <strong>{{ item.data.price | number }}</strong>
+        บาท
+      </ng-template>
+
+      <ng-template gridTemplate="totalTemplate" let-item>
+        <strong>{{ item.data.total | number }}</strong>
+        บาท
+      </ng-template>
+
+      <ng-template gridTemplate="myCustomActionTemplate" let-item>
+        <div class="action-buttons">
+          @if (mode !== 'return') {
+            <homework-button
+              label=""
+              theme="Secondary"
+              size="sm"
+              iconCode="edit"
+              [showDefaultLabel]="false"
+              (onClick)="editItem(item.data)"
+            ></homework-button>
+            <homework-button
+              label=""
+              theme="Danger"
+              size="sm"
+              iconCode="delete"
+              [showDefaultLabel]="false"
+              (onClick)="deleteItem(item.data)"
+            ></homework-button>
+          } @else {
+            @if (
+              item.data.orderItemStatus === 'Approved' ||
+              item.data.orderItemStatus === 'PartialReturned'
+            ) {
+              <homework-button
+                label=""
+                theme="Primary"
+                iconCode="undo"
+                [showDefaultLabel]="false"
+                (onClick)="returnItem(item.data)"
+              ></homework-button>
+            }
+            @if (item.data.orderItemStatus === 'Returned') {
+              <p class="returned-status">คืนครบแล้ว</p>
+            }
+          }
+        </div>
+      </ng-template>
+    </homework-datagrid>
+  </div>
+  @if (this.mode == 'edit' || this.mode == 'create') {
+    <div class="summary-card">
+      <div class="summary-row">
+        <span>จำนวนทั้งหมด</span>
+        <strong>{{ this.totalAmount }} ชิ้น</strong>
+      </div>
+
+      <div class="summary-row total">
+        <span>ยอดรวมทั้งหมด</span>
+        <strong>{{ subtotal | number }} บาท</strong>
+      </div>
+    </div>
+  }
+  @if (this.mode == 'create' || this.mode == 'edit') {
+    <div class="footer-actions">
+      <homework-button label="Save Draft" theme="Secondary" iconCode="save" (onClick)="saveDraft()">
+      </homework-button>
+
+      <homework-button label="Submit" theme="Primary" iconCode="send" (onClick)="submitOrder()">
+      </homework-button>
+    </div>
+  }
+  @if (this.mode == 'return') {
+    <div class="footer-actions">
+      <homework-button
+        label="Submit Return"
+        theme="Primary"
+        iconCode="keyboard_return"
+        (onClick)="submitReturn()"
+      ></homework-button>
+    </div>
+  }
+  <homework-formpopup
+    [(visible)]="isItemPopupVisible"
+    title="Order Item"
+    [width]="450"
+    [height]="350"
+    [showOpenButton]="false"
+    (save)="saveItem()"
+    (cancel)="closeItemPopup()"
+  >
+    @if (selectedItem) {
+      <div class="item-form">
+        <label>เลือกสินค้า</label>
+        <dx-select-box
+          [items]="productsList"
+          [displayExpr]="'name'"
+          [valueExpr]="'productId'"
+          [searchEnabled]="true"
+          [placeholder]="'เลือกสินค้า'"
+          [(value)]="selectedItem.productId"
+          (onValueChanged)="onProductChanged($event.value)"
+        ></dx-select-box>
+        @if (selectedItem.productId) {
+          <p>
+            สินค้าคงเหลือ :
+            {{ maxStock }}
+          </p>
+        }
+
+        <app-homework-input
+          type="Number"
+          label="Qty"
+          placeholder="กรอกจำนวน"
+          [fieldValue]="selectedItem.qty"
+          (fieldValueChange)="selectedItem.qty = +$event"
+          [min]="1"
+          [max]="maxStock"
+        >
+        </app-homework-input>
+      </div>
+    }
+  </homework-formpopup>
+
+  <homework-formpopup
+    [(visible)]="isReturnPopupVisible"
+    title="คืนสินค้า"
+    [width]="450"
+    [height]="320"
+    [showOpenButton]="false"
+    (save)="saveReturnItem()"
+    (cancel)="closeReturnPopup()"
+  >
+    @if (selectedReturnItem) {
+      <div class="item-form">
+        <app-homework-input
+          type="Text"
+          label="ชื่อสินค้า"
+          [fieldValue]="selectedReturnItem.productName"
+          [isDisabled]="true"
+        >
+        </app-homework-input>
+
+        <p style="margin-top: 10px; margin-bottom: 5px; font-weight: 500">
+          จำนวนที่ค้างส่งคืน (สูงสุด) : {{ maxReturnQty }}
+        </p>
+
+        <app-homework-input
+          type="Number"
+          label="จำนวนที่ต้องการคืน"
+          placeholder="กรอกจำนวนที่ต้องการคืน"
+          [fieldValue]="tempReturnQty"
+          (fieldValueChange)="tempReturnQty = +$event"
+          [min]="1"
+          [max]="maxReturnQty"
+        >
+        </app-homework-input>
+      </div>
+    }
+  </homework-formpopup>
+
+  <homework-formpopup
+    [(visible)]="isSubmitConfirmPopupVisible"
+    title="ยืนยันการคืนสินค้า"
+    [width]="400"
+    [height]="280"
+    [showOpenButton]="false"
+    saveButtonLabel="ตกลง"
+    cancelButtonLabel="ยกเลิก"
+    (save)="executeReturn()"
+    (cancel)="isSubmitConfirmPopupVisible = false"
+  >
+    <div style="padding: 10px; text-align: center">
+      <p style="font-size: 16px; margin: 0; font-weight: 500">
+        คุณแน่ใจหรือไม่ว่าต้องการบันทึกการคืนสินค้าตามที่ระบุ?
+      </p>
+    </div>
+  </homework-formpopup>
+</div>

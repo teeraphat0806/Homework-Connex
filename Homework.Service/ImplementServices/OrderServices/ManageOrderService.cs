@@ -492,24 +492,166 @@ namespace Homework.Service.ImplementServices.OrderServices
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                order.Status = EnumOrderStatus.Approved;
-                order.ModifiedByUserId = userId;
-                order.ModifiedTime = timeStamp;
-                foreach (var item in order.OrderItems)
+                if (param.Items == null || !param.Items.Any())
                 {
-                    item.OrderItemStatus = EnumOrderItemStatus.Approved;
+                    // ===== Scenario A: Approve All (Fallback) =====
+                    order.Status = EnumOrderStatus.Approved;
+                    order.ModifiedByUserId = userId;
+                    order.ModifiedTime = timeStamp;
+
+                    foreach (var item in order.OrderItems)
+                    {
+                        item.OrderItemStatus = EnumOrderItemStatus.Approved;
+                        item.ApprovedByUserId = userId;
+                        item.ApprovedTime = timeStamp;
+
+                        var logOrderItem = new LogOrderItems
+                        {
+                            OrderItemId = item.OrderItemId,
+                            OrderId = order.OrderId,
+                            ProductId = item.ProductId,
+                            Qty = item.Qty,
+                            Price = item.Price,
+                            OrderItemStatus = item.OrderItemStatus,
+                            ApprovedByUserId = userId,
+                            ApprovedTime = timeStamp,
+                            Action = "Approve",
+                            CreatedByUserId = userId,
+                            LogTime = timeStamp
+                        };
+                        _context.LogOrderItems.Add(logOrderItem);
+                    }
+
+                    var stockTransactions = await _context.ProductStockTransactions
+                        .Where(x =>
+                            x.OrderId == order.OrderId &&
+                            x.TransactionType == EnumStockTransactionType.Issue &&
+                            x.Status == EnumStockTransactionStatus.Pending)
+                        .ToListAsync();
+
+                    foreach (var tx in stockTransactions)
+                    {
+                        tx.Status = EnumStockTransactionStatus.Approved;
+                        tx.Remark = "Approved by approve order (All)";
+                    }
                 }
-                var stockTransactions = await _context.ProductStockTransactions
-                    .Where(x =>
-                        x.OrderId == order.OrderId &&
-                        x.TransactionType == EnumStockTransactionType.Issue &&
-                        x.Status == EnumStockTransactionStatus.Pending)
-                    .ToListAsync();
-                foreach (var tx in stockTransactions)
+                else
                 {
-                    tx.Status = EnumStockTransactionStatus.Approved;
-                    tx.Remark = "Approved by approve order";
+                    // ===== Scenario B: Individual Decisions =====
+                    foreach (var item in order.OrderItems)
+                    {
+                        var decision = param.Items.FirstOrDefault(x => x.OrderItemId == item.OrderItemId);
+
+                        if (decision == null || decision.Status == EnumOrderItemStatus.Approved)
+                        {
+                            // Validate Qty if provided
+                            if (decision != null && decision.Qty.HasValue)
+                            {
+                                var newQty = decision.Qty.Value;
+                                if (newQty < 1)
+                                {
+                                    error.AddError("Qty", $"จำนวนสินค้าต้องอย่างน้อย 1 ชิ้น (OrderItemId: {item.OrderItemId}) หากต้องการยกเลิกให้เลือกสถานะ Rejected");
+                                    error.ThrowIfError();
+                                }
+                                if (newQty > item.Qty)
+                                {
+                                    error.AddError("Qty", $"ไม่สามารถเพิ่มจำนวนได้ (จำนวนเดิม: {item.Qty}, ขออนุมัติใหม่: {newQty})");
+                                    error.ThrowIfError();
+                                }
+                                item.Qty = newQty;
+                            }
+
+                            item.OrderItemStatus = EnumOrderItemStatus.Approved;
+                            item.ApprovedByUserId = userId;
+                            item.ApprovedTime = timeStamp;
+
+                            var tx = await _context.ProductStockTransactions
+                                .FirstOrDefaultAsync(x =>
+                                    x.OrderItemId == item.OrderItemId &&
+                                    x.TransactionType == EnumStockTransactionType.Issue &&
+                                    x.Status == EnumStockTransactionStatus.Pending);
+                            if (tx != null)
+                            {
+                                if (decision != null && decision.Qty.HasValue)
+                                {
+                                    tx.Qty = decision.Qty.Value;
+                                }
+                                tx.Status = EnumStockTransactionStatus.Approved;
+                                tx.Remark = "Approved by approve order";
+                            }
+
+                            var logOrderItem = new LogOrderItems
+                            {
+                                OrderItemId = item.OrderItemId,
+                                OrderId = order.OrderId,
+                                ProductId = item.ProductId,
+                                Qty = item.Qty,
+                                Price = item.Price,
+                                OrderItemStatus = item.OrderItemStatus,
+                                ApprovedByUserId = userId,
+                                ApprovedTime = timeStamp,
+                                Action = "Approve",
+                                CreatedByUserId = userId,
+                                LogTime = timeStamp
+                            };
+                            _context.LogOrderItems.Add(logOrderItem);
+                        }
+                        else if (decision.Status == EnumOrderItemStatus.Rejected)
+                        {
+                            item.OrderItemStatus = EnumOrderItemStatus.Rejected;
+                            item.RejectedByUserId = userId;
+                            item.RejectedTime = timeStamp;
+                            item.RejectedReason = decision.RejectedReason;
+
+                            var tx = await _context.ProductStockTransactions
+                                .FirstOrDefaultAsync(x =>
+                                    x.OrderItemId == item.OrderItemId &&
+                                    x.TransactionType == EnumStockTransactionType.Issue &&
+                                    x.Status == EnumStockTransactionStatus.Pending);
+                            if (tx != null)
+                            {
+                                tx.Status = EnumStockTransactionStatus.Cancelled;
+                                tx.Remark = $"Rejected by approve order: {decision.RejectedReason}";
+                            }
+
+                            var logOrderItem = new LogOrderItems
+                            {
+                                OrderItemId = item.OrderItemId,
+                                OrderId = order.OrderId,
+                                ProductId = item.ProductId,
+                                Qty = item.Qty,
+                                Price = item.Price,
+                                OrderItemStatus = item.OrderItemStatus,
+                                RejectedByUserId = userId,
+                                RejectedTime = timeStamp,
+                                RejectedReason = decision.RejectedReason,
+                                Action = "Reject",
+                                CreatedByUserId = userId,
+                                LogTime = timeStamp
+                            };
+                            _context.LogOrderItems.Add(logOrderItem);
+                        }
+                    }
+
+                    // Determine final order status
+                    if (order.OrderItems.All(x => x.OrderItemStatus == EnumOrderItemStatus.Rejected))
+                    {
+                        order.Status = EnumOrderStatus.Rejected;
+                    }
+                    else
+                    {
+                        order.Status = EnumOrderStatus.Approved;
+                    }
+
+                    // Recalculate order total amount based on non-rejected items
+                    order.TotalAmount = order.OrderItems
+                        .Where(x => x.OrderItemStatus != EnumOrderItemStatus.Rejected)
+                        .Sum(x => x.Qty * x.Price);
+
+                    order.ModifiedByUserId = userId;
+                    order.ModifiedTime = timeStamp;
                 }
+
                 var logOrder = new LogOrders
                 {
                     OrderId = order.OrderId,

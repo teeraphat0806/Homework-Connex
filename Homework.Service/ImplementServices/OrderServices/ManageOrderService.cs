@@ -712,7 +712,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                         error.AddError("Product", $"ไม่พบสินค้า ProductId: {orderItem.ProductId}");
                         error.ThrowIfError();
                     }
-                    product.StockQty += requestItem.ReturnQty;
+                    // ยอดสต็อกจะได้รับการปรับจากการเพิ่ม Return Transaction
 
                     // 5. สร้างรายการ ProductStockTransactions สำหรับการคืนสินค้า
                     var productStockTransaction = new ProductStockTransactions

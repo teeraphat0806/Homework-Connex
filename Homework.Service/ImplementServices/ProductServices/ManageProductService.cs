@@ -97,7 +97,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     Name = param.Name,
                     Description = param.Description,
                     Price = param.Price,
-                    StockQty = param.StockQty,
+                    StockQty = 0, // สต็อกใน Products เป็น 0 เสมอ เพราะใช้ระบบ Ledger
                     ImageUrl = param.ImageUrl,
                     IsActive = true,
                     CreatedByUserId = userId,
@@ -107,6 +107,24 @@ namespace Homework.Service.ImplementServices.ProductServices
 
                 _context.Products.Add(productDb);
                 await _context.SaveChangesAsync();
+                #endregion
+
+                #region 5.1 Create Initial Stock Transaction
+                if (param.StockQty != 0)
+                {
+                    var initialStockTx = new ProductStockTransactions
+                    {
+                        ProductId = productDb.ProductId,
+                        TransactionType = EnumStockTransactionType.Adjust,
+                        Qty = param.StockQty,
+                        Status = EnumStockTransactionStatus.Approved,
+                        Remark = "Initial stock creation",
+                        CreatedByUserId = userId,
+                        CreatedTime = timeStamp
+                    };
+                    _context.ProductStockTransactions.Add(initialStockTx);
+                    await _context.SaveChangesAsync();
+                }
                 #endregion
 
                 #region 6. Add Category Mapping
@@ -130,7 +148,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     Description = productDb.Description,
                     Price = productDb.Price,
                     Cost = 0,
-                    StockQty = productDb.StockQty,
+                    StockQty = param.StockQty, // บันทึกค่าตาม parameter ลง Log เพื่อเป็นประวัติ
                     CategoryId = categoryIdList.FirstOrDefault(),
                     IsActive = productDb.IsActive,
                     CreatedByUserId = userId,
@@ -239,11 +257,36 @@ namespace Homework.Service.ImplementServices.ProductServices
                 productDb.Name = param.Name;
                 productDb.Description = param.Description;
                 productDb.Price = param.Price;
-                productDb.StockQty = param.StockQty;
+                productDb.StockQty = 0; // สต็อกใน Products เป็น 0 เสมอ เพราะใช้ระบบ Ledger
                 productDb.ImageUrl = param.ImageUrl;
                 productDb.IsActive = param.IsActive;
                 productDb.ModifiedByUserId = userId;
                 productDb.ModifiedTime = timeStamp;
+                #endregion
+
+                #region 6.1 Create Stock Adjustment Transaction if quantity changed
+                var currentStock = await _context.ProductStockTransactions
+                    .Where(t => t.ProductId == productDb.ProductId && t.Status == EnumStockTransactionStatus.Approved)
+                    .SumAsync(t => t.TransactionType == EnumStockTransactionType.Return ? t.Qty :
+                                   t.TransactionType == EnumStockTransactionType.Issue ? -t.Qty :
+                                   t.TransactionType == EnumStockTransactionType.Adjust ? t.Qty : 0);
+
+                var diff = param.StockQty - currentStock;
+                if (diff != 0)
+                {
+                    var adjustTx = new ProductStockTransactions
+                    {
+                        ProductId = productDb.ProductId,
+                        TransactionType = EnumStockTransactionType.Adjust,
+                        Qty = diff,
+                        Status = EnumStockTransactionStatus.Approved,
+                        Remark = $"Stock adjusted from {currentStock} to {param.StockQty}",
+                        CreatedByUserId = userId,
+                        CreatedTime = timeStamp
+                    };
+                    _context.ProductStockTransactions.Add(adjustTx);
+                    await _context.SaveChangesAsync();
+                }
                 #endregion
 
                 #region 7. Update Category Mapping
@@ -268,7 +311,7 @@ namespace Homework.Service.ImplementServices.ProductServices
                     Description = productDb.Description,
                     Price = productDb.Price,
                     Cost = 0,
-                    StockQty = productDb.StockQty,
+                    StockQty = param.StockQty, // บันทึกค่าตาม parameter ลง Log เพื่อเป็นประวัติ
                     CategoryId = categoryIdList.FirstOrDefault(),
                     IsActive = productDb.IsActive,
                     CreatedByUserId = userId,

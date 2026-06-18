@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Homework.Domain.Error;
+using Homework.Domain.Enum;
 
 namespace Homework.Service.ImplementServices.ProductServices
 {
@@ -60,7 +61,11 @@ namespace Homework.Service.ImplementServices.ProductServices
                 CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
                 IsActive = x.IsActive,
                 Price = x.Price,
-                StockQty = x.StockQty,
+                StockQty = x.ProductStockTransactions
+                    .Where(t => t.Status == EnumStockTransactionStatus.Approved)
+                    .Sum(t => t.TransactionType == EnumStockTransactionType.Return ? t.Qty :
+                             t.TransactionType == EnumStockTransactionType.Issue ? -t.Qty :
+                             t.TransactionType == EnumStockTransactionType.Adjust ? t.Qty : 0),
                 ImageUrl = x.ImageUrl
             });
 
@@ -87,7 +92,11 @@ namespace Homework.Service.ImplementServices.ProductServices
                     CategoryNames = x.ProductCategoryMapping.Select(m => m.Category.Name).ToList(),
                     IsActive = x.IsActive,
                     Price = x.Price,
-                    StockQty = x.StockQty,
+                    StockQty = x.ProductStockTransactions
+                        .Where(t => t.Status == EnumStockTransactionStatus.Approved)
+                        .Sum(t => t.TransactionType == EnumStockTransactionType.Return ? t.Qty :
+                                 t.TransactionType == EnumStockTransactionType.Issue ? -t.Qty :
+                                 t.TransactionType == EnumStockTransactionType.Adjust ? t.Qty : 0),
                     ImageUrl = x.ImageUrl
                 })
                 .FirstOrDefaultAsync();

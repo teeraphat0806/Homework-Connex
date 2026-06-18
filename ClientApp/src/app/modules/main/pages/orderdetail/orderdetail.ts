@@ -138,7 +138,8 @@ export class OrderDetail implements OnInit, OnDestroy {
         dataField: 'orderItemStatus',
         caption: 'Status',
         dataType: 'string',
-        columnType: 'text',
+        columnType: 'status',
+        cellTemplate: 'statusTemplate',
       },
       {
         caption: 'Actions',

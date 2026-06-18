@@ -243,3 +243,59 @@
     font-size: 24px !important;
   }
 }
+
+/* ==========================================================================
+   Global Status Badges
+   ========================================================================== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 80px;
+  padding: 4px 10px;
+
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Active / Approved / Success / ConfirmOrder / Returned statuses */
+.status-active,
+.status-approved,
+.status-confirmed,
+.status-confirmorder,
+.status-returned {
+  color: #047857 !important;
+  background-color: #d1fae5 !important;
+}
+
+/* Inactive / Rejected / Cancelled / Error statuses */
+.status-inactive,
+.status-rejected,
+.status-cancelled {
+  color: #b91c1c !important;
+  background-color: #fee2e2 !important;
+}
+
+/* Pending / Submit / Warning statuses */
+.status-pending,
+.status-submit {
+  color: #b45309 !important;
+  background-color: #fef3c7 !important;
+}
+
+/* Draft / Neutral statuses */
+.status-draft {
+  color: #4b5563 !important;
+  background-color: #f3f4f6 !important;
+}
+
+/* Partial / Info statuses */
+.status-partial,
+.status-partialreturned {
+  color: #1d4ed8 !important;
+  background-color: #dbeafe !important;
+}

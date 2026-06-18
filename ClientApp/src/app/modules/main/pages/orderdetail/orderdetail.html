@@ -2,13 +2,22 @@
   <div class="page-header">
     <div class="header">
       <h2 class="title">{{ pageTitle }}</h2>
-      <p>
+      <p style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">
         Mode:
         <strong>{{ mode }}</strong>
 
         @if (orderId) {
-          | Order ID:
-          <strong>{{ orderId }}</strong>
+          <span>| Order ID: <strong>{{ orderId }}</strong></span>
+        }
+
+        @if (orderDetail && orderDetail.status) {
+          <span>| Status: </span>
+          <span
+            class="status-badge"
+            [ngClass]="'status-' + orderDetail.status.toLowerCase()"
+          >
+            {{ orderDetail.status }}
+          </span>
         }
       </p>
     </div>
@@ -71,6 +80,15 @@
       <ng-template gridTemplate="totalTemplate" let-item>
         <strong>{{ item.data.total | number }}</strong>
         บาท
+      </ng-template>
+
+      <ng-template gridTemplate="statusTemplate" let-item>
+        <span
+          class="status-badge"
+          [ngClass]="'status-' + (item.data.orderItemStatus || '').toLowerCase()"
+        >
+          {{ item.data.orderItemStatus }}
+        </span>
       </ng-template>
 
       <ng-template gridTemplate="myCustomActionTemplate" let-item>

@@ -89,16 +89,20 @@
       </ng-template>
       <ng-template gridTemplate="orderDetailTemplate" let-item>
         <homework-datagrid [dataSource]="item.data.orderItems" [config]="gridConfigOrderItem">
+          <ng-template gridTemplate="statusTemplate" let-subItem>
+            <span
+              class="status-badge"
+              [ngClass]="'status-' + (subItem.data.orderItemStatus || '').toLowerCase()"
+            >
+              {{ subItem.data.orderItemStatus }}
+            </span>
+          </ng-template>
         </homework-datagrid>
       </ng-template>
       <ng-template gridTemplate="statusTemplate" let-item>
         <span
           class="status-badge"
-          [ngClass]="{
-            'status-draft': item.data.status === 'Draft',
-            'status-submit': item.data.status === 'Submit',
-            'status-approved': item.data.status === 'Approved',
-          }"
+          [ngClass]="'status-' + item.data.status.toLowerCase()"
         >
           {{ item.data.status }}
         </span>
@@ -127,10 +131,7 @@
         } @else if (item.data.status === 'Rejected' || item.data.status === 'Cancelled') {
           <span
             class="status-badge"
-            [ngClass]="{
-              'status-rejected': item.data.status === 'Rejected',
-              'status-cancelled': item.data.status === 'Cancelled',
-            }"
+            [ngClass]="'status-' + item.data.status.toLowerCase()"
           >
             {{ item.data.status }}
           </span>

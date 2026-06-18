@@ -94,6 +94,8 @@ export class OrderList implements OnInit {
     { label: 'Approved', value: OrderStatus.Approved },
     { label: 'Rejected', value: OrderStatus.Rejected },
     { label: 'Confirm Order', value: OrderStatus.ConfirmOrder },
+    { label: 'Partially Returned', value: OrderStatus.PartialReturned },
+    { label: 'Returned', value: OrderStatus.Returned },
   ];
 
   constructor(
@@ -191,6 +193,7 @@ export class OrderList implements OnInit {
         caption: 'Status',
         dataType: 'string',
         columnType: 'status',
+        cellTemplate: 'statusTemplate',
       },
     ],
   };

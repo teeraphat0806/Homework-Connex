@@ -138,7 +138,8 @@ export class OrderDetailAdmin {
         dataField: 'orderItemStatus',
         caption: 'Status',
         dataType: 'string',
-        columnType: 'text',
+        columnType: 'status',
+        cellTemplate: 'statusTemplate',
       },
       {
         dataField: 'rejectedReason',

@@ -1,0 +1,76 @@
+.waiting-confirm-text {
+  color: #d97706;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.page-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-item span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.filter-item dx-text-box,
+.filter-item dx-date-box {
+  width: 100%;
+}
+
+/* Sizing of search box */
+.search-box {
+  flex: 2;
+  min-width: 250px;
+}
+
+/* Sizing of date boxes */
+.date-box {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Sizing of status box */
+.status-box {
+  flex: 1;
+  width: 100%;
+}

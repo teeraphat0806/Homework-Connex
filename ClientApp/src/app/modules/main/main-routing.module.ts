@@ -7,6 +7,8 @@ import {ProductMaster} from "./pages/productmaster/productmaster";
 // import { ProfileComponent } from './pages/profile/profile.component';
 import {OrderList} from "./pages/orderlist/orderlist";
 import {OrderDetail} from "./pages/orderdetail/orderdetail";
+import { OrderListAdmin } from './pages/orderlistadmin/orderlistadmin';
+import { OrderDetailAdmin } from './pages/orderdetailadmin/orderdetailadmin';
 const MainRoutes: Routes = [
   {
     path: '',
@@ -18,8 +20,16 @@ const MainRoutes: Routes = [
     component: OrderList
   },
   {
+    path: OrderRoute.orderAdminList,
+    component: OrderListAdmin
+  },
+  {
     path: OrderRoute.orderDetails,
     component: OrderDetail
+  },
+  {
+    path: OrderRoute.orderAdminDetails,
+    component: OrderDetailAdmin
   },
   {
     path: ProductMasterRoute.productMasterList,

@@ -74,15 +74,6 @@
     </div>
   </div>
   <div class="page-column">
-    <homework-button
-      label="เพิ่มออเดอร์"
-      theme="Primary"
-      iconCode="add_box"
-      stylingMode="text"
-      [iconSize]="18"
-      (onClick)="goToCreateOrder()"
-    >
-    </homework-button>
     <homework-datagrid [dataSource]="orders" [config]="gridConfig">
       <ng-template gridTemplate="amountTemplate" let-item>
         <strong>{{ item.data.totalAmount | number }}</strong> บาท
@@ -105,6 +96,8 @@
       </ng-template>
       <ng-template gridTemplate="orderActionTemplate" let-item>
         @if (item.data.status === 'Draft') {
+          <span class="returned-status">รอ MEMBER Submit</span>
+        } @else if (item.data.status === 'Pending') {
           <div class="action-buttons">
             @for (action of gridConfig.actions ?? []; track $index) {
               @if (!action.visible || action.visible(item.data)) {
@@ -122,8 +115,6 @@
               }
             }
           </div>
-        } @else if (item.data.status === 'Pending') {
-          <span class="waiting-confirm-text"> Waiting Confirm </span>
         } @else if (item.data.status === 'Rejected' || item.data.status === 'Cancelled') {
           <span
             class="status-badge"
@@ -136,9 +127,9 @@
           </span>
         } @else if (item.data.status === 'Approved' || item.data.status === 'PartialReturned') {
           <homework-button
-            label="คืนสินค้า"
-            iconCode="done"
-            theme="Primary"
+            label="ดูรายละเอียดการคืนสินค้า"
+            size="sm"
+            theme="Secondary"
             (onClick)="goToReturnOrder(item.data.orderId)"
           >
           </homework-button>
@@ -149,35 +140,35 @@
     </homework-datagrid>
   </div>
   <homework-confirmation-modal
-    [(visible)]="isModalDeleteVisible"
-    [config]="deleteModalConfig"
-    (cancel)="closeDeleteModal()"
+    [(visible)]="isModalRejectVisible"
+    [config]="rejectModalConfig"
+    (cancel)="closeRejectModal()"
   >
     <ng-container modal-body>
       <p>
-        คุณต้องการลบออเดอร์หมายเลข <strong>{{ orderDelete?.orderNo }}</strong> ใช่หรือไม่?
+        คุณต้องการปฏิเสธออเดอร์หมายเลข <strong>{{ orderReject?.orderNo }}</strong> ใช่หรือไม่?
       </p>
     </ng-container>
     <ng-container modal-footer>
-      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeDeleteModal()">
+      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeRejectModal()">
       </homework-button>
-      <homework-button label="ตกลง" theme="Primary" (onClick)="deleteOrder()"> </homework-button>
+      <homework-button label="ตกลง" theme="Primary" (onClick)="rejectOrder()"> </homework-button>
     </ng-container>
   </homework-confirmation-modal>
   <homework-confirmation-modal
-    [(visible)]="isModalSubmitVisible"
-    [config]="submitModalConfig"
-    (cancel)="closeSubmitModal()"
+    [(visible)]="isModalApproveVisible"
+    [config]="approveModalConfig"
+    (cancel)="closeApproveModal()"
   >
     <ng-container modal-body>
       <p>
-        คุณต้องการส่งออเดอร์หมายเลข <strong>{{ orderSubmit?.orderNo }}</strong> ใช่หรือไม่?
+        คุณต้องการอนุมัติออเดอร์หมายเลข <strong>{{ orderApprove?.orderNo }}</strong> ใช่หรือไม่?
       </p>
     </ng-container>
     <ng-container modal-footer>
-      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeSubmitModal()">
+      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeApproveModal()">
       </homework-button>
-      <homework-button label="ตกลง" theme="Primary" (onClick)="submitOrder()"> </homework-button>
+      <homework-button label="ตกลง" theme="Primary" (onClick)="approveOrder()"> </homework-button>
     </ng-container>
   </homework-confirmation-modal>
 </div>

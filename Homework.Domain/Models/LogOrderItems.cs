@@ -38,4 +38,6 @@ public partial class LogOrderItems
     public long? CreatedByUserId { get; set; }
 
     public DateTime LogTime { get; set; }
+
+    public int? ReturnedQty { get; set; }
 }

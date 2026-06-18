@@ -25,6 +25,7 @@ export interface OrderItemViewModel {
   qty: number;
   price: number;
   orderItemStatus: string;
+  returnedQty?: number;
 }
 
 export interface OrderInfoViewModel {
@@ -169,15 +170,14 @@ export class OrderMasterApiService {
         }),
       );
   }
-  ReturnOrder(orderId: number): Observable<any> {
+  ReturnOrder(param: {
+    orderId: number;
+    items: { orderItemId: number; returnQty: number }[];
+  }): Observable<any> {
     return this.http
-      .post<any>(
-        `${this.url}/return`,
-        { orderId },
-        {
-          withCredentials: true,
-        },
-      )
+      .post<any>(`${this.url}/return`, param, {
+        withCredentials: true,
+      })
       .pipe(
         catchError((error) => {
           console.error('Error returning order:', error);

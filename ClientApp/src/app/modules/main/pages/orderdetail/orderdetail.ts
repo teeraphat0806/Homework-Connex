@@ -41,6 +41,8 @@ export interface OrderItem {
   total: number;
   orderItemStatus?: string;
   isNew?: boolean;
+  returnedQty?: number;
+  pendingReturnQty?: number;
 }
 
 export interface OrderDetailInterface {
@@ -77,6 +79,11 @@ export class OrderDetail implements OnInit, OnDestroy {
   public isItemPopupVisible = false;
   public selectedItem: OrderItem | null = null;
 
+  public isReturnPopupVisible = false;
+  public selectedReturnItem: OrderItem | null = null;
+  public tempReturnQty = 0;
+  public isSubmitConfirmPopupVisible = false;
+
   public itemGridConfig: DynamicGridConfig<OrderItem> = {
     keyExpr: 'orderItemId',
     pageSize: 10,
@@ -100,6 +107,20 @@ export class OrderDetail implements OnInit, OnDestroy {
         columnType: 'number',
       },
       {
+        dataField: 'returnedQty',
+        caption: 'คืนแล้ว',
+        dataType: 'number',
+        columnType: 'number',
+        visible: this.mode === 'return',
+      },
+      {
+        dataField: 'pendingReturnQty',
+        caption: 'กำลังจะคืน',
+        dataType: 'number',
+        columnType: 'number',
+        visible: this.mode === 'return',
+      },
+      {
         dataField: 'price',
         caption: 'Unit Price',
         dataType: 'number',
@@ -121,41 +142,8 @@ export class OrderDetail implements OnInit, OnDestroy {
       },
       {
         caption: 'Actions',
-        columnType: 'action',
-        cellTemplate: 'actionTemplate',
+        cellTemplate: 'myCustomActionTemplate',
         alignment: 'center',
-      },
-    ],
-    actions: [
-      {
-        label: '',
-        theme: 'Secondary',
-        size: 'sm',
-        iconCode: 'edit',
-        showDefaultLabel: false,
-        visible: () => this.mode !== 'return',
-        onClick: (row) => this.editItem(row),
-      },
-      {
-        label: '',
-        theme: 'Danger',
-        size: 'sm',
-        iconCode: 'delete',
-        showDefaultLabel: false,
-        visible: () => this.mode !== 'return',
-        onClick: (row) => this.deleteItem(row),
-      },
-      {
-        label: '',
-        theme: 'Primary',
-        iconCode: 'undo',
-        showDefaultLabel: false,
-        visible: (row: OrderItem) =>
-          row.orderItemStatus === 'Approved' ||
-          row.orderItemStatus === 'PartialReturned' ||
-          row.orderItemStatus === 'Returned',
-        disabled: (row: OrderItem) => row.orderItemStatus === 'Returned',
-        onClick: (row) => this.returnItem(row),
       },
     ],
   };
@@ -182,6 +170,18 @@ export class OrderDetail implements OnInit, OnDestroy {
         this.mode = 'create';
       }
       this.orderId = params['orderId'] ? Number(params['orderId']) : null;
+
+      const returnedQtyCol = this.itemGridConfig.columns.find((c) => c.dataField === 'returnedQty');
+      if (returnedQtyCol) {
+        returnedQtyCol.visible = this.mode === 'return';
+      }
+      const pendingReturnQtyCol = this.itemGridConfig.columns.find(
+        (c) => c.dataField === 'pendingReturnQty',
+      );
+      if (pendingReturnQtyCol) {
+        pendingReturnQtyCol.visible = this.mode === 'return';
+      }
+      this.itemGridConfig.columns = [...this.itemGridConfig.columns];
 
       if ((this.mode === 'edit' || this.mode === 'return') && this.orderId) {
         this.loadOrderDetail(this.orderId);
@@ -293,6 +293,8 @@ export class OrderDetail implements OnInit, OnDestroy {
           price: item.price,
           total: item.qty * item.price,
           orderItemStatus: item.orderItemStatus,
+          returnedQty: item.returnedQty || 0,
+          pendingReturnQty: 0,
         })),
       };
       this.updateProductsList();
@@ -355,8 +357,6 @@ export class OrderDetail implements OnInit, OnDestroy {
     );
     this.updateProductsList();
   }
-
-  public returnItem(item: OrderItem): void {}
 
   public closeItemPopup(): void {
     this.isItemPopupVisible = false;
@@ -478,6 +478,81 @@ export class OrderDetail implements OnInit, OnDestroy {
 
   public goBack(): void {
     this.router.navigate([`/${OrderRoute.fullOrderListPath}`]);
+  }
+
+  public returnItem(row: OrderItem): void {
+    this.selectedReturnItem = row;
+    this.tempReturnQty = row.pendingReturnQty || 0;
+    this.isReturnPopupVisible = true;
+  }
+
+  public saveReturnItem(): void {
+    if (!this.selectedReturnItem) return;
+
+    const maxQty = this.selectedReturnItem.qty - (this.selectedReturnItem.returnedQty || 0);
+    if (this.tempReturnQty <= 0 || this.tempReturnQty > maxQty) {
+      alert(`จำนวนที่คืนต้องมากกว่า 0 และไม่เกิน ${maxQty}`);
+      return;
+    }
+
+    this.selectedReturnItem.pendingReturnQty = this.tempReturnQty;
+    this.isReturnPopupVisible = false;
+    this.selectedReturnItem = null;
+  }
+
+  public closeReturnPopup(): void {
+    this.isReturnPopupVisible = false;
+    this.selectedReturnItem = null;
+  }
+
+  public get maxReturnQty(): number {
+    if (!this.selectedReturnItem) return 0;
+    return this.selectedReturnItem.qty - (this.selectedReturnItem.returnedQty || 0);
+  }
+
+  public submitReturn(): void {
+    const returnItems = this.orderDetail.items.filter(
+      (item) => item.pendingReturnQty && item.pendingReturnQty > 0,
+    );
+
+    if (returnItems.length === 0) {
+      alert('กรุณาระบุจำนวนสินค้าที่ต้องการคืนอย่างน้อย 1 รายการก่อนส่งคืน');
+      return;
+    }
+
+    this.isSubmitConfirmPopupVisible = true;
+  }
+
+  public executeReturn(): void {
+    this.isSubmitConfirmPopupVisible = false;
+
+    const returnItems = this.orderDetail.items
+      .filter((item) => item.pendingReturnQty && item.pendingReturnQty > 0)
+      .map((item) => ({
+        orderItemId: item.orderItemId,
+        returnQty: item.pendingReturnQty!,
+      }));
+
+    this.loadingService.show();
+    this.orderService
+      .ReturnOrder({
+        orderId: this.orderId!,
+        items: returnItems,
+      })
+      .subscribe({
+        next: (response) => {
+          this.loadingService.hide();
+          if (response.isSuccess) {
+            this.goBack();
+          } else {
+            alert(response.message || 'ไม่สามารถคืนสินค้าได้');
+          }
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          alert(err?.error?.Message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        },
+      });
   }
 
   private getNextItemId(): number {

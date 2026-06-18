@@ -134,7 +134,7 @@
           >
             {{ item.data.status }}
           </span>
-        } @else if (item.data.status === 'Approved') {
+        } @else if (item.data.status === 'Approved' || item.data.status === 'PartialReturned') {
           <homework-button
             label="คืนสินค้า"
             iconCode="done"
@@ -142,6 +142,8 @@
             (onClick)="goToReturnOrder(item.data.orderId)"
           >
           </homework-button>
+        } @else {
+          <span class="returned-status">คืนครบแล้ว</span>
         }
       </ng-template>
     </homework-datagrid>

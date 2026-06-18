@@ -13,10 +13,11 @@ public partial class postgresContext : DbContext
         : base(options)
     {
     }
+
+    public virtual DbSet<Function_Page_Mapping> Function_Page_Mapping { get; set; }
     public virtual DbSet<USP_Query_NavbarViewModel> USP_Query_NavbarViewModels { get; set; }
 
     public virtual DbSet<USP_Query_PermissionAccessViewModel> USP_Query_PermissionAccessViewModels { get; set; }
-    public virtual DbSet<Function_Page_Mapping> Function_Page_Mapping { get; set; }
 
     public virtual DbSet<LogOrderItems> LogOrderItems { get; set; }
 
@@ -107,8 +108,6 @@ public partial class postgresContext : DbContext
         {
             entity.HasKey(e => e.LogOrderId).HasName("LogOrders_pkey");
 
-            entity.HasIndex(e => e.OrderNo, "LogOrders_OrderNo_key").IsUnique();
-
             entity.Property(e => e.LogOrderId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Action)
                 .IsRequired()
@@ -190,6 +189,7 @@ public partial class postgresContext : DbContext
             entity.Property(e => e.Price).HasPrecision(18, 2);
             entity.Property(e => e.Qty).HasDefaultValue(1);
             entity.Property(e => e.RejectedReason).HasMaxLength(500);
+            entity.Property(e => e.ReturnedQty).HasDefaultValue(0);
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)

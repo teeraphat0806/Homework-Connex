@@ -72,7 +72,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                     ProductCode = item.Product != null ? item.Product.ProductCode : string.Empty,
                     Qty = item.Qty,
                     Price = item.Price,
-                    OrderItemStatus = item.OrderItemStatus
+                    OrderItemStatus = item.OrderItemStatus,
+                    ReturnedQty = item.ReturnedQty
                 }).ToList()
             });
 
@@ -100,7 +101,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                         ProductId = item.ProductId ?? 0,
                         item.Qty,
                         item.Price,
-                        item.OrderItemStatus
+                        item.OrderItemStatus,
+                        item.ReturnedQty
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
@@ -132,7 +134,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                     ProductCode = products.ContainsKey(item.ProductId) ? products[item.ProductId].ProductCode : string.Empty,
                     Qty = item.Qty,
                     Price = item.Price,
-                    OrderItemStatus = item.OrderItemStatus
+                    OrderItemStatus = item.OrderItemStatus,
+                    ReturnedQty = item.ReturnedQty
                 }).ToList()
             };
         }

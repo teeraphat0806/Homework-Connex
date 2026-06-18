@@ -72,21 +72,60 @@
         <strong>{{ item.data.total | number }}</strong>
         บาท
       </ng-template>
+
+      <ng-template gridTemplate="myCustomActionTemplate" let-item>
+        <div class="action-buttons">
+          @if (mode !== 'return') {
+            <homework-button
+              label=""
+              theme="Secondary"
+              size="sm"
+              iconCode="edit"
+              [showDefaultLabel]="false"
+              (onClick)="editItem(item.data)"
+            ></homework-button>
+            <homework-button
+              label=""
+              theme="Danger"
+              size="sm"
+              iconCode="delete"
+              [showDefaultLabel]="false"
+              (onClick)="deleteItem(item.data)"
+            ></homework-button>
+          } @else {
+            @if (
+              item.data.orderItemStatus === 'Approved' ||
+              item.data.orderItemStatus === 'PartialReturned'
+            ) {
+              <homework-button
+                label=""
+                theme="Primary"
+                iconCode="undo"
+                [showDefaultLabel]="false"
+                (onClick)="returnItem(item.data)"
+              ></homework-button>
+            }
+            @if (item.data.orderItemStatus === 'Returned') {
+              <p class="returned-status">คืนครบแล้ว</p>
+            }
+          }
+        </div>
+      </ng-template>
     </homework-datagrid>
   </div>
+  @if (this.mode == 'edit' || this.mode == 'create') {
+    <div class="summary-card">
+      <div class="summary-row">
+        <span>จำนวนทั้งหมด</span>
+        <strong>{{ this.totalAmount }} ชิ้น</strong>
+      </div>
 
-  <div class="summary-card">
-    <div class="summary-row">
-      <span>จำนวนทั้งหมด</span>
-      <strong>{{ this.totalAmount }} ชิ้น</strong>
+      <div class="summary-row total">
+        <span>ยอดรวมทั้งหมด</span>
+        <strong>{{ subtotal | number }} บาท</strong>
+      </div>
     </div>
-
-    <div class="summary-row total">
-      <span>ยอดรวมทั้งหมด</span>
-      <strong>{{ subtotal | number }} บาท</strong>
-    </div>
-  </div>
-
+  }
   @if (this.mode == 'create' || this.mode == 'edit') {
     <div class="footer-actions">
       <homework-button label="Save Draft" theme="Secondary" iconCode="save" (onClick)="saveDraft()">
@@ -101,7 +140,8 @@
       <homework-button
         label="Submit Return"
         theme="Primary"
-        iconCode="keyboard_return "
+        iconCode="keyboard_return"
+        (onClick)="submitReturn()"
       ></homework-button>
     </div>
   }
@@ -145,5 +185,60 @@
         </app-homework-input>
       </div>
     }
+  </homework-formpopup>
+
+  <homework-formpopup
+    [(visible)]="isReturnPopupVisible"
+    title="คืนสินค้า"
+    [width]="450"
+    [height]="320"
+    [showOpenButton]="false"
+    (save)="saveReturnItem()"
+    (cancel)="closeReturnPopup()"
+  >
+    @if (selectedReturnItem) {
+      <div class="item-form">
+        <app-homework-input
+          type="Text"
+          label="ชื่อสินค้า"
+          [fieldValue]="selectedReturnItem.productName"
+          [isDisabled]="true"
+        >
+        </app-homework-input>
+
+        <p style="margin-top: 10px; margin-bottom: 5px; font-weight: 500">
+          จำนวนที่ค้างส่งคืน (สูงสุด) : {{ maxReturnQty }}
+        </p>
+
+        <app-homework-input
+          type="Number"
+          label="จำนวนที่ต้องการคืน"
+          placeholder="กรอกจำนวนที่ต้องการคืน"
+          [fieldValue]="tempReturnQty"
+          (fieldValueChange)="tempReturnQty = +$event"
+          [min]="1"
+          [max]="maxReturnQty"
+        >
+        </app-homework-input>
+      </div>
+    }
+  </homework-formpopup>
+
+  <homework-formpopup
+    [(visible)]="isSubmitConfirmPopupVisible"
+    title="ยืนยันการคืนสินค้า"
+    [width]="400"
+    [height]="280"
+    [showOpenButton]="false"
+    saveButtonLabel="ตกลง"
+    cancelButtonLabel="ยกเลิก"
+    (save)="executeReturn()"
+    (cancel)="isSubmitConfirmPopupVisible = false"
+  >
+    <div style="padding: 10px; text-align: center">
+      <p style="font-size: 16px; margin: 0; font-weight: 500">
+        คุณแน่ใจหรือไม่ว่าต้องการบันทึกการคืนสินค้าตามที่ระบุ?
+      </p>
+    </div>
   </homework-formpopup>
 </div>

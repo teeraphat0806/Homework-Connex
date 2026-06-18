@@ -672,7 +672,22 @@ namespace Homework.Service.ImplementServices.OrderServices
             var timeStamp = DateTime.UtcNow;
             var userIdText = _userContextService.GetUserIdFromToken();
             long? userId = long.TryParse(userIdText, out long parsedUserId) ? parsedUserId : null;
-            //ValidateUpdateOrder(param, error);
+            if (param == null)
+            {
+                error.AddError("Request", "คำขอคืนสินค้าไม่ถูกต้อง");
+                error.ThrowIfError();
+            }
+            if (param.Items == null || !param.Items.Any())
+            {
+                error.AddError("Items", "กรุณาระบุรายการสินค้าที่ต้องการคืนอย่างน้อย 1 รายการ");
+                error.ThrowIfError();
+            }
+            if (param.Items.GroupBy(x => x.OrderItemId).Any(g => g.Count() > 1))
+            {
+                error.AddError("Items", "พบรายการสินค้าซ้ำในคำขอคืนสินค้า");
+                error.ThrowIfError();
+            }
+
             error.ThrowIfError();
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -741,6 +756,7 @@ namespace Homework.Service.ImplementServices.OrderServices
 
                     // 6. อัปเดตสถานะของ OrderItem และ Order ตามจำนวนสินค้าที่คืน
                     var newReturnQty = returnQty + requestItem.ReturnQty;
+                    orderItem.ReturnedQty = newReturnQty;
                     if (newReturnQty >= issueQty)
                     {
                         orderItem.OrderItemStatus = EnumOrderItemStatus.Returned;
@@ -906,9 +922,17 @@ namespace Homework.Service.ImplementServices.OrderServices
                 error.AddError("OrderItemId", $"ไม่พบ OrderItemId: {requestItem.OrderItemId}");
                 return;
             }
+            if (requestItem.ReturnQty <= 0)
+            {
+                error.AddError("ReturnQty", $"จำนวนสินค้าที่คืนต้องมากกว่า 0 (OrderItemId: {requestItem.OrderItemId})");
+            }
             if (orderItem.OrderItemStatus == EnumOrderItemStatus.Returned)
             {
-                error.AddError("OrderItemId", $"สินค้านี้ถูกคืนไปแล้ว OrderItemId: {requestItem.OrderItemId}");
+                error.AddError("OrderItemId", $"สินค้านี้ถูกคืนไปแล้ว (OrderItemId: {requestItem.OrderItemId})");
+            }
+            else if (orderItem.OrderItemStatus != EnumOrderItemStatus.Approved && orderItem.OrderItemStatus != EnumOrderItemStatus.PartialReturned)
+            {
+                error.AddError("OrderItemId", $"สามารถคืนสินค้าได้เฉพาะรายการที่มีสถานะ Approved หรือ PartialReturned เท่านั้น (OrderItemId: {requestItem.OrderItemId}, สถานะปัจจุบัน: {orderItem.OrderItemStatus})");
             }
             error.ThrowIfError();
         }

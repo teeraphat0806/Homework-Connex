@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import DataSource from 'devextreme/data/data_source';
+import Swal from 'sweetalert2';
 import {
   HomeworkDatagridComponent,
   GridTemplateDirective,
@@ -13,7 +14,10 @@ import { DxTextBoxModule } from 'devextreme-angular';
 import { HomeworkInputComponent } from '../../../../shared/components/homework-input/homework-input.component';
 import { DxTagBoxModule, DxRadioGroupModule, DxDateBoxModule } from 'devextreme-angular';
 import { HomeworkFormpopup } from '../../../../shared/components/homework-formpopup/homework-formpopup.component';
-import { HomeworkConfirmationModalComponent } from '../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component';
+import {
+  HomeworkConfirmationModalComponent,
+  ConfirmationModalConfig,
+} from '../../../../shared/components/homework-confirmation-modal/homework-confirmation-modal.component';
 import { lastValueFrom } from 'rxjs';
 import { OrderMasterApiService, OrderItemViewModel } from '../../services/ordermaster.service';
 import { OrderStatus } from '../../../../core/enum';
@@ -64,7 +68,24 @@ export class OrderList implements OnInit {
     startDate: null as Date | null,
     endDate: null as Date | null,
   };
-  isDeletePopupVisible = false;
+
+  //Confirmation Modal Delete
+  isModalDeleteVisible = false;
+  orderDelete: OrderListRow | null = null;
+  deleteModalConfig: ConfirmationModalConfig = {
+    title: 'ยืนยันการลบออเดอร์',
+    width: 400,
+    height: 200,
+  };
+  //Confirmation Modal Submit
+  isModalSubmitVisible = false;
+  orderSubmit: OrderListRow | null = null;
+  submitModalConfig: ConfirmationModalConfig = {
+    title: 'ยืนยันการส่งออเดอร์',
+    width: 400,
+    height: 200,
+  };
+
   statusOptions = [
     { label: 'ทั้งหมด', value: '' },
     { label: 'Draft', value: OrderStatus.Draft },
@@ -235,7 +256,7 @@ export class OrderList implements OnInit {
         size: 'sm',
         iconCode: 'edit',
         showDefaultLabel: false,
-        visible: (row) => row.status !== 'Submit',
+        visible: (row) => row.status === 'Draft',
         onClick: (row) => this.goToEditOrder(row.orderId),
       },
       {
@@ -244,7 +265,7 @@ export class OrderList implements OnInit {
         size: 'sm',
         iconCode: 'delete',
         showDefaultLabel: false,
-        visible: (row) => row.status !== 'Submit',
+        visible: (row) => row.status === 'Draft',
         onClick: (row) => this.deleteItem(row),
       },
       {
@@ -253,8 +274,8 @@ export class OrderList implements OnInit {
         size: 'sm',
         iconCode: 'check',
         showDefaultLabel: false,
-        visible: (row) => row.status !== 'Submit',
-        onClick: (row) => this.confirmOrder(row),
+        visible: (row) => row.status === 'Draft',
+        onClick: (row) => this.submitItem(row),
       },
     ],
   };
@@ -289,8 +310,59 @@ export class OrderList implements OnInit {
       },
     });
   }
+
   deleteItem(row: OrderListRow): void {
-    this.isDeletePopupVisible = true;
+    this.orderDelete = row;
+    this.isModalDeleteVisible = true;
   }
-  confirmOrder(row: OrderListRow): void {}
+  submitItem(row: OrderListRow): void {
+    this.orderSubmit = row;
+    this.isModalSubmitVisible = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isModalDeleteVisible = false;
+    this.orderDelete = null;
+  }
+
+  closeSubmitModal(): void {
+    this.isModalSubmitVisible = false;
+    this.orderSubmit = null;
+  }
+
+  submitOrder(): void {
+    if (!this.orderSubmit) {
+      return;
+    }
+    this.orderService.SubmitOrder(this.orderSubmit.orderId).subscribe({
+      next: (res) => {
+        Swal.fire('สำเร็จ!', 'ส่งออเดอร์เรียบร้อยแล้ว', 'success');
+        this.loadOrders();
+        this.closeSubmitModal();
+      },
+      error: (err) => {
+        console.error('Failed to submit order:', err);
+        Swal.fire('เกิดข้อผิดพลาด!', err?.error?.message || 'ไม่สามารถส่งออเดอร์ได้', 'error');
+        this.closeSubmitModal();
+      },
+    });
+  }
+
+  deleteOrder(): void {
+    if (!this.orderDelete) {
+      return;
+    }
+    this.orderService.DeleteOrder(this.orderDelete.orderId).subscribe({
+      next: (res) => {
+        Swal.fire('สำเร็จ!', 'ลบออเดอร์เรียบร้อยแล้ว', 'success');
+        this.loadOrders();
+        this.closeDeleteModal();
+      },
+      error: (err) => {
+        console.error('Failed to delete order:', err);
+        Swal.fire('เกิดข้อผิดพลาด!', err?.error?.message || 'ไม่สามารถลบออเดอร์ได้', 'error');
+        this.closeDeleteModal();
+      },
+    });
+  }
 }

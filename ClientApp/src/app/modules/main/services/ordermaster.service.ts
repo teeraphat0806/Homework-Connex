@@ -47,7 +47,6 @@ export interface OrderItemUpdateViewModel {
 export interface OrderUpdateViewModel {
   orderId: number;
   orderDate: Date | string;
-  status: string;
   orderItems: OrderItemUpdateViewModel[];
 }
 
@@ -86,6 +85,18 @@ export class OrderMasterApiService {
         }),
       );
   }
+  GetNextOrderNo(): Observable<{ nextOrderNo: string }> {
+    return this.http
+      .get<{ nextOrderNo: string }>(`${this.url}/next-order-no`, {
+        withCredentials: true,
+      })
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching next order number:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
   SaveOrder(order: OrderUpdateViewModel): Observable<any> {
     return this.http
       .post<any>(`${this.url}/update`, order, {
@@ -94,6 +105,98 @@ export class OrderMasterApiService {
       .pipe(
         catchError((error) => {
           console.error('Error saving order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  CreateOrder(order: OrderUpdateViewModel): Observable<any> {
+    return this.http
+      .post<any>(`${this.url}/create`, order, {
+        withCredentials: true,
+      })
+      .pipe(
+        catchError((error) => {
+          console.error('Error creating order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  DeleteOrder(orderId: number): Observable<any> {
+    return this.http
+      .post<any>(
+        `${this.url}/delete`,
+        { orderId },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error deleting order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  ApproveOrder(orderId: number): Observable<any> {
+    return this.http
+      .post<any>(
+        `${this.url}/approve`,
+        { orderId },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error approving order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  RejectOrder(orderId: number): Observable<any> {
+    return this.http
+      .post<any>(
+        `${this.url}/reject`,
+        { orderId },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error rejecting order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  ReturnOrder(orderId: number): Observable<any> {
+    return this.http
+      .post<any>(
+        `${this.url}/return`,
+        { orderId },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error returning order:', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+  SubmitOrder(orderId: number): Observable<any> {
+    return this.http
+      .post<any>(
+        `${this.url}/submit`,
+        { orderId },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error submitting order:', error);
           return throwError(() => error);
         }),
       );

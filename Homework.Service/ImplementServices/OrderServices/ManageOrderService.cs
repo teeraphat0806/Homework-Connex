@@ -51,14 +51,14 @@ namespace Homework.Service.ImplementServices.OrderServices
 
             try
             {
-                var todayStr = timeStamp.ToString("yyyyMMdd");
-                var orderNo = await GenerateOrderNo(todayStr);
+                var yearStr = timeStamp.ToString("yyyy");
+                var orderNo = await GenerateOrderNo(yearStr);
 
                 var order = new Orders
                 {
                     OrderNo = orderNo,
                     OrderDate = timeStamp,
-                    Status = EnumOrderStatus.Pending,
+                    Status = EnumOrderStatus.Draft,
                     CreatedByUserId = userId,
                     CreatedTime = timeStamp,
                     TotalAmount = 0,
@@ -80,7 +80,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                         ProductId = product.ProductId,
                         Qty = item.Qty,
                         Price = price,
-                        OrderItemStatus = EnumOrderStatus.Draft
+                        OrderItemStatus = EnumOrderItemStatus.Draft
                     };
 
                     order.OrderItems.Add(orderItem);
@@ -243,7 +243,15 @@ namespace Homework.Service.ImplementServices.OrderServices
                 var requestItemIds = param.OrderItems.Where(x => x.OrderItemId.HasValue).Select(x => x.OrderItemId!.Value).ToList();
 
                 var deleteItems = order.OrderItems.Where(x => !requestItemIds.Contains(x.OrderItemId)).ToList();
+                var deleteItemIds = deleteItems.Select(x => x.OrderItemId).ToList();
+                var deleteStockTransactions = await _context.ProductStockTransactions
+                    .Where(x => x.OrderItemId.HasValue &&
+                                deleteItemIds.Contains(x.OrderItemId.Value))
+                    .ToListAsync();
+                var deleteLogItems = await _context.LogOrderItems.Where(x => deleteItemIds.Contains(x.OrderItemId)).ToListAsync();
 
+                _context.ProductStockTransactions.RemoveRange(deleteStockTransactions);
+                _context.LogOrderItems.RemoveRange(deleteLogItems);
                 _context.OrderItems.RemoveRange(deleteItems);
 
                 var logOrder = new LogOrders

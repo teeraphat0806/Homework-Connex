@@ -104,9 +104,7 @@
         </span>
       </ng-template>
       <ng-template gridTemplate="orderActionTemplate" let-item>
-        @if (item.data.status === 'Submit') {
-          <span class="waiting-confirm-text"> Waiting Confirm </span>
-        } @else {
+        @if (item.data.status === 'Draft') {
           <div class="action-buttons">
             @for (action of gridConfig.actions ?? []; track $index) {
               @if (!action.visible || action.visible(item.data)) {
@@ -124,8 +122,55 @@
               }
             }
           </div>
+        } @else if (item.data.status === 'Pending') {
+          <span class="waiting-confirm-text"> Waiting Confirm </span>
+        } @else {
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-approved': item.data.status === 'Approved',
+              'status-rejected': item.data.status === 'Rejected',
+              'status-cancelled': item.data.status === 'Cancelled',
+            }"
+          >
+            {{ item.data.status }}
+          </span>
         }
       </ng-template>
     </homework-datagrid>
   </div>
+  <homework-confirmation-modal
+    #confirmationModal
+    [(visible)]="isModalDeleteVisible"
+    [config]="deleteModalConfig"
+    (cancel)="closeDeleteModal()"
+  >
+    <ng-container modal-body>
+      <p>
+        คุณต้องการลบออเดอร์หมายเลข <strong>{{ orderDelete?.orderNo }}</strong> ใช่หรือไม่?
+      </p>
+    </ng-container>
+    <ng-container modal-footer>
+      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeDeleteModal()">
+      </homework-button>
+      <homework-button label="ลบ" theme="Primary" (onClick)="deleteOrder()"> </homework-button>
+    </ng-container>
+  </homework-confirmation-modal>
+  <homework-confirmation-modal
+    #confirmationModal
+    [(visible)]="isModalSubmitVisible"
+    [config]="submitModalConfig"
+    (cancel)="closeSubmitModal()"
+  >
+    <ng-container modal-body>
+      <p>
+        คุณต้องการส่งออเดอร์หมายเลข <strong>{{ orderSubmit?.orderNo }}</strong> ใช่หรือไม่?
+      </p>
+    </ng-container>
+    <ng-container modal-footer>
+      <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeSubmitModal()">
+      </homework-button>
+      <homework-button label="ส่ง" theme="Primary" (onClick)="submitOrder()"> </homework-button>
+    </ng-container>
+  </homework-confirmation-modal>
 </div>

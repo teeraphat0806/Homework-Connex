@@ -136,5 +136,15 @@ namespace Homework.Service.ImplementServices.OrderServices
                 }).ToList()
             };
         }
+
+        public async Task<string> GetNextOrderNo(CustomError error)
+        {
+            var yearStr = DateTime.UtcNow.ToString("yyyy");
+            var count = await _context.Orders
+                .Where(o => o.OrderNo.StartsWith($"ORD-{yearStr}-"))
+                .CountAsync();
+            var nextSeq = count + 1;
+            return $"ORD-{yearStr}-{nextSeq:D4}";
+        }
     }
 }

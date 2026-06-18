@@ -18,28 +18,31 @@
   </div>
 
   <div class="section-card">
-    <div class="order-form-grid">
-      <app-homework-input
-        type="Text"
-        label="Order No"
-        placeholder="Order No"
-        [fieldValue]="orderDetail.orderNo"
-        (fieldValueChange)="orderDetail.orderNo = $event"
-      >
-      </app-homework-input>
-
-      <div class="form-field">
-        <label>Order Date</label>
-
-        <dx-date-box
-          type="date"
-          displayFormat="dd/MMM/yyyy"
-          valueChangeEvent="change"
-          [(value)]="orderDetail.orderDate"
+    @if (!loadingService.isLoading()) {
+      <div class="order-form-grid">
+        <app-homework-input
+          type="Text"
+          label="Order No"
+          placeholder="Order No"
+          [fieldValue]="orderDetail.orderNo"
+          (fieldValueChange)="orderDetail.orderNo = $event"
+          [isDisabled]="true"
         >
-        </dx-date-box>
+        </app-homework-input>
+
+        <div class="form-field">
+          <label>Order Date</label>
+
+          <dx-date-box
+            type="date"
+            displayFormat="dd/MMM/yyyy"
+            valueChangeEvent="change"
+            [(value)]="orderDetail.orderDate"
+          >
+          </dx-date-box>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <div class="section-card">
@@ -92,46 +95,38 @@
     [(visible)]="isItemPopupVisible"
     title="Order Item"
     [width]="450"
-    [height]="500"
+    [height]="350"
     [showOpenButton]="false"
     (save)="saveItem()"
     (cancel)="closeItemPopup()"
   >
     @if (selectedItem) {
       <div class="item-form">
-        <app-homework-input
-          type="Text"
-          label="Product Code"
-          placeholder="กรอกรหัสสินค้า"
-          [fieldValue]="selectedItem.productCode"
-          (fieldValueChange)="onProductCodeChange($event)"
-        >
-        </app-homework-input>
+        <label>เลือกสินค้า</label>
+        <dx-select-box
+          [items]="productsList"
+          [displayExpr]="'name'"
+          [valueExpr]="'productId'"
+          [searchEnabled]="true"
+          [placeholder]="'เลือกสินค้า'"
+          [(value)]="selectedItem.productId"
+          (onValueChanged)="onProductChanged($event.value)"
+        ></dx-select-box>
+        @if (selectedItem.productId) {
+          <p>
+            สินค้าคงเหลือ :
+            {{ maxStock }}
+          </p>
+        }
 
         <app-homework-input
-          type="Text"
-          label="Product Name"
-          placeholder="กรอกชื่อสินค้า"
-          [fieldValue]="selectedItem.productName"
-          (fieldValueChange)="selectedItem.productName = $event"
-        >
-        </app-homework-input>
-
-        <app-homework-input
-          type="Text"
+          type="Number"
           label="Qty"
           placeholder="กรอกจำนวน"
           [fieldValue]="selectedItem.qty"
           (fieldValueChange)="selectedItem.qty = +$event"
-        >
-        </app-homework-input>
-
-        <app-homework-input
-          type="Text"
-          label="Unit Price"
-          placeholder="กรอกราคา"
-          [fieldValue]="selectedItem.price"
-          (fieldValueChange)="selectedItem.price = +$event"
+          [min]="1"
+          [max]="maxStock"
         >
         </app-homework-input>
       </div>

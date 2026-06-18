@@ -69,6 +69,11 @@ namespace Homework.Service.ImplementServices.ProductServices
                 ImageUrl = x.ImageUrl
             });
 
+            if (param.OnlyWithStock == true)
+            {
+                productQuery = productQuery.Where(x => x.StockQty > 0);
+            }
+
             var loadOptions = param.LoadOptions ?? new DevExtreme.AspNet.Data.DataSourceLoadOptionsBase();
             var result = await DevExtreme.AspNet.Data.DataSourceLoader.LoadAsync(productQuery, loadOptions);
             return result;

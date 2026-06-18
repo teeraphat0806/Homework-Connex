@@ -29,6 +29,7 @@ namespace Homework.Domain.Enum
 
     public static class EnumOrderItemStatus
     {
+        public const string Draft = "Draft";
         public const string Pending = "Pending";
         public const string Approved = "Approved";
         public const string Rejected = "Rejected";
@@ -39,6 +40,7 @@ namespace Homework.Domain.Enum
         {
             Pending,
             Approved,
+            Draft,
             Rejected,
             Cancelled,
             PartialReturned,

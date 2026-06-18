@@ -30,6 +30,13 @@ namespace Web.Homework.Controllers.Order{
             var result = await _queryOrderService.GetOrderList(request, error);
             return Ok(result);
         }
+        [HttpGet("next-order-no")]
+        public async Task<IActionResult> GetNextOrderNo()
+        {
+            var error = new CustomError();
+            var result = await _queryOrderService.GetNextOrderNo(error);
+            return Ok(new { nextOrderNo = result });
+        }
         [HttpGet("info")]
         public async Task<IActionResult> GetOrderInfo([FromQuery] GetOrderInfoRequestModel request)
         {

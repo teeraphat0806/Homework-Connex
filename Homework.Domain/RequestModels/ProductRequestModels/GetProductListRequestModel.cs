@@ -16,6 +16,7 @@ namespace Homework.Domain.RequestModels.ProductRequestModels
         public List<long>? CategoryIds { get; set; }
 
         public bool? IsActive { get; set; }
+        public bool? OnlyWithStock { get; set; }
 
         public DataSourceLoadOptionsBase? LoadOptions { get; set; }
     }

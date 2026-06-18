@@ -9,5 +9,6 @@ namespace Homework.Domain.Interfaces.Services.OrderServices
     {
         Task<object> GetOrderList(GetOrderListRequestModel param,CustomError error);
         Task<OrderInfoViewModel?> GetOrderInfo(GetOrderInfoRequestModel param,CustomError error);
+        Task<string> GetNextOrderNo(CustomError error);
     }
 }

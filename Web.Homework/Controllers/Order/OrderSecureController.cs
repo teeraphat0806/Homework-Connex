@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Web.Homework.Controllers.Order{
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/order")]
     public class OrderController : ControllerBase
@@ -69,6 +69,7 @@ namespace Web.Homework.Controllers.Order{
             var result = await _manageOrderService.DeleteOrder(request, error);
             return Ok(result);
         }
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("approve")]
         public async Task<IActionResult> ApproveOrder([FromBody] ApproveOrderRequestModel request)
         {
@@ -76,6 +77,7 @@ namespace Web.Homework.Controllers.Order{
             var result = await _manageOrderService.ApproveOrder(request, error);
             return Ok(result);
         }
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("reject")]
         public async Task<IActionResult> RejectOrder([FromBody] RejectOrderRequestModel request)
         {

@@ -1,8 +1,9 @@
-﻿using Homework.Domain.Error;
+using Homework.Domain.Error;
 using Homework.Domain.Interfaces.Services.AuthenticationServices;
 using Homework.Domain.RequestModels.AuthenticationRequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Web.Homework.Controllers.Authentication
@@ -32,6 +33,5 @@ namespace Web.Homework.Controllers.Authentication
             var result = await _authService.RegisterUser(param, error);
             return Ok(result);
         }
-      
     }
 }

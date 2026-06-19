@@ -91,7 +91,7 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (response) => {
           console.log('Login successful', response);
-          this.router.navigate(['/main/products']);
+          this.router.navigate(['/main']);
         },
       });
   }

@@ -18,12 +18,13 @@ export const permissionGuard:   CanActivateFn = (route: ActivatedRouteSnapshot, 
                 guardService.setPermission(response.permissionCode);
                 return true;
             }
+            router.navigate(['/forbidden']);
             return false;
         }
         ),
         catchError(error => {
             console.error('Error checking permissions:', error);
-            router.navigate(['/main/products']);
+            router.navigate(['/forbidden']);
             return of(false);
         })
     );

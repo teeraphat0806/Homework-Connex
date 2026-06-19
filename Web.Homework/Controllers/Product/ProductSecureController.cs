@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Web.Homework.Controllers.Product
 {
+    [Authorize]
     [ApiController]
     [Route("api/product")]
     public class ProductController : ControllerBase
@@ -43,6 +44,7 @@ namespace Web.Homework.Controllers.Product
             return Ok(result);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequestModel request)
         {
@@ -51,6 +53,7 @@ namespace Web.Homework.Controllers.Product
             return Ok(result);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("update")]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequestModel request)
         {
@@ -59,6 +62,7 @@ namespace Web.Homework.Controllers.Product
             return Ok(result);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("delete")]
         public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductRequestModel request)
         {

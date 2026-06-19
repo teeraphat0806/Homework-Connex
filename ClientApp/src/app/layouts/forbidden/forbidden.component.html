@@ -1,40 +1,21 @@
-<div class="forbidden-container">
-    <div class="forbidden-content">
-
-        <div class="forbidden-image-wrapper">
-            <img
-                src="assets/images/403.png"
-                alt="Forbidden"
-                class="forbidden-image"
-            />
-        </div>
-
-        <h1 class="forbidden-title">
-            Access Forbidden
-        </h1>
-
-        <p class="forbidden-description">
-            You do not have permission to access this page.
-            Please contact your administrator if you believe this is a mistake.
-        </p>
-
-        <div class="forbidden-actions">
-
-            <button
-                class="forbidden-button"
-                (click)="goHome()"
-            >
-                Back to Home
-            </button>
-
-            <button
-                class="forbidden-button-secondary"
-                (click)="goBack()"
-            >
-                Go Back
-            </button>
-
-        </div>
-
+<div class="container-layout">
+  <div class="error-card">
+    <h1 class="error-code">403</h1>
+    <h2 class="error-title">Access Forbidden</h2>
+    <p class="error-desc">
+      You do not have permission to access this page.<br>
+      Please contact your administrator if you believe this is a mistake.
+    </p>
+    <div class="error-actions">
+      <button class="btn-cyber-primary" (click)="goHome()">
+        Back to Home
+        <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </button>
+      <button class="btn-cyber-secondary" (click)="goBack()">
+        Go Back
+      </button>
     </div>
+  </div>
 </div>

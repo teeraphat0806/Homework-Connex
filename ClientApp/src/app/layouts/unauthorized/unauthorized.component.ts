@@ -19,7 +19,7 @@ export class Unauthorized {
   }
 
   public redirectToLogin() {
-    // this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
 }

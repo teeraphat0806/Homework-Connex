@@ -1,28 +1,18 @@
-<div class="flex flex-col items-center justify-center min-h-[90svh] px-6 py-12 bg-white">
-    <div class="w-full max-w-md flex flex-col items-center">
-        <!-- Error Image -->
-        <div class="w-full mb-10 transform transition hover:scale-105 duration-500">
-            <img src="assets/images/401.png" alt="Unauthorized" class="w-full h-auto drop-shadow-xl mx-auto" />
-        </div>
-
-        <!-- Text Content -->
-        <h1 class="text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-4 tracking-tight">
-            Access Denied
-        </h1>
-        
-        <p class="text-gray-500 text-lg mb-10 text-center leading-relaxed">
-            Please 
-            <span class="font-semibold text-[#2C83F8] cursor-pointer hover:underline decoration-2 transition-all">log in</span> 
-            to access this page.
-        </p>
-
-        <!-- Action Button -->
-        <button (click)="redirectToLogin()" 
-            class="group relative flex items-center justify-center px-10 py-3.5 bg-[#2C83F8] text-white rounded-2xl font-semibold text-lg shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
-            Go to Login
-            <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-        </button>
+<div class="container-layout">
+  <div class="error-card">
+    <h1 class="error-code">401</h1>
+    <h2 class="error-title">Access Denied</h2>
+    <p class="error-desc">
+      You are not authorized to view this page.<br>
+      Please log in to your account to continue.
+    </p>
+    <div class="error-actions">
+      <button class="btn-cyber-primary" (click)="redirectToLogin()">
+        Go to Login
+        <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </button>
     </div>
+  </div>
 </div>

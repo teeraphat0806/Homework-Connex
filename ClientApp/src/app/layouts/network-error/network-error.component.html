@@ -1,40 +1,21 @@
-<div class="network-error-container">
-    <div class="network-error-content">
-
-        <div class="network-error-image-wrapper">
-            <img
-                src="assets/images/network-error.png"
-                alt="Network Error"
-                class="network-error-image"
-            />
-        </div>
-
-        <h1 class="network-error-title">
-            Connection Lost
-        </h1>
-
-        <p class="network-error-description">
-            We are unable to connect to the server right now.
-            Please check your internet connection and try again.
-        </p>
-
-        <div class="network-error-actions">
-
-            <button
-                class="network-error-button"
-                (click)="reloadPage()"
-            >
-                Try Again
-            </button>
-
-            <button
-                class="network-error-button-secondary"
-                (click)="goHome()"
-            >
-                Back to Home
-            </button>
-
-        </div>
-
+<div class="container-layout">
+  <div class="error-card">
+    <h1 class="error-code">500</h1>
+    <h2 class="error-title">Connection Lost</h2>
+    <p class="error-desc">
+      We are unable to connect to the server right now.<br>
+      Please check your internet connection and try again.
+    </p>
+    <div class="error-actions">
+      <button class="btn-cyber-primary" (click)="reloadPage()">
+        Try Again
+        <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1 1 21.306 9H18" />
+        </svg>
+      </button>
+      <button class="btn-cyber-secondary" (click)="goHome()">
+        Back to Home
+      </button>
     </div>
+  </div>
 </div>

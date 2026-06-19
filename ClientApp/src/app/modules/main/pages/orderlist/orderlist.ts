@@ -187,13 +187,18 @@ export class OrderList implements OnInit {
         dataType: 'number',
         columnType: 'number',
       },
-
       {
         dataField: 'orderItemStatus',
         caption: 'Status',
         dataType: 'string',
         columnType: 'status',
         cellTemplate: 'statusTemplate',
+      },
+      {
+        dataField: 'rejectedReason',
+        caption: 'Rejected Reason',
+        dataType: 'string',
+        columnType: 'text',
       },
     ],
   };

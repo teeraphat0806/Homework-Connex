@@ -72,6 +72,7 @@ namespace Homework.Service.ImplementServices.ProductServices
             if (param.OnlyWithStock == true)
             {
                 productQuery = productQuery.Where(x => x.StockQty > 0);
+                productQuery = productQuery.Where(x => x.IsActive == true);
             }
 
             var loadOptions = param.LoadOptions ?? new DevExtreme.AspNet.Data.DataSourceLoadOptionsBase();

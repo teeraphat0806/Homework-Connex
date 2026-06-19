@@ -194,6 +194,12 @@ export class OrderListAdmin {
         columnType: 'status',
         cellTemplate: 'statusTemplate',
       },
+      {
+        dataField: 'rejectedReason',
+        caption: 'Rejected Reason',
+        dataType: 'string',
+        columnType: 'text',
+      },
     ],
   };
   gridConfig: DynamicGridConfig<OrderListRow> = {

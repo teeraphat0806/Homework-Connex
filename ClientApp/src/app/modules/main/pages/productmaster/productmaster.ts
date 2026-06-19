@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import DataSource from 'devextreme/data/data_source';
 import CustomStore from 'devextreme/data/custom_store';
@@ -30,6 +30,7 @@ import {
 import { DxTextBoxModule } from 'devextreme-angular';
 import { ProductStatus } from '../../../../core/enum';
 import { HomeworkRadioGroupComponent } from '../../../../shared/components/homework-radio-group/homework-radio-group.component';
+import { LoadingService } from '../../../../core/services/loading.service';
 export interface ProductMasterRow {
   productId: number;
   productCode: string;
@@ -63,6 +64,7 @@ export interface ProductMasterRow {
   styleUrl: './productmaster.css',
 })
 export class ProductMaster implements OnInit {
+  public loadingService = inject(LoadingService);
   @ViewChild(HomeworkDatagridComponent, { static: false })
   gridWrapper!: HomeworkDatagridComponent<any>;
   products!: DataSource;
@@ -243,6 +245,7 @@ export class ProductMaster implements OnInit {
         iconCode: 'delete',
         stylingMode: 'outlined',
         showDefaultLabel: false,
+
         onClick: (row) => this.deleteProduct(row),
       },
     ],

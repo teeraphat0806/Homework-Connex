@@ -198,14 +198,20 @@ namespace Homework.Service.ImplementServices.OrderServices
 
         private async Task<string> GenerateOrderNo(string todayStr)
         {
-            // นับจำนวนออเดอร์ที่มีเลขที่ขึ้นต้นด้วย ORD-YYYY-
-            var count = await _context.Orders
-                .Where(o => o.OrderNo.StartsWith($"ORD-{todayStr}-"))
-                .CountAsync();
-            // บวก 1 เพื่อให้ได้เลขที่ออเดอร์ถัดไป
-            var nextSeq = count + 1;
-            // คืนค่าเลขที่ออเดอร์
-            return $"ORD-{todayStr}-{nextSeq:D4}";
+            var prefix = $"ORD-{todayStr}-";
+            var lastOrderNo = await _context.Orders.Where(o => o.OrderNo.StartsWith(prefix)).OrderByDescending(o => o.OrderNo).Select(o => o.OrderNo).FirstOrDefaultAsync();
+            var nextSeq = 1;
+
+            if (!string.IsNullOrWhiteSpace(lastOrderNo))
+            {
+                var lastSeqText = lastOrderNo.Replace(prefix, "");
+                if (int.TryParse(lastSeqText, out var lastSeq))
+                {
+                    nextSeq = lastSeq + 1;
+                }
+            }
+
+            return $"{prefix}{nextSeq:D4}";
         }
         #region UpdateOrder
         public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel param, CustomError error)

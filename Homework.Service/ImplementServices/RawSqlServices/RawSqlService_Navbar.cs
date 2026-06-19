@@ -24,7 +24,7 @@ INNER JOIN ""RefPages"" p
     ON n.""PageCode"" = p.""PageCode""
 WHERE rp.""RoleCode"" = ANY(@Roles)
   AND p.""IsActive"" = TRUE
-ORDER BY n.""Seq"";
+ORDER BY n.""Seq""
 ";
 
             var rolesParam = new NpgsqlParameter("@Roles", NpgsqlDbType.Array | NpgsqlDbType.Varchar)

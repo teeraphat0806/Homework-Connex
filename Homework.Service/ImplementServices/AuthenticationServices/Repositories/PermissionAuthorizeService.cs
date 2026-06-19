@@ -3,6 +3,7 @@ using Homework.Domain.Interfaces.RawSqlServices;
 using Homework.Domain.Interfaces.Services.PermissionServices;
 using Homework.Domain.Interfaces.Services.UserServices;
 using Homework.Domain.RequestModels.PermissionRequestModels;
+using Homework.Domain.ViewModels.RawSql;
 
 namespace Homework.Service.ImplementServices.Authentications.Repositories
 {
@@ -19,7 +20,7 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
             _userContextService = userContextService;
         }
 
-        public async Task<bool> AuthorizeAsync(
+        public async Task<USP_Query_PermissionAccessViewModel> AuthorizeAsync(
             PermissionRequestModel param,
             CustomError error)
         {
@@ -50,8 +51,17 @@ namespace Homework.Service.ImplementServices.Authentications.Repositories
                     roleCode!
                 );
             
-            return permissionAccess != null &&
-                   permissionAccess.HasAccess;
+            if (permissionAccess == null)
+            {
+                return new USP_Query_PermissionAccessViewModel
+                {
+                    HasAccess = false,
+                    PageCode = param.PageCode,
+                    RoleCode = roleCode
+                };
+            }
+
+            return permissionAccess;
         }
     }
 }

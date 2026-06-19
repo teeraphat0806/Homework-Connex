@@ -17,15 +17,25 @@ import { PostLoginNavbarService } from '../../layouts/post-login-layout/services
 export class MainRedirectComponent implements OnInit {
   constructor(private navbarService: PostLoginNavbarService, private router: Router) {}
   ngOnInit() {
+    console.log('MainRedirectComponent: Loading menus from getNavbar...');
     this.navbarService.getNavbar().subscribe({
       next: (menus) => {
+        console.log('MainRedirectComponent menus:', menus);
         if (menus && menus.length > 0) {
-          this.router.navigate([`/main/${menus[0].pageUrl}`]);
+          let pageUrl = menus[0].pageUrl;
+          if (pageUrl.startsWith('/')) {
+            pageUrl = pageUrl.substring(1);
+          }
+          const targetUrl = `/main/${pageUrl}`;
+          console.log('MainRedirectComponent: Navigating to:', targetUrl);
+          this.router.navigate([targetUrl]);
         } else {
+          console.warn('MainRedirectComponent: No menus returned, redirecting to /forbidden');
           this.router.navigate(['/forbidden']);
         }
       },
-      error: () => {
+      error: (err) => {
+        console.error('MainRedirectComponent error loading menus:', err);
         this.router.navigate(['/forbidden']);
       }
     });

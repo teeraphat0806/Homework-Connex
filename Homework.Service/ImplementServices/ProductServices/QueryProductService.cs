@@ -109,5 +109,26 @@ namespace Homework.Service.ImplementServices.ProductServices
             return productDb;
         }
         #endregion
+
+        public async Task<List<ProductViewModel>> SearchProducts(SearchProductsRequestModel param, CustomError error)
+        {
+            var queryDb = _context.Products.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(param.Keyword))
+            {
+                queryDb = queryDb.Where(x => x.ProductCode.Contains(param.Keyword) || x.Name.Contains(param.Keyword));
+            }
+            var productList = await queryDb.Select(x => new ProductViewModel
+            {
+                ProductId = x.ProductId,
+                ProductCode = x.ProductCode,
+                Name = x.Name,
+                Description = x.Description,
+                CategoryId = x.ProductCategoryMapping.Select(m => m.CategoryId).FirstOrDefault(),
+                CategoryName = x.ProductCategoryMapping.Select(m => m.Category.Name).FirstOrDefault(),
+                CategoryIds = x.ProductCategoryMapping.Select(m => m.CategoryId).ToList(),
+            }).ToListAsync();
+            return productList;
+            //var orderedList = await _context.Orders.Include(x => x.OrderItems).ThenInclude(x => x.Product).Where(o=> o.OrderItems.Any(i => i.Product.Name.Contains(param.Keyword)|| i.Product.ProductCode.Contains(param.Keyword))).ToListAsync()
+        }
     }
 }

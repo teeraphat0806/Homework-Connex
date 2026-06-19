@@ -23,7 +23,7 @@ INNER JOIN ""PermissionPages"" pp
     ON rp.""PermissionCode"" = pp.""PermissionCode""
 WHERE rp.""RoleCode"" = @RoleCode
   AND pp.""PageCode"" = @PageCode
-LIMIT 1;
+LIMIT 1
 ";
 
             return await _context

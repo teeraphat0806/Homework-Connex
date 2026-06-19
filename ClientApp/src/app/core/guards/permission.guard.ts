@@ -14,10 +14,12 @@ export const permissionGuard:   CanActivateFn = (route: ActivatedRouteSnapshot, 
     }
     return postLoginNavbarService.getPrivPage(requiredPermission).pipe(
         map(response => {
+            console.log('permissionGuard checking pageCode:', requiredPermission, 'response:', response);
             if (response.hasAccess) {
                 guardService.setPermission(response.permissionCode);
                 return true;
             }
+            console.warn('Access denied for pageCode:', requiredPermission);
             router.navigate(['/forbidden']);
             return false;
         }

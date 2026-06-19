@@ -70,5 +70,12 @@ namespace Web.Homework.Controllers.Product
             var result = await _manageProductService.DeleteProduct(request, error);
             return Ok(result);
         }
-    }
+        [HttpPost("search")]
+        public async Task<IActionResult> SearchProducts([FromBody] SearchProductsRequestModel request)
+        {
+            var error = new CustomError();
+            var result = await _queryProductService.SearchProducts(request, error);
+            return Ok(result);
+        }
+}
 }

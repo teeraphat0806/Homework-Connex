@@ -438,6 +438,9 @@ export class OrderDetail implements OnInit, OnDestroy {
       })) as any[],
     };
 
+    const isSubmit = this.orderDetail.status === 'Submit';
+    this.loadingService.show();
+
     const apiCall =
       this.orderDetail.orderId === 0
         ? this.orderService.CreateOrder(orderUpdate)
@@ -446,25 +449,32 @@ export class OrderDetail implements OnInit, OnDestroy {
     apiCall.subscribe({
       next: (response) => {
         console.log('Order saved successfully:', response);
-        this.goBack();
+        const savedOrderId = response.orderId || this.orderDetail.orderId;
+
+        if (isSubmit) {
+          this.orderService.SubmitOrder(savedOrderId).subscribe({
+            next: (submitResponse) => {
+              console.log('Order submitted successfully:', submitResponse);
+              this.loadingService.hide();
+              this.goBack();
+            },
+            error: (submitErr) => {
+              console.error('Failed to submit order:', submitErr);
+              this.loadingService.hide();
+              alert('บันทึกสำเร็จ แต่เกิดข้อผิดพลาดในการส่งข้อมูล');
+            },
+          });
+        } else {
+          this.loadingService.hide();
+          this.goBack();
+        }
       },
       error: (err) => {
         console.error('Failed to save order:', err);
+        this.loadingService.hide();
+        alert(err?.error?.Message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
       },
     });
-
-    if (this.orderDetail.status == 'Submit') {
-      this.orderService.SubmitOrder(this.orderDetail.orderId).subscribe({
-        next: (response) => {
-          console.log('Order submitted successfully:', response);
-        },
-        error: (err) => {
-          console.error('Failed to submit order:', err);
-        },
-      });
-    }
-
-    this.goBack();
   }
 
   public saveDraft(): void {

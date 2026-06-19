@@ -100,10 +100,7 @@
         </homework-datagrid>
       </ng-template>
       <ng-template gridTemplate="statusTemplate" let-item>
-        <span
-          class="status-badge"
-          [ngClass]="'status-' + item.data.status.toLowerCase()"
-        >
+        <span class="status-badge" [ngClass]="'status-' + item.data.status.toLowerCase()">
           {{ item.data.status }}
         </span>
       </ng-template>
@@ -129,10 +126,7 @@
         } @else if (item.data.status === 'Pending') {
           <span class="waiting-confirm-text"> Waiting Confirm </span>
         } @else if (item.data.status === 'Rejected' || item.data.status === 'Cancelled') {
-          <span
-            class="status-badge"
-            [ngClass]="'status-' + item.data.status.toLowerCase()"
-          >
+          <span class="status-badge" [ngClass]="'status-' + item.data.status.toLowerCase()">
             {{ item.data.status }}
           </span>
         } @else if (item.data.status === 'Approved' || item.data.status === 'PartialReturned') {
@@ -162,7 +156,13 @@
     <ng-container modal-footer>
       <homework-button label="ยกเลิก" theme="Secondary" (onClick)="closeDeleteModal()">
       </homework-button>
-      <homework-button label="ตกลง" theme="Primary" (onClick)="deleteOrder()"> </homework-button>
+      <homework-button
+        label="ตกลง"
+        theme="Primary"
+        [buttonColor]="'#e53935'"
+        (onClick)="deleteOrder()"
+      >
+      </homework-button>
     </ng-container>
   </homework-confirmation-modal>
   <homework-confirmation-modal

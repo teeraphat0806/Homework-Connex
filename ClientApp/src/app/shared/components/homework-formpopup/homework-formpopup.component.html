@@ -27,7 +27,9 @@
       @if (showCancelButton) {
         <homework-button
           [label]="cancelButtonLabel"
-          theme="Secondary"
+          [theme]="cancelButtonTheme"
+          [buttonColor]="cancelButtonColor"
+          [textColor]="cancelButtonTextColor"
           (onClick)="closePopup()">
         </homework-button>
       }
@@ -35,7 +37,9 @@
       @if (showSaveButton) {
         <homework-button
           [label]="saveButtonLabel"
-          theme="Primary"
+          [theme]="saveButtonTheme"
+          [buttonColor]="saveButtonColor"
+          [textColor]="saveButtonTextColor"
           (onClick)="onSave()">
         </homework-button>
       }

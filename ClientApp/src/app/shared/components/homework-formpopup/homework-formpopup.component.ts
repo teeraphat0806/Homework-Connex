@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DxPopupModule } from 'devextreme-angular';
 import { HomeworkButton } from '../homework-button/homework-button.component';
 
+import { ButtonTheme } from '../../models/pages-design.model';
+
 @Component({
   selector: 'homework-formpopup',
   standalone: true,
@@ -17,6 +19,14 @@ export class HomeworkFormpopup {
   @Input() openButtonLabel = 'Open';
   @Input() saveButtonLabel = 'Save';
   @Input() cancelButtonLabel = 'Cancel';
+
+  @Input() saveButtonColor = '';
+  @Input() saveButtonTextColor: string | null = null;
+  @Input() saveButtonTheme: ButtonTheme = 'Primary';
+
+  @Input() cancelButtonColor = '';
+  @Input() cancelButtonTextColor: string | null = null;
+  @Input() cancelButtonTheme: ButtonTheme = 'Secondary';
 
   @Input() showOpenButton = true;
   @Input() showSaveButton = true;

@@ -156,6 +156,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 {
                     IsSuccess = true,
                     Message = "Order created successfully",
+                    OrderId = order.OrderId
                 };
             }
             catch
@@ -418,6 +419,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 {
                     IsSuccess = true,
                     Message = "อัปเดตออเดอร์เรียบร้อยแล้ว",
+                    OrderId = order.OrderId
                 };
             }
             catch

@@ -36,24 +36,27 @@ namespace Homework.Service.ImplementServices.OrderServices
                 error.AddError("Request", "Request ไม่ถูกต้อง");
                 error.ThrowIfError();
             }
-
+            // ValidateOrder
             ValidateOrder(param, error);
             error.ThrowIfError();
 
+            // ดึง UserId จาก Token
             var userIdText = _userContextService.GetUserIdFromToken();
-
             long? userId = long.TryParse(userIdText, out long parsedUserId)
                 ? parsedUserId
                 : null;
 
+            // Start Transaction
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
+                // สร้างเลขที่ออเดอร์ GenerateOrderNo รูปแบบ: ORD-YYYY-Sequence
                 var yearStr = timeStamp.ToString("yyyy");
                 var orderNo = await GenerateOrderNo(yearStr);
 
+                // สร้างออเดอร์ใหม่ในสถานะ Draft
                 var order = new Orders
                 {
                     OrderNo = orderNo,
@@ -64,17 +67,20 @@ namespace Homework.Service.ImplementServices.OrderServices
                     TotalAmount = 0,
                     OrderItems = new List<OrderItems>()
                 };
-
+                // วนลูปสินค้าทุกรายการใน OrderItems
                 foreach (var item in param.OrderItems)
                 {
+                    // ค้นหาสินค้า
                     var product = await _context.Products
                         .FirstOrDefaultAsync(x => x.ProductId == item.ProductId);
+                    
 
                     ValidateOrderItem(error, item, product);
                     error.ThrowIfError();
 
-                    var price = product.Price;
 
+                    var price = product.Price;
+                    // สร้าง OrderItems
                     var orderItem = new OrderItems
                     {
                         ProductId = product.ProductId,
@@ -82,8 +88,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                         Price = price,
                         OrderItemStatus = EnumOrderItemStatus.Draft
                     };
-
+                    // เพิ่ม OrderItems เข้าไปในออเดอร์
                     order.OrderItems.Add(orderItem);
+                    // คำนวณราคารวม
                     order.TotalAmount += item.Qty * price;
                 }
 
@@ -92,6 +99,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 // Save รอบแรก เพื่อให้ได้ OrderId และ OrderItemId จริง
                 await _context.SaveChangesAsync();
 
+                // บันทึก Log Order
                 var logOrder = new LogOrders
                 {
                     OrderId = order.OrderId,
@@ -106,8 +114,10 @@ namespace Homework.Service.ImplementServices.OrderServices
 
                 _context.LogOrders.Add(logOrder);
 
+                // วนลูปสินค้าทุกรายการใน OrderItems
                 foreach (var orderItem in order.OrderItems)
                 {
+                    // สร้าง Log OrderItems
                     var logOrderItem = new LogOrderItems
                     {
                         OrderItemId = orderItem.OrderItemId,
@@ -120,7 +130,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                         Action = "Create",
                         LogTime = timeStamp
                     };
-
+                    
+                    //สร้างธุรกรรมตัดสต็อก ProductStockTransactions
+                    //ประเภท: Issue, สถานะ: Pending
                     var stockTransaction = new ProductStockTransactions
                     {
                         ProductId = orderItem.ProductId ?? 0,
@@ -132,11 +144,11 @@ namespace Homework.Service.ImplementServices.OrderServices
                         CreatedByUserId = userId,
                         CreatedTime = timeStamp
                     };
-
+                    // บันทึก Log OrderItems และ ProductStockTransactions
                     _context.LogOrderItems.Add(logOrderItem);
                     _context.ProductStockTransactions.Add(stockTransaction);
                 }
-
+                // บันทึกข้อมูลลงฐานข้อมูล
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -185,13 +197,16 @@ namespace Homework.Service.ImplementServices.OrderServices
 
         private async Task<string> GenerateOrderNo(string todayStr)
         {
+            // นับจำนวนออเดอร์ที่มีเลขที่ขึ้นต้นด้วย ORD-YYYY-
             var count = await _context.Orders
                 .Where(o => o.OrderNo.StartsWith($"ORD-{todayStr}-"))
                 .CountAsync();
+            // บวก 1 เพื่อให้ได้เลขที่ออเดอร์ถัดไป
             var nextSeq = count + 1;
+            // คืนค่าเลขที่ออเดอร์
             return $"ORD-{todayStr}-{nextSeq:D4}";
         }
-
+        #region UpdateOrder
         public async Task<OrderManageViewModel> UpdateOrder(UpdateOrderRequestModel param, CustomError error)
         {
             var timeStamp = DateTime.UtcNow;
@@ -199,10 +214,12 @@ namespace Homework.Service.ImplementServices.OrderServices
             ValidateUpdateOrder(param, error,timeStamp);
             error.ThrowIfError();
 
+            // สร้าง Transaction
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
+                // ดึงข้อมูลออเดอร์
                 var order = await _context.Orders.Include(x => x.OrderItems).FirstOrDefaultAsync(x => x.OrderId == param.OrderId);
 
                 if (order == null)
@@ -216,11 +233,12 @@ namespace Homework.Service.ImplementServices.OrderServices
                     error.AddError("Order", "แก้ไขได้เฉพาะออเดอร์ Draft หรือ Pending เท่านั้น");
                     error.ThrowIfError();
                 }
-
+                
+                // ดึงข้อมูลผู้ใช้
                 var userIdText = _userContextService.GetUserIdFromToken();
-
                 long? userId = long.TryParse(userIdText, out long parsedUserId) ? parsedUserId : null;
 
+                // อัปเดตข้อมูลออเดอร์
                 order.OrderDate = param.OrderDate ?? order.OrderDate;
                 order.ModifiedByUserId = userId;
                 order.ModifiedTime = timeStamp;
@@ -232,7 +250,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                         x.TransactionType == EnumStockTransactionType.Issue &&
                         x.Status == EnumStockTransactionStatus.Pending)
                     .ToListAsync();
-
+                // เปลี่ยนสถานะ stock transaction เดิมเป็น Cancelled
                 foreach (var oldTransaction in oldStockTransactions)
                 {
                     oldTransaction.Status = EnumStockTransactionStatus.Cancelled;
@@ -241,19 +259,24 @@ namespace Homework.Service.ImplementServices.OrderServices
 
                 // 2. หา item ที่ถูกลบออกจาก request
                 var requestItemIds = param.OrderItems.Where(x => x.OrderItemId.HasValue).Select(x => x.OrderItemId!.Value).ToList();
-
+                // ลบ item ที่ถูกลบออกจาก request โดยการดึงข้อมูลที่มี OrderItemId ที่ไม่อยู่ใน requestItemIds
                 var deleteItems = order.OrderItems.Where(x => !requestItemIds.Contains(x.OrderItemId)).ToList();
+                // เก็บ OrderItemId ที่ถูกลบ
                 var deleteItemIds = deleteItems.Select(x => x.OrderItemId).ToList();
+                // ลบ stock transaction ที่เกี่ยวข้องกับ OrderItemId ที่ถูกลบ
                 var deleteStockTransactions = await _context.ProductStockTransactions
                     .Where(x => x.OrderItemId.HasValue &&
                                 deleteItemIds.Contains(x.OrderItemId.Value))
                     .ToListAsync();
+                // ลบ log order ที่เกี่ยวข้องกับ OrderItemId ที่ถูกลบ
                 var deleteLogItems = await _context.LogOrderItems.Where(x => deleteItemIds.Contains(x.OrderItemId)).ToListAsync();
 
+                // ลบข้อมูลที่เกี่ยวข้อง
                 _context.ProductStockTransactions.RemoveRange(deleteStockTransactions);
                 _context.LogOrderItems.RemoveRange(deleteLogItems);
                 _context.OrderItems.RemoveRange(deleteItems);
 
+                // เพิ่ม log order
                 var logOrder = new LogOrders
                 {
                     OrderId = order.OrderId,
@@ -271,22 +294,30 @@ namespace Homework.Service.ImplementServices.OrderServices
                 // 3. Sync OrderItems
                 foreach (var item in param.OrderItems)
                 {
+                    // ดึงข้อมูลสินค้า
                     var product = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == item.ProductId);
 
+                    // ตรวจสอบว่าสินค้ามีอยู่จริงหรือไม่
                     if (product == null)
                     {
                         error.AddError("ProductId", $"ไม่พบสินค้า ProductId: {item.ProductId}");
                         error.ThrowIfError();
                     }
 
+                    // ตรวจสอบว่าสินค้าถูกเปิดใช้งานหรือไม่
                     if (product.IsActive == false)
                     {
                         error.AddError("ProductId", $"สินค้านี้ถูกปิดใช้งาน ProductId: {item.ProductId}");
                         error.ThrowIfError();
                     }
 
+
+
+
+                    //  ดึงข้อมูล OrderItem โดยใช้ OrderItemId ที่ส่งมา
                     if (item.OrderItemId.HasValue)
                     {
+                        //  หา OrderItem ที่มี OrderItemId ที่ส่งมา
                         var existingItem = order.OrderItems.FirstOrDefault(x => x.OrderItemId == item.OrderItemId.Value);
 
                         if (existingItem == null)
@@ -295,12 +326,13 @@ namespace Homework.Service.ImplementServices.OrderServices
 
                             error.ThrowIfError();
                         }
-
+                        //  อัปเดตข้อมูล OrderItem
                         existingItem.ProductId = product.ProductId;
                         existingItem.Qty = item.Qty;
                         existingItem.Price = product.Price;
                         existingItem.OrderItemStatus = order.Status == EnumOrderStatus.Draft ? EnumOrderItemStatus.Draft : EnumOrderItemStatus.Pending;
 
+                        //  เพิ่ม log order item
                         var logOrderItem = new LogOrderItems
                         {
                             OrderItemId = existingItem.OrderItemId,
@@ -316,6 +348,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                         _context.LogOrderItems.Add(logOrderItem);
 
                     }
+                    // ไม่พบ OrderItemId  เป็นการเพิ่มรายการสินค้าใหม่
                     else
                     {
                         var newItem = new OrderItems
@@ -352,15 +385,17 @@ namespace Homework.Service.ImplementServices.OrderServices
                 // 5. Insert ProductStockTransactions ใหม่ทั้งหมดจาก OrderItems ปัจจุบัน
                 var currentOrderItems = await _context.OrderItems.Where(x => x.OrderId == order.OrderId).ToListAsync();
 
+                //  เพิ่มรายการ ProductStockTransactions ใหม่
                 foreach (var orderItem in currentOrderItems)
                 {
+                    //  ตรวจสอบว่า ProductId ไม่เป็นค่าว่าง
                     if (!orderItem.ProductId.HasValue)
                     {
                         error.AddError("ProductId", $"ProductId ของ OrderItemId {orderItem.OrderItemId} เป็นค่าว่าง");
 
                         error.ThrowIfError();
                     }
-
+                    //  เพิ่มรายการ ProductStockTransactions ใหม่
                     _context.ProductStockTransactions.Add(new ProductStockTransactions
                     {
                         ProductId = orderItem.ProductId.Value,
@@ -391,7 +426,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
-
+        #endregion
         private static void ValidateUpdateOrder(UpdateOrderRequestModel param, CustomError error,DateTime timeStamp)
         {
             if (param.OrderId == null)
@@ -422,25 +457,29 @@ namespace Homework.Service.ImplementServices.OrderServices
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // ถ้าออเดอร์เป็นสถานะ Draft, Pending, Rejected จะเป็นการลบออเดอร์จริงๆ และ ลบ ProductStockTransactions
                 if (order.Status == EnumOrderStatus.Draft || order.Status == EnumOrderStatus.Pending || order.Status == EnumOrderStatus.Rejected)
                 {
+                    //  ลบรายการ ProductStockTransactions
                     var stockTransactions = await _context.ProductStockTransactions.Where(x => x.OrderId == order.OrderId).ToListAsync();
 
                     _context.ProductStockTransactions.RemoveRange(stockTransactions);
                     _context.OrderItems.RemoveRange(order.OrderItems);
                     _context.Orders.Remove(order);
                 }
+                // ถ้าออเดอร์เป็นสถานะ Approved, Cancelled จะเป็นการเปลี่ยนสถานะของ Order และ OrderItems เป็น Cancelled และ เปลี่ยนสถานะของ ProductStockTransactions เป็น Cancelled ที่อนุมัติแล้ว
                 else if (order.Status == EnumOrderStatus.Approved || order.Status == EnumOrderStatus.Cancelled)
                 {
                     // ถ้าออเดอร์ถูกอนุมัติแล้ว ให้เปลี่ยนสถานะเป็น Cancelled แทนการลบ
                     order.Status = EnumOrderStatus.Cancelled;
                     _context.Orders.Update(order);
                     order.ModifiedTime = timeStamp;
+                    //  เปลี่ยนสถานะของ OrderItems เป็น Cancelled
                     foreach (var item in order.OrderItems)
                     {
                         item.OrderItemStatus = EnumOrderItemStatus.Cancelled;
                     }
-
+                    //  เปลี่ยนสถานะของ ProductStockTransactions เป็น Cancelled ที่อนุมัติแล้ว
                     var approvedTransactions = await _context.ProductStockTransactions
                         .Where(x =>
                             x.OrderId == order.OrderId &&
@@ -473,38 +512,45 @@ namespace Homework.Service.ImplementServices.OrderServices
         }
         
         #endregion
+
+        #region approve order
         public async Task<OrderManageViewModel> ApproveOrder(ApproveOrderRequestModel param, CustomError error)
         {
+            // หาออเดอร์ที่ต้องการอนุมัติ
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == param.OrderId);
             if (order == null)
             {
                 error.AddError("Order", "ไม่พบออเดอร์");
                 error.ThrowIfError();
             }
+            // ตรวจสอบว่าออเดอร์เป็นสถานะ Pending หรือไม่
             if (order.Status != EnumOrderStatus.Pending)
             {
                 error.AddError("Order", "อนุมัติได้เฉพาะออเดอร์ที่มีสถานะ Pending เท่านั้น");
                 error.ThrowIfError();
             }
+            // ดึงข้อมูลผู้ใช้ที่อนุมัติ
             var userIdText = _userContextService.GetUserIdFromToken();
             long? userId = long.TryParse(userIdText, out long parsedUserId) ? parsedUserId : null;
             var timeStamp = DateTime.UtcNow;
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
-            {
+            {// วนลูปหา order , orderItem หรือ productStockTransaction ที่ต้องการอนุมัติ
                 if (param.Items == null || !param.Items.Any())
                 {
-                    // ===== Scenario A: Approve All (Fallback) =====
+                    // ===== สถานการณ์ที่ 1: ไม่ส่งรายการเข้ามาเลย (Approve All Fallback) =====
+                    // เปลี่ยนสถานะออเดอร์เป็น Approved
                     order.Status = EnumOrderStatus.Approved;
                     order.ModifiedByUserId = userId;
                     order.ModifiedTime = timeStamp;
-
+                    // วนลูปหา orderItem ที่ต้องการอนุมัติ เปลี่ยนสถานะเป็น Approved
                     foreach (var item in order.OrderItems)
                     {
+                        // เปลี่ยนสถานะ orderItem เป็น Approved
                         item.OrderItemStatus = EnumOrderItemStatus.Approved;
                         item.ApprovedByUserId = userId;
                         item.ApprovedTime = timeStamp;
-
+                        // เพิ่มข้อมูลลงใน logOrderItems
                         var logOrderItem = new LogOrderItems
                         {
                             OrderItemId = item.OrderItemId,
@@ -521,14 +567,14 @@ namespace Homework.Service.ImplementServices.OrderServices
                         };
                         _context.LogOrderItems.Add(logOrderItem);
                     }
-
+                    // วนลูปหา ProductStockTransactions ที่ต้องการอนุมัติ เปลี่ยนสถานะเป็น Approved
                     var stockTransactions = await _context.ProductStockTransactions
                         .Where(x =>
                             x.OrderId == order.OrderId &&
                             x.TransactionType == EnumStockTransactionType.Issue &&
                             x.Status == EnumStockTransactionStatus.Pending)
                         .ToListAsync();
-
+                    // เปลี่ยนสถานะ ProductStockTransactions เป็น Approved
                     foreach (var tx in stockTransactions)
                     {
                         tx.Status = EnumStockTransactionStatus.Approved;
@@ -537,14 +583,16 @@ namespace Homework.Service.ImplementServices.OrderServices
                 }
                 else
                 {
-                    // ===== Scenario B: Individual Decisions =====
+                    // ===== สถานการณ์ที่ 2: ส่งรายการ orderItem เข้ามาเลย (Individual Decisions) =====
+                    // วนลูปหา orderItem ที่ต้องการอนุมัติ เปลี่ยนสถานะเป็น Approved
                     foreach (var item in order.OrderItems)
                     {
+                        // หาข้อมูลการตัดสินใจในรายการ orderItem ที่ส่งเข้ามา
                         var decision = param.Items.FirstOrDefault(x => x.OrderItemId == item.OrderItemId);
-
+                        // ถ้าไม่พบข้อมูลการตัดสินใจ หรือพบข้อมูลการตัดสินใจเป็น Approved ให้ดำเนินการต่อ
                         if (decision == null || decision.Status == EnumOrderItemStatus.Approved)
                         {
-                            // Validate Qty if provided
+                           
                             if (decision != null && decision.Qty.HasValue)
                             {
                                 var newQty = decision.Qty.Value;
@@ -553,6 +601,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                                     error.AddError("Qty", $"จำนวนสินค้าต้องอย่างน้อย 1 ชิ้น (OrderItemId: {item.OrderItemId}) หากต้องการยกเลิกให้เลือกสถานะ Rejected");
                                     error.ThrowIfError();
                                 }
+                               // ถ้ามีข้อมูลจำนวนสินค้ามาแล้วจำนวนต้องน้อยกว่าจำนวนสินค้าเดิม
                                 if (newQty > item.Qty)
                                 {
                                     error.AddError("Qty", $"ไม่สามารถเพิ่มจำนวนได้ (จำนวนเดิม: {item.Qty}, ขออนุมัติใหม่: {newQty})");
@@ -565,13 +614,11 @@ namespace Homework.Service.ImplementServices.OrderServices
                             item.ApprovedByUserId = userId;
                             item.ApprovedTime = timeStamp;
 
-                            var tx = await _context.ProductStockTransactions
-                                .FirstOrDefaultAsync(x =>
-                                    x.OrderItemId == item.OrderItemId &&
-                                    x.TransactionType == EnumStockTransactionType.Issue &&
-                                    x.Status == EnumStockTransactionStatus.Pending);
+                            // ค้นหา ProductStockTransactions ที่เกี่ยวข้อง
+                            var tx = await _context.ProductStockTransactions.FirstOrDefaultAsync(x => x.OrderItemId == item.OrderItemId && x.TransactionType == EnumStockTransactionType.Issue && x.Status == EnumStockTransactionStatus.Pending);
                             if (tx != null)
                             {
+                                // ถ้ามีการส่งจำนวน Qty มาให้ update 
                                 if (decision != null && decision.Qty.HasValue)
                                 {
                                     tx.Qty = decision.Qty.Value;
@@ -579,7 +626,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                                 tx.Status = EnumStockTransactionStatus.Approved;
                                 tx.Remark = "Approved by approve order";
                             }
-
+                            //  สร้าง LogOrderItems
                             var logOrderItem = new LogOrderItems
                             {
                                 OrderItemId = item.OrderItemId,
@@ -596,6 +643,7 @@ namespace Homework.Service.ImplementServices.OrderServices
                             };
                             _context.LogOrderItems.Add(logOrderItem);
                         }
+                        //  ถ้าพบข้อมูลการตัดสินใจเป็น Rejected เปลี่ยนสถานะ OrderItem เป็น Rejected และ Update LogOrderItems รวมถึง ProductStockTransactions 
                         else if (decision.Status == EnumOrderItemStatus.Rejected)
                         {
                             item.OrderItemStatus = EnumOrderItemStatus.Rejected;
@@ -603,11 +651,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                             item.RejectedTime = timeStamp;
                             item.RejectedReason = decision.RejectedReason;
 
-                            var tx = await _context.ProductStockTransactions
-                                .FirstOrDefaultAsync(x =>
-                                    x.OrderItemId == item.OrderItemId &&
-                                    x.TransactionType == EnumStockTransactionType.Issue &&
-                                    x.Status == EnumStockTransactionStatus.Pending);
+                            var tx = await _context.ProductStockTransactions.FirstOrDefaultAsync(x => x.OrderItemId == item.OrderItemId && x.TransactionType == EnumStockTransactionType.Issue && x.Status == EnumStockTransactionStatus.Pending);
+                            // ถ้ามีข้อมูล ProductStockTransactions เปลี่ยนสถานะเป็น Cancelled
                             if (tx != null)
                             {
                                 tx.Status = EnumStockTransactionStatus.Cancelled;
@@ -679,7 +724,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
+        #endregion
     
+        #region RejectOrder
         public async Task<OrderManageViewModel> RejectOrder(RejectOrderRequestModel param, CustomError error)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == param.OrderId);
@@ -744,6 +791,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
+        #endregion
+        
+        #region CancelOrder
         public async Task<OrderManageViewModel> CancelOrder(CancelOrderRequestModel param, CustomError error)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == param.OrderId);
@@ -808,7 +858,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
+        #endregion
 
+        #region ReturnOrder
         public async Task<OrderManageViewModel> ReturnOrder(ReturnOrderRequestModel param,CustomError error)
         {
             var timeStamp = DateTime.UtcNow;
@@ -965,6 +1017,9 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
+        #endregion
+
+        #region SubmitOrder
         public async Task<OrderManageViewModel> SubmitOrder(SubmitOrderRequestModel param, CustomError error)
         {
             var timeStamp = DateTime.UtcNow;
@@ -1056,6 +1111,8 @@ namespace Homework.Service.ImplementServices.OrderServices
                 throw;
             }
         }
+        #endregion
+
         // Validate การคืนสินค้า
         private static void ValidateReturnOrderItem(CustomError error, ReturnOrderItemRequestModel requestItem, OrderItems? orderItem)
         {
